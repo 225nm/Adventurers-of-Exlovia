@@ -1,93 +1,153 @@
-# Adventurers of Exlovia
+# Phaser Vite Template
+
+This is a Phaser 3 project template that uses Vite for bundling. It supports hot-reloading for quick development workflow and includes scripts to generate production-ready builds.
+
+**[This Template is also available as a TypeScript version.](https://github.com/phaserjs/template-vite-ts)**
+
+### Versions
+
+This template has been updated for:
+
+- [Phaser 3.90.0](https://github.com/phaserjs/phaser)
+- [Vite 6.3.1](https://github.com/vitejs/vite)
+
+![screenshot](screenshot.png)
+
+## Requirements
+
+[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm install` | Install project dependencies |
+| `npm run dev` | Launch a development web server |
+| `npm run build` | Create a production build in the `dist` folder |
+| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
+| `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
 
 
+## Writing Code
 
-## Getting started
+After cloning the repo, run `npm install` from your project directory. Then, you can start the local development server by running `npm run dev`.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The local development server runs on `http://localhost:8080` by default. Please see the Vite documentation if you wish to change this, or add SSL support.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Once the server is running you can edit any of the files in the `src` folder. Vite will automatically recompile your code and then reload the browser.
 
-## Add your files
+## Template Project Structure
 
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+We have provided a default project structure to get you started. This is as follows:
 
+| Path                         | Description                                                |
+|------------------------------|------------------------------------------------------------|
+| `index.html`                 | A basic HTML page to contain the game.                     |
+| `public/assets`              | Game sprites, audio, etc. Served directly at runtime.      |
+| `public/style.css`           | Global layout styles.                                      |
+| `src/main.js`                | Application bootstrap.                                     |
+| `src/game`                   | Folder containing the game code.                           |
+| `src/game/main.js`           | Game entry point: configures and starts the game.          |
+| `src/game/scenes`            | Folder with all Phaser game scenes.                        | 
+
+## Handling Assets
+
+Vite supports loading assets via JavaScript module `import` statements.
+
+This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
+
+```js
+import logoImg from './assets/logo.png'
 ```
-cd existing_repo
-git remote add origin https://gitlab.lnu.se/1dv613/student/eb225nm/workspace/adventurers-of-exlovia.git
-git branch -M main
-git push -uf origin main
+
+To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
+
+```js
+preload ()
+{
+    //  This is an example of an imported bundled image.
+    //  Remember to import it at the top of this file
+    this.load.image('logo', logoImg);
+
+    //  This is an example of loading a static image
+    //  from the public/assets folder:
+    this.load.image('background', 'assets/bg.png');
+}
 ```
 
-## Integrate with your tools
+When you issue the `npm run build` command, all static assets are automatically copied to the `dist/assets` folder.
 
-* [Set up project integrations](https://gitlab.lnu.se/1dv613/student/eb225nm/workspace/adventurers-of-exlovia/-/settings/integrations)
+## Deploying to Production
 
-## Collaborate with your team
+After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
 
-## Test and Deploy
+## Customizing the Template
 
-Use the built-in continuous integration in GitLab.
+### Vite
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+If you want to customize your build, such as adding plugin (i.e. for loading CSS or fonts), you can modify the `vite/config.*.mjs` file for cross-project changes, or you can modify and/or create new configuration files and target them in specific npm tasks inside of `package.json`. Please see the [Vite documentation](https://vitejs.dev/) for more information.
 
-***
+## About log.js
 
-# Editing this README
+If you inspect our node scripts you will see there is a file called `log.js`. This file makes a single silent API call to a domain called `gryzor.co`. This domain is owned by Phaser Studio Inc. The domain name is a homage to one of our favorite retro games.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+We send the following 3 pieces of data to this API: The name of the template being used (vue, react, etc). If the build was 'dev' or 'prod' and finally the version of Phaser being used.
 
-## Suggestions for a good README
+At no point is any personal data collected or sent. We don't know about your project files, device, browser or anything else. Feel free to inspect the `log.js` file to confirm this.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Why do we do this? Because being open source means we have no visible metrics about which of our templates are being used. We work hard to maintain a large and diverse set of templates for Phaser developers and this is our small anonymous way to determine if that work is actually paying off, or not. In short, it helps us ensure we're building the tools for you.
 
-## Name
-Choose a self-explaining name for your project.
+However, if you don't want to send any data, you can use these commands instead:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Dev:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```bash
+npm run dev-nolog
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Build:
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+npm run build-nolog
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Or, to disable the log entirely, simply delete the file `log.js` and remove the call to it in the `scripts` section of `package.json`:
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Before:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```json
+"scripts": {
+    "dev": "node log.js dev & dev-template-script",
+    "build": "node log.js build & build-template-script"
+},
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+After:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```json
+"scripts": {
+    "dev": "dev-template-script",
+    "build": "build-template-script"
+},
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## Join the Phaser Community!
 
-## License
-For open source projects, say how it is licensed.
+We love to see what developers like you create with Phaser! It really motivates us to keep improving. So please join our community and show-off your work 😄
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+**Visit:** The [Phaser website](https://phaser.io) and follow on [Phaser Twitter](https://twitter.com/phaser_)<br />
+**Play:** Some of the amazing games [#madewithphaser](https://twitter.com/search?q=%23madewithphaser&src=typed_query&f=live)<br />
+**Learn:** [API Docs](https://newdocs.phaser.io), [Support Forum](https://phaser.discourse.group/) and [StackOverflow](https://stackoverflow.com/questions/tagged/phaser-framework)<br />
+**Discord:** Join us on [Discord](https://discord.gg/phaser)<br />
+**Code:** 2000+ [Examples](https://labs.phaser.io)<br />
+**Read:** The [Phaser World](https://phaser.io/community/newsletter) Newsletter<br />
+
+Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
+
+The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
+
+All rights reserved.
