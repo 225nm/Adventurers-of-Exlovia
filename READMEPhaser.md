@@ -1,15 +1,12 @@
-
-
 [Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
 
 ## Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Launch a development web server |
+| Command         | Description                                    |
+| --------------- | ---------------------------------------------- |
+| `npm install`   | Install project dependencies                   |
+| `npm run dev`   | Launch a development web server                |
 | `npm run build` | Create a production build in the `dist` folder |
-
 
 ## Writing Code
 
@@ -23,15 +20,15 @@ Once the server is running you can edit any of the files in the `src` folder. Vi
 
 We have provided a default project structure to get you started. This is as follows:
 
-| Path                         | Description                                                |
-|------------------------------|------------------------------------------------------------|
-| `index.html`                 | A basic HTML page to contain the game.                     |
-| `public/assets`              | Game sprites, audio, etc. Served directly at runtime.      |
-| `public/style.css`           | Global layout styles.                                      |
-| `src/main.js`                | Application bootstrap.                                     |
-| `src/game`                   | Folder containing the game code.                           |
-| `src/game/main.js`           | Game entry point: configures and starts the game.          |
-| `src/game/scenes`            | Folder with all Phaser game scenes.                        | 
+| Path               | Description                                           |
+| ------------------ | ----------------------------------------------------- |
+| `index.html`       | A basic HTML page to contain the game.                |
+| `public/assets`    | Game sprites, audio, etc. Served directly at runtime. |
+| `public/style.css` | Global layout styles.                                 |
+| `src/main.js`      | Application bootstrap.                                |
+| `src/game`         | Folder containing the game code.                      |
+| `src/game/main.js` | Game entry point: configures and starts the game.     |
+| `src/game/scenes`  | Folder with all Phaser game scenes.                   |
 
 ## Handling Assets
 
@@ -46,15 +43,15 @@ import logoImg from './assets/logo.png'
 To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
 
 ```js
-preload ()
+preload()
 {
-    //  This is an example of an imported bundled image.
-    //  Remember to import it at the top of this file
-    this.load.image('logo', logoImg);
+  //  This is an example of an imported bundled image.
+  //  Remember to import it at the top of this file
+  this.load.image('logo', logoImg)
 
-    //  This is an example of loading a static image
-    //  from the public/assets folder:
-    this.load.image('background', 'assets/bg.png');
+  //  This is an example of loading a static image
+  //  from the public/assets folder:
+  this.load.image('background', 'assets/bg.png')
 }
 ```
 
@@ -64,7 +61,7 @@ When you issue the `npm run build` command, all static assets are automatically 
 
 After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
 
-In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
+In order to deploy your game, you will need to upload _all_ of the contents of the `dist` folder to a public facing web server.
 
 ## Customizing the Template
 

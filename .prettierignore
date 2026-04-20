@@ -1,0 +1,5 @@
+node_modules
+dist
+package-lock.json
+src/phaser.min.js
+public/assets/map/map.json

@@ -4,7 +4,6 @@
 
 This is a turn-based roleplaying game built using Phaser initially following this tutorial: https://gamedevacademy.org/how-to-create-a-turn-based-rpg-game-in-phaser-3-part-1/. All assets and code not written by me are publically sourced and available to be freely used under CC or otherwise properly credited.
 
-
 ## Installation
 
 Clone the project.
