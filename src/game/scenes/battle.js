@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { PlayerCharacter, Enemy, Unit } from '../units'
+import { warriorSkills } from '../skills/warriorSkills'
+import { mageSkills } from '../skills/mageSkills'
 
 export var BattleScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -15,6 +17,7 @@ export var BattleScene = new Phaser.Class({
     this.sys.events.on('wake', this.startBattle, this)
   },
   startBattle: function () {
+    // (scene, x, y, texture, frame, type, hp, damage)
     // player character - warrior
     var warrior = new PlayerCharacter(
       this,
@@ -26,10 +29,12 @@ export var BattleScene = new Phaser.Class({
       100,
       20
     )
+    warrior.skills = warriorSkills
     this.add.existing(warrior)
 
     // player character - mage
     var mage = new PlayerCharacter(this, 250, 100, 'player', 4, 'Mage', 80, 8)
+    mage.skills = mageSkills
     this.add.existing(mage)
 
     var dragonblue = new Enemy(
@@ -118,8 +123,27 @@ export var BattleScene = new Phaser.Class({
   },
   // when the player have selected the enemy to be attacked
   receivePlayerSelection: function (action, target) {
+    let attacker = this.units[this.index]
+    let victim = this.enemies[target]
+
     if (action == 'attack') {
-      this.units[this.index].attack(this.enemies[target])
+      attacker.attack(victim)
+    }
+    else {
+        // AI suggested syntax
+        let skill = this.units[this.index].skills.find(s => s.name === action)
+
+        if (skill) {
+            this.units[this.index].damage = skill.damage
+            let oldDamage = attacker.damage
+            attacker.damage = skill.damage
+            attacker.attack(victim)
+
+            this.events.emit('Message', attacker.type + ' uses ' + skill.name + ' on ' + victim.type + ' for ' + skill.damage + ' damage!')
+
+            // resets the damage value after skill usage
+            attacker.damage = oldDamage
+        }
     }
     // next turn in 3 seconds
     this.time.addEvent({
@@ -143,6 +167,9 @@ export var BattleScene = new Phaser.Class({
     this.scene.switch('WorldScene')
   },
 })
+
+// ----------------------------------- MENUS ---------------------------------------
+// Maybe move to separate module later
 
 var MenuItem = new Phaser.Class({
   Extends: Phaser.GameObjects.Text,
@@ -243,8 +270,28 @@ var Menu = new Phaser.Class({
     }
     this.menuItemIndex = 0
   },
+
+  remapSkills: function (skills) {
+    this.clear()
+    for (let i = 0; i < skills.length; i++) {
+        let skill = skills[i]
+        this.addMenuItem(skill.name)
+        }
+}
 })
 
+ // Skills menu
+    let SkillsMenu = new Phaser.Class({
+  Extends: Menu,
+  initialize: function SkillsMenu(x, y, scene) {
+    Menu.call(this, x, y, scene);
+  },
+
+      confirm: function () {
+    let skillName = this.menuItems[this.menuItemIndex].text;
+    this.scene.events.emit('SkillSelected', skillName);
+      }
+    })
 var HeroesMenu = new Phaser.Class({
   Extends: Menu,
 
@@ -259,10 +306,15 @@ var ActionsMenu = new Phaser.Class({
   initialize: function ActionsMenu(x, y, scene) {
     Menu.call(this, x, y, scene)
     this.addMenuItem('Attack')
+    this.addMenuItem('Skills')
   },
   confirm: function () {
     // we select an action and go to the next menu and choose from the enemies to apply the action
-    this.scene.events.emit('SelectedAction')
+    if (this.menuItemIndex == 0) {
+      this.scene.events.emit('SelectedAction')
+    } else if (this.menuItemIndex == 1) {
+      this.scene.events.emit('SelectedSkills')
+    }
   },
 })
 
@@ -278,6 +330,7 @@ var EnemiesMenu = new Phaser.Class({
   },
 })
 
+// ------------------------------ UI SCENE maybe move to own file ----------------------------
 // User Interface scene
 export var UIScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -291,19 +344,23 @@ export var UIScene = new Phaser.Class({
     this.graphics = this.add.graphics()
     this.graphics.lineStyle(1, 0xffffff)
     this.graphics.fillStyle(0x031f4c, 1)
+    // Enemies box
     this.graphics.strokeRect(2, 150, 90, 100)
     this.graphics.fillRect(2, 150, 90, 100)
-    this.graphics.strokeRect(95, 150, 90, 100)
-    this.graphics.fillRect(95, 150, 90, 100)
-    this.graphics.strokeRect(188, 150, 130, 100)
-    this.graphics.fillRect(188, 150, 130, 100)
+    // Actions box
+    this.graphics.strokeRect(95, 150, 120, 100)
+    this.graphics.fillRect(95, 150, 120, 100)
+    // Heroes box
+    this.graphics.strokeRect(218, 150, 130, 100)
+    this.graphics.fillRect(218, 150, 130, 100)
 
     // basic container to hold all menus
     this.menus = this.add.container()
 
-    this.heroesMenu = new HeroesMenu(195, 153, this)
+    this.heroesMenu = new HeroesMenu(225, 153, this)
     this.actionsMenu = new ActionsMenu(100, 153, this)
     this.enemiesMenu = new EnemiesMenu(8, 153, this)
+    this.skillsMenu = new SkillsMenu(100, 153, this)
 
     // the currently selected menu
     this.currentMenu = this.actionsMenu
@@ -321,9 +378,16 @@ export var UIScene = new Phaser.Class({
     // when its player cunit turn to move
     this.battleScene.events.on('PlayerSelect', this.onPlayerSelect, this)
 
+        // The skills menu
+    this.skillsMenu = new SkillsMenu(100, 153, this)
+    this.menus.add(this.skillsMenu)
+    this.skillsMenu.visible = false
+
     // when the action on the menu is selected
     // for now we have only one action so we dont send and action id
     this.events.on('SelectedAction', this.onSelectedAction, this)
+    this.events.on('SelectedSkills', this.onSelectedSkills, this)
+    this.events.on('SkillSelected', this.onSkillSelected, this)
 
     // an enemy is selected
     this.events.on('Enemy', this.onEnemy, this)
@@ -350,22 +414,46 @@ export var UIScene = new Phaser.Class({
     this.heroesMenu.deselect()
     this.actionsMenu.deselect()
     this.enemiesMenu.deselect()
+
+    let action = this.selectedAction || 'attack'
+    this.battleScene.receivePlayerSelection(action, index)
     this.currentMenu = null
-    this.battleScene.receivePlayerSelection('attack', index)
+    this.selectedAction = null
   },
   onPlayerSelect: function (id) {
     // when its player turn, we select the active hero item and the first action
     // then we make actions menu active
     this.heroesMenu.select(id)
     this.actionsMenu.select(0)
+    this.actionsMenu.visible = true
+    this.skillsMenu.visible = false
     this.currentMenu = this.actionsMenu
   },
   // we have action selected and we make the enemies menu active
   // the player needs to choose an enemy to attack
   onSelectedAction: function () {
+    this.enemiesMenu.previousMenu = this.actionsMenu
     this.currentMenu = this.enemiesMenu
     this.enemiesMenu.select(0)
   },
+  onSelectedSkills: function () {
+    let currentHero = this.battleScene.heroes[this.heroesMenu.menuItemIndex]
+    this.skillsMenu.remapSkills(currentHero.skills)
+    this.actionsMenu.visible = false
+    this.skillsMenu.visible = true
+    this.skillsMenu.previousMenu = this.actionsMenu
+    this.currentMenu = this.skillsMenu
+    this.skillsMenu.select(0)
+  },
+  onSkillSelected: function (skillName) {
+    this.selectedAction = skillName
+    this.skillsMenu.visible = false
+    this.actionsMenu.visible = false
+    this.enemiesMenu.previousMenu = this.skillsMenu
+    this.currentMenu = this.enemiesMenu
+    this.enemiesMenu.select(0)
+  },
+
   remapHeroes: function () {
     var heroes = this.battleScene.heroes
     this.heroesMenu.remap(heroes)
@@ -380,13 +468,27 @@ export var UIScene = new Phaser.Class({
         this.currentMenu.moveSelectionUp()
       } else if (event.code === 'ArrowDown') {
         this.currentMenu.moveSelectionDown()
-      } else if (event.code === 'ArrowRight' || event.code === 'Shift') {
-        // TODO add return function maybe
-      } else if (event.code === 'Space' || event.code === 'ArrowLeft') {
+      } else if (event.code === 'ArrowRight' || event.code === 'KeyX') {
+        this.menuBack()
+      } else if (event.code === 'KeyZ' || event.code === 'ArrowLeft') {
         this.currentMenu.confirm()
       }
     }
   },
+  // Returns to the previous menu in combat
+  menuBack: function () {
+    if (this.currentMenu && this.currentMenu.previousMenu) {
+        this.currentMenu.deselect()
+         
+        // Hides skills menu if going back.
+        if (this.currentMenu === this.skillsMenu) {
+            this.skillsMenu.visible = false
+            this.actionsMenu.visible = true
+        }
+        this.currentMenu = this.currentMenu.previousMenu
+        this.currentMenu.select(0)
+    }
+  }
 })
 
 // the message class extends containter

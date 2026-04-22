@@ -85,12 +85,17 @@ export var WorldScene = new Phaser.Class({
       var x = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
       var y = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
       // parameters are x, y, width, height
+    
+    // TODO add array of enemies here later
     let enemy = this.spawns.create(x, y, 'dragonblue')
 
     enemy.setCollideWorldBounds(true)
     enemy.setBounce(1)
     enemy.setVelocity(Phaser.Math.RND.between(-20, 20), Phaser.Math.RND.between(-20, 20))
     }
+    // more colliders for enemies
+    this.physics.add.collider(this.spawns, obstacles)
+    this.physics.add.collider(this.spawns, this.spawns)
     // add collider
     this.physics.add.overlap(
       this.player,
