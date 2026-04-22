@@ -446,6 +446,7 @@ export var UIScene = new Phaser.Class({
     this.currentMenu = this.skillsMenu
     this.skillsMenu.select(0)
   },
+  // TODO: add targetting message when selecting enemy, check if back works properly
   onSkillSelected: function (skillName) {
     this.selectedAction = skillName
     this.skillsMenu.visible = false
