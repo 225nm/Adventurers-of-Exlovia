@@ -139,6 +139,7 @@ export var BattleScene = new Phaser.Class({
             attacker.damage = skill.damage
             attacker.attack(victim)
 
+            // TODO: make this fit into the box
             this.events.emit('Message', attacker.type + ' uses ' + skill.name + ' on ' + victim.type + ' for ' + skill.damage + ' damage!')
 
             // resets the damage value after skill usage
