@@ -1,35 +1,5 @@
 import Phaser from 'phaser'
 
-export var BootScene = new Phaser.Class({
-  Extends: Phaser.Scene,
-
-  initialize: function BootScene() {
-    Phaser.Scene.call(this, { key: 'BootScene' })
-  },
-
-  preload: function () {
-    // map tiles
-    this.load.image('tiles', 'assets/map/spritesheet.png')
-
-    // map in json format
-    this.load.tilemapTiledJSON('map', 'assets/map/map.json')
-
-    // enemies
-    this.load.image('dragonblue', 'assets/dragonblue.png')
-    this.load.image('dragonorrange', 'assets/dragonorrange.png')
-
-    // our two characters
-    this.load.spritesheet('player', 'assets/RPG_assets.png', {
-      frameWidth: 16,
-      frameHeight: 16,
-    })
-  },
-
-  create: function () {
-    // start the WorldScene
-    this.scene.start('WorldScene')
-  },
-})
 
 export var WorldScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -110,12 +80,16 @@ export var WorldScene = new Phaser.Class({
     this.cursors = this.input.keyboard.createCursorKeys()
 
     // where the enemies will be
-    this.spawns = this.physics.add.group({ classType: Phaser.GameObjects.Zone })
-    for (var i = 0; i < 30; i++) {
+    this.spawns = this.physics.add.group({ classType: Phaser.Physics.Arcade.Sprite })
+    for (var i = 0; i < 20; i++) {
       var x = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
       var y = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
       // parameters are x, y, width, height
-      this.spawns.create(x, y, 20, 20)
+    let enemy = this.spawns.create(x, y, 'dragonblue')
+
+    enemy.setCollideWorldBounds(true)
+    enemy.setBounce(1)
+    enemy.setVelocity(Phaser.Math.RND.between(-20, 20), Phaser.Math.RND.between(-20, 20))
     }
     // add collider
     this.physics.add.overlap(
@@ -139,8 +113,9 @@ export var WorldScene = new Phaser.Class({
     zone.x = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
     zone.y = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
 
+    // TODO implement battle scene transition
     // shake the world
-    this.cameras.main.shake(300)
+    //this.cameras.main.shake(300)
 
     this.input.stopPropagation()
     // start battle

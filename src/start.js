@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { BootScene } from './game/scenes/world'
+import { BootScene } from './game/scenes/boot'
 import { WorldScene } from './game/scenes/world'
 import { BattleScene } from './game/scenes/battle'
 import { UIScene } from './game/scenes/battle'
@@ -15,7 +15,7 @@ var config = {
     default: 'arcade',
     arcade: {
       gravity: { y: 0 },
-      debug: false, // set to true to view zones
+      debug: true, // set to true to view zones
     },
   },
   scene: [BootScene, WorldScene, BattleScene, UIScene],
