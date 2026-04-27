@@ -1,3 +1,1 @@
-export const mageSkills = [
-  { name: 'Fireball', damage: 20 },
-]
+export const mageSkills = [{ name: 'Fireball', damage: 20 }]

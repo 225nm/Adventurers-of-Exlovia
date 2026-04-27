@@ -1,6 +1,5 @@
 import Phaser from 'phaser'
 
-
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
@@ -11,6 +10,9 @@ export var BootScene = new Phaser.Class({
   preload: function () {
     // map tiles
     this.load.image('tiles', 'assets/map/spritesheet.png')
+
+    // Title image
+    this.load.image('title', 'assets/titleScreen.png')
 
     // map in json format
     this.load.tilemapTiledJSON('map', 'assets/map/map.json')
@@ -27,7 +29,7 @@ export var BootScene = new Phaser.Class({
   },
 
   create: function () {
-    // start the WorldScene
-    this.scene.start('WorldScene')
+    // start the TitleScene
+    this.scene.start('TitleScene')
   },
 })

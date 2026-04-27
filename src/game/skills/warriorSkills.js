@@ -1,3 +1,1 @@
-export const warriorSkills = [
-  { name: 'Heavy Strike', damage: 15}
-]
+export const warriorSkills = [{ name: 'Heavy Strike', damage: 15 }]
