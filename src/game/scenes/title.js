@@ -22,7 +22,7 @@ export var TitleScene = new Phaser.Class({
           fill: '#fff',
           align: 'center',
           stroke: '#000',
-          strokeThickness: 2,
+          strokeThickness: 3,
         }
       )
       .setOrigin(0.5)
@@ -34,7 +34,7 @@ export var TitleScene = new Phaser.Class({
         fill: '#f5d400',
         border: '1px solid black',
         stroke: '#000',
-        strokeThickness: 2,
+        strokeThickness: 3,
       })
       .setOrigin(0.5)
 
