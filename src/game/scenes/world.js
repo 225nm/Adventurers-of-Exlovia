@@ -1,6 +1,5 @@
 import Phaser from 'phaser'
 
-
 export var WorldScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
@@ -71,7 +70,8 @@ export var WorldScene = new Phaser.Class({
     // don't walk on trees
     this.physics.add.collider(this.player, obstacles)
 
-    // limit camera to map
+    // limit camera to map and zoom map
+    //this.cameras.main.setZoom(2)
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
     this.cameras.main.startFollow(this.player)
     this.cameras.main.roundPixels = true // avoid tile bleed
@@ -80,18 +80,23 @@ export var WorldScene = new Phaser.Class({
     this.cursors = this.input.keyboard.createCursorKeys()
 
     // where the enemies will be
-    this.spawns = this.physics.add.group({ classType: Phaser.Physics.Arcade.Sprite })
+    this.spawns = this.physics.add.group({
+      classType: Phaser.Physics.Arcade.Sprite,
+    })
     for (var i = 0; i < 20; i++) {
       var x = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
       var y = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
       // parameters are x, y, width, height
-    
-    // TODO add array of enemies here later
-    let enemy = this.spawns.create(x, y, 'dragonblue')
 
-    enemy.setCollideWorldBounds(true)
-    enemy.setBounce(1)
-    enemy.setVelocity(Phaser.Math.RND.between(-20, 20), Phaser.Math.RND.between(-20, 20))
+      // TODO add array of enemies here later
+      let enemy = this.spawns.create(x, y, 'dragonblue')
+
+      enemy.setCollideWorldBounds(true)
+      enemy.setBounce(1)
+      enemy.setVelocity(
+        Phaser.Math.RND.between(-20, 20),
+        Phaser.Math.RND.between(-20, 20)
+      )
     }
     // more colliders for enemies
     this.physics.add.collider(this.spawns, obstacles)
