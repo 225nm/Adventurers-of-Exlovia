@@ -6,8 +6,20 @@ This is a turn-based roleplaying game built using Phaser initially following thi
 
 ## Installation
 
+[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
+
 Clone the project.
 To launch the game initially open a terminal and run the command "npm i". Then run the commande "npm run dev". Open your browser and go to "localhost:8080" or any other address specified in the terminal output. To move the character use the arrow keys.
+
+## Available Commands
+
+| Command           | Description                                    |
+| ----------------- | ---------------------------------------------- |
+| `npm install`     | Install project dependencies                   |
+| `npm run dev`     | Launch a development web server                |
+| `npm run build`   | Create a production build in the `dist` folder |
+| `npm run lint`    | Look for linting errors                        |
+| `npm run lint:fix`| Fix linting errors                             |
 
 # Visuals
 
