@@ -10,7 +10,7 @@ export var BattleScene = new Phaser.Class({
     Phaser.Scene.call(this, { key: 'BattleScene' })
   },
   create: function () {
-        // this.cameras.main.setZoom(2)
+    // this.cameras.main.setZoom(2)
     // change the background to green
     this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)')
     this.startBattle()
@@ -523,7 +523,7 @@ var Message = new Phaser.Class({
       align: 'center',
       fontSize: '8px',
       fontFamily: '"Press Start 2P", cursive',
-/*       stroke: '#000',
+      /*       stroke: '#000',
       strokeThickness: 1, */
       wordWrap: { width: 170, useAdvancedWrap: true },
     })
