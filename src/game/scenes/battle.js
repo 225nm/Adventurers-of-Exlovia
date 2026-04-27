@@ -10,6 +10,7 @@ export var BattleScene = new Phaser.Class({
     Phaser.Scene.call(this, { key: 'BattleScene' })
   },
   create: function () {
+        // this.cameras.main.setZoom(2)
     // change the background to green
     this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)')
     this.startBattle()
@@ -128,23 +129,32 @@ export var BattleScene = new Phaser.Class({
 
     if (action == 'attack') {
       attacker.attack(victim)
-    }
-    else {
-        // AI suggested syntax
-        let skill = this.units[this.index].skills.find(s => s.name === action)
+    } else {
+      // AI suggested syntax
+      let skill = this.units[this.index].skills.find((s) => s.name === action)
 
-        if (skill) {
-            this.units[this.index].damage = skill.damage
-            let oldDamage = attacker.damage
-            attacker.damage = skill.damage
-            attacker.attack(victim)
+      if (skill) {
+        this.units[this.index].damage = skill.damage
+        let oldDamage = attacker.damage
+        attacker.damage = skill.damage
+        attacker.attack(victim)
 
-            // TODO: make this fit into the box
-            this.events.emit('Message', attacker.type + ' uses ' + skill.name + ' on ' + victim.type + ' for ' + skill.damage + ' damage!')
+        // TODO: make this fit into the box
+        this.events.emit(
+          'Message',
+          attacker.type +
+            ' uses ' +
+            skill.name +
+            ' on ' +
+            victim.type +
+            ' for ' +
+            skill.damage +
+            ' damage!'
+        )
 
-            // resets the damage value after skill usage
-            attacker.damage = oldDamage
-        }
+        // resets the damage value after skill usage
+        attacker.damage = oldDamage
+      }
     }
     // next turn in 3 seconds
     this.time.addEvent({
@@ -178,8 +188,11 @@ var MenuItem = new Phaser.Class({
   initialize: function MenuItem(x, y, text, scene) {
     Phaser.GameObjects.Text.call(this, scene, x, y, text, {
       color: '#ffffff',
+      fontFamily: '"Press Start 2P", cursive',
       align: 'left',
-      fontSize: 15,
+      fontSize: '8px',
+      stroke: '#000',
+      strokeThickness: 1,
     })
   },
 
@@ -275,24 +288,24 @@ var Menu = new Phaser.Class({
   remapSkills: function (skills) {
     this.clear()
     for (let i = 0; i < skills.length; i++) {
-        let skill = skills[i]
-        this.addMenuItem(skill.name)
-        }
-}
+      let skill = skills[i]
+      this.addMenuItem(skill.name)
+    }
+  },
 })
 
- // Skills menu
-    let SkillsMenu = new Phaser.Class({
+// Skills menu
+let SkillsMenu = new Phaser.Class({
   Extends: Menu,
   initialize: function SkillsMenu(x, y, scene) {
-    Menu.call(this, x, y, scene);
+    Menu.call(this, x, y, scene)
   },
 
-      confirm: function () {
-    let skillName = this.menuItems[this.menuItemIndex].text;
-    this.scene.events.emit('SkillSelected', skillName);
-      }
-    })
+  confirm: function () {
+    let skillName = this.menuItems[this.menuItemIndex].text
+    this.scene.events.emit('SkillSelected', skillName)
+  },
+})
 var HeroesMenu = new Phaser.Class({
   Extends: Menu,
 
@@ -379,7 +392,7 @@ export var UIScene = new Phaser.Class({
     // when its player cunit turn to move
     this.battleScene.events.on('PlayerSelect', this.onPlayerSelect, this)
 
-        // The skills menu
+    // The skills menu
     this.skillsMenu = new SkillsMenu(100, 153, this)
     this.menus.add(this.skillsMenu)
     this.skillsMenu.visible = false
@@ -480,17 +493,17 @@ export var UIScene = new Phaser.Class({
   // Returns to the previous menu in combat
   menuBack: function () {
     if (this.currentMenu && this.currentMenu.previousMenu) {
-        this.currentMenu.deselect()
-         
-        // Hides skills menu if going back.
-        if (this.currentMenu === this.skillsMenu) {
-            this.skillsMenu.visible = false
-            this.actionsMenu.visible = true
-        }
-        this.currentMenu = this.currentMenu.previousMenu
-        this.currentMenu.select(0)
+      this.currentMenu.deselect()
+
+      // Hides skills menu if going back.
+      if (this.currentMenu === this.skillsMenu) {
+        this.skillsMenu.visible = false
+        this.actionsMenu.visible = true
+      }
+      this.currentMenu = this.currentMenu.previousMenu
+      this.currentMenu.select(0)
     }
-  }
+  },
 })
 
 // the message class extends containter
@@ -508,7 +521,10 @@ var Message = new Phaser.Class({
     this.text = new Phaser.GameObjects.Text(scene, 0, 0, '', {
       color: '#ffffff',
       align: 'center',
-      fontSize: 13,
+      fontSize: '8px',
+      fontFamily: '"Press Start 2P", cursive',
+/*       stroke: '#000',
+      strokeThickness: 1, */
       wordWrap: { width: 170, useAdvancedWrap: true },
     })
     this.add(this.text)
