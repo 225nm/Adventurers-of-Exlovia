@@ -10,6 +10,70 @@ export var Unit = new Phaser.Class({
     this.damage = damage // default damage
     this.living = true
     this.menuItem = null
+
+    // Status bar text
+    this.statusText = scene.add
+      .text(this.x, this.y + 20, '', {
+        fontFamily: '"Press Start 2P", cursive',
+        fontSize: '8px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 2,
+        antialias: false,
+      })
+      .setOrigin(0.5)
+      .setScale(0.5)
+
+    // text above bar
+    this.statusText.setDepth(99)
+
+    // Status bars
+    this.statusBar = scene.add.graphics()
+    this.updateStatusBar()
+  },
+
+  // Updates status bars
+  updateStatusBar: function () {
+    // crash fix
+    if (!this.statusText || !this.statusText.texture) {
+      return
+    }
+    this.statusBar.clear()
+
+    // background
+    this.statusBar.fillStyle(0x000000)
+    // posx, posy, width, height
+    this.statusBar.fillRect(this.x - 16, this.y + 18, 32, 8)
+
+    // health bar
+    this.statusBar.fillStyle(0xff0000)
+    this.statusBar.fillRect(
+      this.x - 16,
+      this.y + 18,
+      (this.hp / this.maxHp) * 32,
+      8
+    )
+    this.statusText.setText(this.hp + ' / ' + this.maxHp)
+
+    // AI suggested fix for blurry text
+    let roundedX = Math.round(this.x)
+    let roundedY = Math.round(this.y)
+    this.statusText.setPosition(roundedX, roundedY + 22)
+
+    // mana bar
+    if (this.mp !== undefined) {
+      this.statusBar.fillStyle(0x000000)
+      this.statusBar.fillRect(this.x - 16, this.y + 27, 32, 8)
+      this.statusBar.fillStyle(0x0000ff)
+      this.statusBar.fillRect(
+        this.x - 16,
+        this.y + 27,
+        (this.mp / this.maxMp) * 32,
+        8
+      )
+      this.statusText.setText(this.hp + ' / ' + this.maxHp)
+      this.statusText.setPosition(this.x, this.y + 31)
+    }
   },
   // we will use this to notify the menu item when the unit is dead
   setMenuItem: function (item) {
@@ -36,9 +100,12 @@ export var Unit = new Phaser.Class({
       this.hp = 0
       this.menuItem.unitKilled()
       this.living = false
+      this.statusBar.visible = false
+      this.statusText.visible = false
       this.visible = false
       this.menuItem = null
     }
+    this.updateStatusBar()
   },
 })
 
@@ -79,13 +146,8 @@ export var PlayerCharacter = new Phaser.Class({
     xp,
     mp
   ) {
-    Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
-
     this.maxMp = this.mp = mp
     this.xp = xp || 0
-
-    // flip and resize assetsthe image so I don"t have to edit it manually, todo maybe delete
-    /*     this.flipX = true
-    this.setScale(2) */
+    Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
   },
 })

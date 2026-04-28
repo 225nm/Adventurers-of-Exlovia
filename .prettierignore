@@ -3,3 +3,7 @@ dist
 package-lock.json
 src/phaser.min.js
 public/assets/map/map.json
+README.md
+READMEPhaser.md
+eslint.config.js
+prettier.config.mjs

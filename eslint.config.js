@@ -8,7 +8,13 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 export default [
   // Ignored min.js file as it is the "game engine"
   {
-    ignores: ['**/phaser.min.js'],
+    ignores: [
+      '**/phaser.min.js',
+      'README.md',
+      'READMEPhaser.md',
+      'eslint.config.js',
+      'prettier.config.mjs',
+    ],
   },
   js.configs.recommended,
   eslintConfigPrettier,
