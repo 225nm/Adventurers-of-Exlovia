@@ -42,6 +42,7 @@ export var Unit = new Phaser.Class({
   },
 })
 
+// Base enemy class
 export var Enemy = new Phaser.Class({
   Extends: Unit,
 
@@ -49,7 +50,7 @@ export var Enemy = new Phaser.Class({
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
   },
 })
-
+ // Base player character class
 export var PlayerCharacter = new Phaser.Class({
   Extends: Unit,
 
@@ -61,12 +62,14 @@ export var PlayerCharacter = new Phaser.Class({
     frame,
     type,
     hp,
-    damage
+    damage,
+    xp
   ) {
-    Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
+    Unit.call(this, scene, x, y, texture, frame, type, hp, damage, xp)
     // flip the image so I don"t have to edit it manually
     this.flipX = true
 
     this.setScale(2)
   },
-})
+}
+)

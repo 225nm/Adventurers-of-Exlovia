@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import { PlayerCharacter, Enemy, Unit } from '../units'
-import { warriorSkills } from '../skills/warriorSkills'
-import { mageSkills } from '../skills/mageSkills'
+import { warriorSkills, mageSkills} from '../skills/skillsIndex.js'
+import { Warrior, Mage } from '../units/heroes/heroesIndex.js'
 
 export var BattleScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -18,25 +18,15 @@ export var BattleScene = new Phaser.Class({
     this.sys.events.on('wake', this.startBattle, this)
   },
   startBattle: function () {
-    // (scene, x, y, texture, frame, type, hp, damage)
+    // (scene, x, y, texture, frame, type, hp, damage, xp)
     // player character - warrior
-    var warrior = new PlayerCharacter(
-      this,
-      250,
-      50,
-      'player',
-      1,
-      'Warrior',
-      100,
-      20
-    )
-    warrior.skills = warriorSkills
-    this.add.existing(warrior)
+    let warriorUnit = new Warrior(this, 250, 50,)
+    this.add.existing(warriorUnit)
+
 
     // player character - mage
-    var mage = new PlayerCharacter(this, 250, 100, 'player', 4, 'Mage', 80, 8)
-    mage.skills = mageSkills
-    this.add.existing(mage)
+    let mageUnit = new Mage(this, 250, 100)
+    this.add.existing(mageUnit)
 
     var dragonblue = new Enemy(
       this,
@@ -63,7 +53,7 @@ export var BattleScene = new Phaser.Class({
     this.add.existing(dragonOrange)
 
     // array with heroes
-    this.heroes = [warrior, mage]
+    this.heroes = [warriorUnit, mageUnit]
     // array with enemies
     this.enemies = [dragonblue, dragonOrange]
     // array with both parties, who will attack
@@ -88,7 +78,7 @@ export var BattleScene = new Phaser.Class({
       }
     } while (!this.units[this.index].living)
     // if its player hero
-    if (this.units[this.index] instanceof PlayerCharacter) {
+    if (this.heroes.includes(this.units[this.index])) {
       // we need the player to select action and then enemy
       this.events.emit('PlayerSelect', this.index)
     } else {
