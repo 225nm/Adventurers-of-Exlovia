@@ -1,4 +1,3 @@
-
 ## Template Project Structure
 
 We have provided a default project structure to get you started. This is as follows:

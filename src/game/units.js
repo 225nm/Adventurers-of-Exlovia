@@ -46,11 +46,24 @@ export var Unit = new Phaser.Class({
 export var Enemy = new Phaser.Class({
   Extends: Unit,
 
-  initialize: function Enemy(scene, x, y, texture, frame, type, hp, damage) {
+  initialize: function Enemy(
+    scene,
+    x,
+    y,
+    texture,
+    frame,
+    type,
+    hp,
+    damage,
+    xpDrop,
+    lootTable
+  ) {
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
+    this.xpDrop = xpDrop
+    this.lootTable = lootTable || []
   },
 })
- // Base player character class
+// Base player character class
 export var PlayerCharacter = new Phaser.Class({
   Extends: Unit,
 
@@ -63,13 +76,16 @@ export var PlayerCharacter = new Phaser.Class({
     type,
     hp,
     damage,
-    xp
+    xp,
+    mp
   ) {
-    Unit.call(this, scene, x, y, texture, frame, type, hp, damage, xp)
-    // flip the image so I don"t have to edit it manually
-    this.flipX = true
+    Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
 
-    this.setScale(2)
+    this.maxMp = this.mp = mp
+    this.xp = xp || 0
+
+    // flip and resize assetsthe image so I don"t have to edit it manually, todo maybe delete
+    /*     this.flipX = true
+    this.setScale(2) */
   },
-}
-)
+})

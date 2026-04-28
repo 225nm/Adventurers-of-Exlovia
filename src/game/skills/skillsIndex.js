@@ -1,8 +1,12 @@
-import Phaser from "phaser";
-import { warriorSkills } from "./warriorSkills.js"
-import { mageSkills } from "./mageSkills.js"
+import Phaser from 'phaser'
+import { warriorSkills } from './warriorSkills.js'
+import { mageSkills } from './mageSkills.js'
 
-export {
+// individual exports
+export { warriorSkills, mageSkills }
+
+// list export
+export const skillsIndex = {
   warriorSkills,
   mageSkills,
 }

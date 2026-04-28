@@ -13,13 +13,13 @@ To launch the game initially open a terminal and run the command "npm i". Then r
 
 ## Available Commands
 
-| Command           | Description                                    |
-| ----------------- | ---------------------------------------------- |
-| `npm install`     | Install project dependencies                   |
-| `npm run dev`     | Launch a development web server                |
-| `npm run build`   | Create a production build in the `dist` folder |
-| `npm run lint`    | Look for linting errors                        |
-| `npm run lint:fix`| Fix linting errors                             |
+| Command            | Description                                    |
+| ------------------ | ---------------------------------------------- |
+| `npm install`      | Install project dependencies                   |
+| `npm run dev`      | Launch a development web server                |
+| `npm run build`    | Create a production build in the `dist` folder |
+| `npm run lint`     | Look for linting errors                        |
+| `npm run lint:fix` | Fix linting errors                             |
 
 # Visuals
 

@@ -1,7 +1,8 @@
 import Phaser from 'phaser'
 import { PlayerCharacter, Enemy, Unit } from '../units'
-import { warriorSkills, mageSkills} from '../skills/skillsIndex.js'
-import { Warrior, Mage } from '../units/heroes/heroesIndex.js'
+import { skillsIndex } from '../skills/skillsIndex.js'
+import { heroesIndex } from '../units/heroes/heroesIndex.js'
+import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
 
 export var BattleScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -19,43 +20,27 @@ export var BattleScene = new Phaser.Class({
   },
   startBattle: function () {
     // (scene, x, y, texture, frame, type, hp, damage, xp)
+
     // player character - warrior
-    let warriorUnit = new Warrior(this, 250, 50,)
+    let warriorUnit = new heroesIndex.Warrior(this, 250, 50)
     this.add.existing(warriorUnit)
 
-
     // player character - mage
-    let mageUnit = new Mage(this, 250, 100)
+    let mageUnit = new heroesIndex.Mage(this, 250, 100)
     this.add.existing(mageUnit)
 
-    var dragonblue = new Enemy(
-      this,
-      50,
-      50,
-      'dragonblue',
-      null,
-      'Dragon',
-      50,
-      3
-    )
-    this.add.existing(dragonblue)
+    // enemy 1
+    let enemy1 = new enemiesIndex.blueDragon(this, 50, 50)
+    this.add.existing(enemy1)
 
-    var dragonOrange = new Enemy(
-      this,
-      50,
-      100,
-      'dragonorrange',
-      null,
-      'Dragon2',
-      50,
-      3
-    )
-    this.add.existing(dragonOrange)
+    // enemy 2
+    let enemy2 = new enemiesIndex.orangeDragon(this, 50, 100)
+    this.add.existing(enemy2)
 
     // array with heroes
     this.heroes = [warriorUnit, mageUnit]
     // array with enemies
-    this.enemies = [dragonblue, dragonOrange]
+    this.enemies = [enemy1, enemy2]
     // array with both parties, who will attack
     this.units = this.heroes.concat(this.enemies)
 

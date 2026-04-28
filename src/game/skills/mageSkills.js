@@ -1,1 +1,4 @@
-export const mageSkills = [{ name: 'Fireball', damage: 20 }]
+export const mageSkills = [
+  { name: 'Fireball', damage: 20, mpCost: 5 },
+  { name: 'Firestorm', damage: 30, mpCost: 8 },
+]
