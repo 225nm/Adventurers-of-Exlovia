@@ -11,7 +11,7 @@ export var BattleScene = new Phaser.Class({
     Phaser.Scene.call(this, { key: 'BattleScene' })
   },
   create: function () {
-    // this.cameras.main.setZoom(2)
+    this.cameras.main.roundPixels = true
     // change the background to green
     this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)')
     this.startBattle()

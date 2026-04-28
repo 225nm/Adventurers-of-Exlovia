@@ -11,18 +11,32 @@ export var Unit = new Phaser.Class({
     this.living = true
     this.menuItem = null
 
-    // Status bar text
+    // hp bar text
     this.statusText = scene.add
       .text(this.x, this.y + 20, '', {
         fontFamily: '"Press Start 2P", cursive',
-        fontSize: '8px',
+        fontSize: '16px',
         color: '#ffffff',
         stroke: '#000000',
-        strokeThickness: 2,
-        antialias: false,
+        strokeThickness: 1,
       })
       .setOrigin(0.5)
       .setScale(0.5)
+
+    this.manaText = scene.add
+      .text(this.x, this.y + 29, '', {
+        fontFamily: '"Press Start 2P", cursive',
+        fontSize: '16px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 1,
+      })
+      .setOrigin(0.5)
+      .setScale(0.5)
+      // text above bar
+      .setDepth(99)
+      // hide mana text by default
+      .setAlpha(0)
 
     // text above bar
     this.statusText.setDepth(99)
@@ -43,17 +57,17 @@ export var Unit = new Phaser.Class({
     // background
     this.statusBar.fillStyle(0x000000)
     // posx, posy, width, height
-    this.statusBar.fillRect(this.x - 16, this.y + 18, 32, 8)
+    this.statusBar.fillRect(this.x - 28, this.y + 18, 56, 8)
 
     // health bar
     this.statusBar.fillStyle(0xff0000)
     this.statusBar.fillRect(
-      this.x - 16,
+      this.x - 28,
       this.y + 18,
-      (this.hp / this.maxHp) * 32,
+      (this.hp / this.maxHp) * 56,
       8
     )
-    this.statusText.setText(this.hp + ' / ' + this.maxHp)
+    this.statusText.setText(this.hp + '/' + this.maxHp)
 
     // AI suggested fix for blurry text
     let roundedX = Math.round(this.x)
@@ -62,17 +76,18 @@ export var Unit = new Phaser.Class({
 
     // mana bar
     if (this.mp !== undefined) {
+      this.manaText.setAlpha(1)
       this.statusBar.fillStyle(0x000000)
-      this.statusBar.fillRect(this.x - 16, this.y + 27, 32, 8)
+      this.statusBar.fillRect(this.x - 28, this.y + 27, 56, 8)
       this.statusBar.fillStyle(0x0000ff)
       this.statusBar.fillRect(
-        this.x - 16,
+        this.x - 28,
         this.y + 27,
-        (this.mp / this.maxMp) * 32,
+        (this.mp / this.maxMp) * 56,
         8
       )
-      this.statusText.setText(this.hp + ' / ' + this.maxHp)
-      this.statusText.setPosition(this.x, this.y + 31)
+      this.manaText.setText(this.mp + '/' + this.maxMp)
+      this.manaText.setPosition(this.x, this.y + 31)
     }
   },
   // we will use this to notify the menu item when the unit is dead
@@ -102,6 +117,7 @@ export var Unit = new Phaser.Class({
       this.living = false
       this.statusBar.visible = false
       this.statusText.visible = false
+      this.manaText.visible = false
       this.visible = false
       this.menuItem = null
     }
@@ -125,9 +141,11 @@ export var Enemy = new Phaser.Class({
     xpDrop,
     lootTable
   ) {
+
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
-    this.xpDrop = xpDrop
+            this.xpDrop = xpDrop
     this.lootTable = lootTable || []
+
   },
 })
 // Base player character class
@@ -146,8 +164,11 @@ export var PlayerCharacter = new Phaser.Class({
     xp,
     mp
   ) {
+
+    Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
     this.maxMp = this.mp = mp
     this.xp = xp || 0
-    Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
+
+    this.updateStatusBar()
   },
 })

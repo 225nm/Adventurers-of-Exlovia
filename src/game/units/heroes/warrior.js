@@ -1,9 +1,9 @@
 import Phaser from 'phaser'
-import { Unit } from '../../units.js'
+import { PlayerCharacter } from '../../units.js'
 import { warriorSkills } from '../../skills/warriorSkills.js'
 
 export let Warrior = new Phaser.Class({
-  Extends: Unit,
+  Extends: PlayerCharacter,
   initialize: function Warrior(
     scene,
     x,
@@ -16,7 +16,7 @@ export let Warrior = new Phaser.Class({
     xp,
     mp
   ) {
-    Unit.call(this, scene, x, y, 'player', 1, 'Warrior', 100, 20, 0, 20)
+    PlayerCharacter.call(this, scene, x, y, 'player', 1, 'Warrior', 100, 20, 0, 20)
     this.skills = warriorSkills
     this.flipX = true
     this.setScale(2)
