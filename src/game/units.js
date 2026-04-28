@@ -95,18 +95,21 @@ export var Unit = new Phaser.Class({
     this.menuItem = item
   },
   // attack the target unit
-  attack: function (target) {
+  attack: function (target, modifiedDamage) {
     if (target.living) {
-      target.takeDamage(this.damage)
-      this.scene.events.emit(
-        'Message',
-        this.type +
-          ' attacks ' +
-          target.type +
-          ' for ' +
-          this.damage +
-          ' damage'
-      )
+      let finalDamage = modifiedDamage || this.damage
+      target.takeDamage(finalDamage)
+      if (!modifiedDamage) {
+        this.scene.events.emit(
+          'Message',
+          this.type +
+            ' attacks ' +
+            target.type +
+            ' for ' +
+            finalDamage +
+            ' damage'
+        )
+      }
     }
   },
   takeDamage: function (damage) {
@@ -141,11 +144,9 @@ export var Enemy = new Phaser.Class({
     xpDrop,
     lootTable
   ) {
-
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
-            this.xpDrop = xpDrop
+    this.xpDrop = xpDrop
     this.lootTable = lootTable || []
-
   },
 })
 // Base player character class
@@ -164,7 +165,6 @@ export var PlayerCharacter = new Phaser.Class({
     xp,
     mp
   ) {
-
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
     this.maxMp = this.mp = mp
     this.xp = xp || 0

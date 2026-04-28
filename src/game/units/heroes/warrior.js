@@ -16,7 +16,19 @@ export let Warrior = new Phaser.Class({
     xp,
     mp
   ) {
-    PlayerCharacter.call(this, scene, x, y, 'player', 1, 'Warrior', 100, 20, 0, 20)
+    PlayerCharacter.call(
+      this,
+      scene,
+      x,
+      y,
+      'player',
+      1,
+      'Warrior',
+      100,
+      20,
+      0,
+      20
+    )
     this.skills = warriorSkills
     this.flipX = true
     this.setScale(2)

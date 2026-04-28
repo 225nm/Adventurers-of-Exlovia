@@ -109,10 +109,17 @@ export var BattleScene = new Phaser.Class({
       let skill = this.units[this.index].skills.find((s) => s.name === action)
 
       if (skill) {
-        this.units[this.index].damage = skill.damage
-        let oldDamage = attacker.damage
-        attacker.damage = skill.damage
-        attacker.attack(victim)
+        let mpCost = skill.mpCost || 0
+        if (attacker.mp < mpCost) {
+          this.events.emit('noMana')
+          return
+        }
+        if (attacker.mp >= mpCost) {
+          attacker.mp -= mpCost
+          attacker.updateStatusBar()
+        }
+
+        attacker.attack(victim, skill.damage)
 
         // TODO: make this fit into the box
         this.events.emit(
@@ -126,9 +133,6 @@ export var BattleScene = new Phaser.Class({
             skill.damage +
             ' damage!'
         )
-
-        // resets the damage value after skill usage
-        attacker.damage = oldDamage
       }
     }
     // next turn in 3 seconds
@@ -264,7 +268,8 @@ var Menu = new Phaser.Class({
     this.clear()
     for (let i = 0; i < skills.length; i++) {
       let skill = skills[i]
-      this.addMenuItem(skill.name)
+      let skillMenuItem = this.addMenuItem(skill.name + ' ' + skill.mpCost)
+      skillMenuItem.skillName = skill.name
     }
   },
 })
@@ -277,7 +282,7 @@ let SkillsMenu = new Phaser.Class({
   },
 
   confirm: function () {
-    let skillName = this.menuItems[this.menuItemIndex].text
+    let skillName = this.menuItems[this.menuItemIndex].skillName
     this.scene.events.emit('SkillSelected', skillName)
   },
 })
@@ -381,6 +386,9 @@ export var UIScene = new Phaser.Class({
     // an enemy is selected
     this.events.on('Enemy', this.onEnemy, this)
 
+    // when the player doesn't have enough mana to use a skill
+    this.battleScene.events.on('noMana', this.onNoMana, this)
+
     // when the scene receives wake event
     this.sys.events.on('wake', this.createMenu, this)
 
@@ -400,14 +408,16 @@ export var UIScene = new Phaser.Class({
   },
   onEnemy: function (index) {
     // when the enemy is selected, we deselect all menus and send event with the enemy id
-    this.heroesMenu.deselect()
-    this.actionsMenu.deselect()
-    this.enemiesMenu.deselect()
-
     let action = this.selectedAction || 'attack'
     this.battleScene.receivePlayerSelection(action, index)
-    this.currentMenu = null
-    this.selectedAction = null
+    // check to make nomana work
+    if (this.currentMenu !== this.skillsMenu) {
+      this.currentMenu = null
+      this.selectedAction = null
+      this.heroesMenu.deselect()
+      this.actionsMenu.deselect()
+      this.enemiesMenu.deselect()
+    }
   },
   onPlayerSelect: function (id) {
     // when its player turn, we select the active hero item and the first action
@@ -442,6 +452,16 @@ export var UIScene = new Phaser.Class({
     this.enemiesMenu.previousMenu = this.skillsMenu
     this.currentMenu = this.enemiesMenu
     this.enemiesMenu.select(0)
+  },
+  // When player doesnt have mana display a message and return to skill menu
+  onNoMana: function () {
+    this.battleScene.events.emit('Message', 'Not enough MP!')
+    this.enemiesMenu.deselect()
+    this.selectedAction = null
+    this.actionsMenu.visible = false
+    this.skillsMenu.visible = true
+    this.currentMenu = this.skillsMenu
+    this.currentMenu.selected = true
   },
 
   remapHeroes: function () {
