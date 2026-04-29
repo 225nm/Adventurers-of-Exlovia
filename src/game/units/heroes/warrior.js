@@ -14,7 +14,8 @@ export let Warrior = new Phaser.Class({
     hp,
     damage,
     xp,
-    mp
+    mp,
+    maxMp
   ) {
     PlayerCharacter.call(
       this,
@@ -27,6 +28,7 @@ export let Warrior = new Phaser.Class({
       100,
       20,
       0,
+      20,
       20
     )
     this.skills = warriorSkills

@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { Party } from '../party.js'
 
 export var TitleScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -43,6 +44,10 @@ export var TitleScene = new Phaser.Class({
 
   // start the WorldScene
   startGame: function () {
+    // set save data for party
+    if (!this.registry.get('partyData')) {
+      this.registry.set('partyData', Party.Heroes)
+    }
     this.scene.start('WorldScene')
   },
 })

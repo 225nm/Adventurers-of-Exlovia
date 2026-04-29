@@ -126,6 +126,19 @@ export var Unit = new Phaser.Class({
     }
     this.updateStatusBar()
   },
+  // removes unit and text from screen
+  destroy: function () {
+    if (this.statusBar) {
+      this.statusBar.destroy()
+    }
+    if (this.statusText) {
+      this.statusText.destroy()
+    }
+    if (this.manaText) {
+      this.manaText.destroy()
+    }
+    Phaser.GameObjects.Sprite.prototype.destroy.call(this)
+  },
 })
 
 // Base enemy class
@@ -163,10 +176,12 @@ export var PlayerCharacter = new Phaser.Class({
     hp,
     damage,
     xp,
-    mp
+    mp,
+    maxMp
   ) {
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
-    this.maxMp = this.mp = mp
+    this.maxMp = maxMp || 0
+    this.mp = mp || 0
     this.xp = xp || 0
 
     this.updateStatusBar()

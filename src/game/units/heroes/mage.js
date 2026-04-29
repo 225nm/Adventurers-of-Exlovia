@@ -14,9 +14,10 @@ export let Mage = new Phaser.Class({
     hp,
     damage,
     xp,
-    mp
+    mp,
+    maxMp
   ) {
-    PlayerCharacter.call(this, scene, x, y, 'player', 4, 'Mage', 80, 8, 0, 50)
+    PlayerCharacter.call(this, scene, x, y, 'player', 4, 'Mage', 80, 8, 0, 50, 50)
     this.skills = mageSkills
     this.flipX = true
     this.setScale(2)

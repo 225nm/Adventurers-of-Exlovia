@@ -14,20 +14,39 @@ export var BattleScene = new Phaser.Class({
     this.cameras.main.roundPixels = true
     // change the background to green
     this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)')
-    this.startBattle()
+  
     // on wake event we call startBattle too
     this.sys.events.on('wake', this.startBattle, this)
+
+      this.startBattle()
   },
   startBattle: function () {
     // (scene, x, y, texture, frame, type, hp, damage, xp)
+    // saved data 
+    let partyData = this.registry.get('partyData')
+    this.heroes = []
 
-    // player character - warrior
+    // populate hero array with save data
+    for (let i = 0; i < partyData.length; i++) {
+      let hero = new heroesIndex[partyData[i].type](this, 250, 50 + i * 50)
+      hero.hp = partyData[i].hp
+      hero.mp = partyData[i].mp
+      hero.xp = partyData[i].xp
+      hero.maxMp = partyData[i].maxMp
+      hero.level = partyData[i].level
+      hero.damage = partyData[i].damage
+      this.heroes.push(hero)
+      this.add.existing(hero)
+      hero.updateStatusBar()
+    }
+
+/*     // player character - warrior
     let warriorUnit = new heroesIndex.Warrior(this, 250, 50)
     this.add.existing(warriorUnit)
 
     // player character - mage
     let mageUnit = new heroesIndex.Mage(this, 250, 100)
-    this.add.existing(mageUnit)
+    this.add.existing(mageUnit) */
 
     // enemy 1
     let enemy1 = new enemiesIndex.blueDragon(this, 50, 50)
@@ -37,8 +56,8 @@ export var BattleScene = new Phaser.Class({
     let enemy2 = new enemiesIndex.orangeDragon(this, 50, 100)
     this.add.existing(enemy2)
 
-    // array with heroes
-    this.heroes = [warriorUnit, mageUnit]
+/*     // array with heroes
+    this.heroes = [warriorUnit, mageUnit] */
     // array with enemies
     this.enemies = [enemy1, enemy2]
     // array with both parties, who will attack
@@ -143,6 +162,15 @@ export var BattleScene = new Phaser.Class({
     })
   },
   endBattle: function () {
+    // save hero data, todo add level up 
+    let partyData = this.registry.get('partyData')
+    for (let i = 0; i < this.heroes.length; i++) {
+      partyData[i].hp = this.heroes[i].hp
+      partyData[i].mp = this.heroes[i].mp
+      partyData[i].xp = this.heroes[i].xp
+      partyData[i].level = this.heroes[i].level
+    }
+      this.registry.set('partyData', partyData)
     // clear state, remove sprites
     this.heroes.length = 0
     this.enemies.length = 0
@@ -150,7 +178,9 @@ export var BattleScene = new Phaser.Class({
       // link item
       this.units[i].destroy()
     }
-    this.units.length = 0
+    this.heroes = []
+    this.enemies = []
+    this.units = []
     // sleep the UI
     this.scene.sleep('UIScene')
     // return to WorldScene and sleep current BattleScene
