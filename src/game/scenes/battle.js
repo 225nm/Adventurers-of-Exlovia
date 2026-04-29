@@ -39,7 +39,7 @@ export var BattleScene = new Phaser.Class({
       this.add.existing(hero)
       hero.updateStatusBar()
     }
-
+ // OLD logic todo delete later when its safe to do so
 /*     // player character - warrior
     let warriorUnit = new heroesIndex.Warrior(this, 250, 50)
     this.add.existing(warriorUnit)
@@ -47,6 +47,8 @@ export var BattleScene = new Phaser.Class({
     // player character - mage
     let mageUnit = new heroesIndex.Mage(this, 250, 100)
     this.add.existing(mageUnit) */
+    /*     // array with heroes
+    this.heroes = [warriorUnit, mageUnit] */
 
     // enemy 1
     let enemy1 = new enemiesIndex.blueDragon(this, 50, 50)
@@ -56,8 +58,7 @@ export var BattleScene = new Phaser.Class({
     let enemy2 = new enemiesIndex.orangeDragon(this, 50, 100)
     this.add.existing(enemy2)
 
-/*     // array with heroes
-    this.heroes = [warriorUnit, mageUnit] */
+
     // array with enemies
     this.enemies = [enemy1, enemy2]
     // array with both parties, who will attack
@@ -178,6 +179,7 @@ export var BattleScene = new Phaser.Class({
       // link item
       this.units[i].destroy()
     }
+    // clear arrays
     this.heroes = []
     this.enemies = []
     this.units = []
