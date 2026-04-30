@@ -6,6 +6,7 @@ import { UIScene } from './game/scenes/battle'
 import { TitleScene } from './game/scenes/title'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
+//Test commit
 var config = {
   type: Phaser.AUTO,
   parent: 'content',
