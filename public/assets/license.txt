@@ -3,3 +3,4 @@ The tiles are created by Kenney Vleugels and can be found at www.kenney.nl
 
 The player sprites can be found here .
 https://opengameart.org/content/rpg-character-sprites
+https://opengameart.org/content/ranger-animated
