@@ -49,8 +49,8 @@ export let Party = {
     {
       type: 'Ranger',
       name: 'todoranger',
-      hp: 80,
-      damage: 8,
+      hp: 70,
+      damage: 12,
       mp: 50,
       maxMp: 50,
       xp: 0,
