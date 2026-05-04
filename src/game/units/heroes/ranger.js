@@ -15,11 +15,35 @@ export let Ranger = new Phaser.Class({
     damage,
     xp,
     mp,
-    maxMp
+    maxMp,
+    level,
+    maxHp
   ) {
-    PlayerCharacter.call(this, scene, x, y, 'ranger', 18, 'Ranger', 70, 12, 0, 50, 50)
-    this.skills = rangerSkills
+    PlayerCharacter.call(
+      this,
+      scene,
+      x,
+      y,
+      'ranger',
+      18,
+      'Ranger',
+      hp || 70,
+      damage || 12,
+      xp || 0,
+      mp || 50,
+      maxMp || 50,
+      level || 1,
+      maxHp || 70
+    )
+    this.skills = [...rangerSkills]
     this.flipX = true
     this.setScale(2)
+  },
+  levelUp: function () {
+    this.level += 1
+    this.hp += 7
+    this.damage += 3
+    this.mp += 6
+    this.maxMp += 6
   },
 })

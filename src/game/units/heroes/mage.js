@@ -15,11 +15,39 @@ export let Mage = new Phaser.Class({
     damage,
     xp,
     mp,
-    maxMp
+    maxMp,
+    level,
+    maxHp
   ) {
-    PlayerCharacter.call(this, scene, x, y, 'player', 4, 'Mage', 80, 8, 0, 50, 50)
-    this.skills = mageSkills
+    PlayerCharacter.call(
+      this,
+      scene,
+      x,
+      y,
+      'player',
+      4,
+      'Mage',
+      hp || 80,
+      damage || 8,
+      xp || 0,
+      mp || 50,
+      maxMp || 50,
+      level || 1,
+      maxHp || 80
+    )
+    this.checkSkills()
     this.flipX = true
     this.setScale(2)
+  },
+  levelUp: function () {
+    this.level += 1
+    this.hp += 6
+    this.damage += 2
+    this.mp += 8
+    this.maxMp += 8
+  },
+  // AI suggested syntax, checks which skills are available based on level
+  checkSkills: function () {
+    this.skills = mageSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
