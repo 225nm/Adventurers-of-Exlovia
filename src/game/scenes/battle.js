@@ -3,6 +3,7 @@ import { PlayerCharacter, Enemy, Unit } from '../units'
 import { skillsIndex } from '../skills/skillsIndex.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
 import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
+import { saveSystem } from '../save.js'
 
 export var BattleScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -224,7 +225,7 @@ export var BattleScene = new Phaser.Class({
     this.scene.launch('VictoryScene', lootData)
   },
   saveHeroData: function () {
-    // save hero data, todo add level up
+    // save hero data
     let partyData = this.registry.get('partyData')
     for (let i = 0; i < partyData.length; i++) {
       let hero = this.heroes[i]
@@ -249,6 +250,7 @@ export var BattleScene = new Phaser.Class({
       partyData[i].skills = hero.skills
     }
     this.registry.set('partyData', partyData)
+    saveSystem.saveGame(this.registry)
   },
 })
 

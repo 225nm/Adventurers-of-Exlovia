@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { PlayerCharacter } from '../../units.js'
 import { rangerSkills } from '../../skills/rangerSkills.js'
+import { skillsIndex } from '../../skills/skillsIndex.js'
 
 export let Ranger = new Phaser.Class({
   Extends: PlayerCharacter,
@@ -52,3 +53,14 @@ export let Ranger = new Phaser.Class({
     this.skills = rangerSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
+Ranger.baseStats = {
+    type: 'Ranger',
+    hp: 70,
+    maxHp: 70,
+    mp: 50,
+    maxMp: 50,
+    xp: 0,
+    level: 1,
+    damage: 12,
+    skills: rangerSkills.filter(s => s.levelReq <= 1)
+};

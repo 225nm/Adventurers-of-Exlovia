@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { PlayerCharacter } from '../../units.js'
 import { mageSkills } from '../../skills/mageSkills.js'
+import { skillsIndex } from '../../skills/skillsIndex.js'
 
 export let Mage = new Phaser.Class({
   Extends: PlayerCharacter,
@@ -53,3 +54,14 @@ export let Mage = new Phaser.Class({
     this.skills = mageSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
+Mage.baseStats = {
+    type: 'Mage',
+    hp: 80,
+    maxHp: 80,
+    mp: 50,
+    maxMp: 50,
+    xp: 0,
+    level: 1,
+    damage: 8,
+    skills: mageSkills.filter(s => s.levelReq <= 1)
+};

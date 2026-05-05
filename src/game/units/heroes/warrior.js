@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { PlayerCharacter } from '../../units.js'
 import { warriorSkills } from '../../skills/warriorSkills.js'
+import { skillsIndex } from '../../skills/skillsIndex.js'
 
 export let Warrior = new Phaser.Class({
   Extends: PlayerCharacter,
@@ -54,3 +55,14 @@ export let Warrior = new Phaser.Class({
     this.skills = warriorSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
+Warrior.baseStats = {
+  type: 'Warrior',
+  hp: 100,
+  maxHp: 100,
+  mp: 20,
+  maxMp: 20,
+  xp: 0,
+  level: 1,
+  damage: 20,
+  skills: warriorSkills.filter(s => s.levelReq <= 1)
+}

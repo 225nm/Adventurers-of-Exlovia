@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { saveSystem } from '../save'
 
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
