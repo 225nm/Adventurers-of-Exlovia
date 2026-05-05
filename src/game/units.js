@@ -3,10 +3,11 @@ import Phaser from 'phaser'
 export var Unit = new Phaser.Class({
   Extends: Phaser.GameObjects.Sprite,
 
-  initialize: function Unit(scene, x, y, texture, frame, type, hp, damage) {
+  initialize: function Unit(scene, x, y, texture, frame, type, hp, damage, maxHp) {
     Phaser.GameObjects.Sprite.call(this, scene, x, y, texture, frame)
     this.type = type
-    this.maxHp = this.hp = hp
+    this.hp = hp
+    this.maxHp = maxHp || hp
     this.damage = damage // default damage
     this.living = true
     this.menuItem = null
@@ -158,7 +159,7 @@ export var Enemy = new Phaser.Class({
     lootTable
   ) {
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
-    this.xpDrop = xpDrop
+    this.xpDrop = xpDrop || 0
     this.lootTable = lootTable || []
   },
 })
@@ -177,12 +178,17 @@ export var PlayerCharacter = new Phaser.Class({
     damage,
     xp,
     mp,
-    maxMp
+    maxMp,
+    level,
+    maxHp
   ) {
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
+
     this.maxMp = maxMp || 0
     this.mp = mp || 0
     this.xp = xp || 0
+    this.level = level || 1
+    this.maxHp = maxHp || hp
 
     this.updateStatusBar()
   },

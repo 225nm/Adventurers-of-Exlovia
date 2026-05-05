@@ -15,7 +15,9 @@ export let Warrior = new Phaser.Class({
     damage,
     xp,
     mp,
-    maxMp
+    maxMp,
+    level,
+    maxHp
   ) {
     PlayerCharacter.call(
       this,
@@ -25,14 +27,29 @@ export let Warrior = new Phaser.Class({
       'player',
       1,
       'Warrior',
-      100,
-      20,
-      0,
-      20,
-      20
+      hp || 100, //hp
+      damage || 20, //dmg
+      xp || 0, //xp
+      mp || 20, //mp
+      maxMp || 20, //maxmp
+      level || 1, //level
+      maxHp || 100 //maxhp
     )
-    this.skills = warriorSkills
+    //this.skills = [...warriorSkills]
+    this.checkSkills()
     this.flipX = true
     this.setScale(2)
   },
+  levelUp: function () {
+    this.level += 1
+    this.hp += 10
+    this.damage += 4
+    this.mp += 5
+    this.maxMp += 5
+    // check for new skills on level up
+    this.checkSkills()
+  },
+    checkSkills: function () {
+      this.skills = warriorSkills.filter((skill) => this.level >= skill.levelReq)
+    },
 })

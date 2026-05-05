@@ -14,41 +14,44 @@ export var BattleScene = new Phaser.Class({
     this.cameras.main.roundPixels = true
     // change the background to green
     this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)')
-  
+
     // on wake event we call startBattle too
     this.sys.events.on('wake', this.startBattle, this)
 
-      this.startBattle()
+    this.startBattle()
   },
   startBattle: function () {
+    // Clear any previous battle data to avoid bugs
+    this.units = []
+    this.heroes = []
+    this.enemies = []
+    this.index = -1
+    this.time.removeAllEvents()
+    this.scene.stop('UIScene')
+    this.events.off('PlayerSelect')
+
     // (scene, x, y, texture, frame, type, hp, damage, xp)
-    // saved data 
+    // saved data
     let partyData = this.registry.get('partyData')
     this.heroes = []
 
     // populate hero array with save data
     for (let i = 0; i < partyData.length; i++) {
       let hero = new heroesIndex[partyData[i].type](this, 250, 50 + i * 50)
+      hero.level = partyData[i].level
+      hero.maxHp = partyData[i].maxHp || hero.maxHp
       hero.hp = partyData[i].hp
       hero.mp = partyData[i].mp
       hero.xp = partyData[i].xp
       hero.maxMp = partyData[i].maxMp
-      hero.level = partyData[i].level
       hero.damage = partyData[i].damage
+      if (hero.checkSkills) {
+        hero.checkSkills()
+      }
       this.heroes.push(hero)
       this.add.existing(hero)
       hero.updateStatusBar()
     }
- // OLD logic todo delete later when its safe to do so
-/*     // player character - warrior
-    let warriorUnit = new heroesIndex.Warrior(this, 250, 50)
-    this.add.existing(warriorUnit)
-
-    // player character - mage
-    let mageUnit = new heroesIndex.Mage(this, 250, 100)
-    this.add.existing(mageUnit) */
-    /*     // array with heroes
-    this.heroes = [warriorUnit, mageUnit] */
 
     // enemy 1
     let enemy1 = new enemiesIndex.blueDragon(this, 50, 50)
@@ -58,7 +61,6 @@ export var BattleScene = new Phaser.Class({
     let enemy2 = new enemiesIndex.orangeDragon(this, 50, 100)
     this.add.existing(enemy2)
 
-
     // array with enemies
     this.enemies = [enemy1, enemy2]
     // array with both parties, who will attack
@@ -67,6 +69,13 @@ export var BattleScene = new Phaser.Class({
     this.index = -1 // currently active unit
 
     this.scene.run('UIScene')
+
+    // Small delay to let things load, TODO check if needed.
+    this.time.addEvent({
+      delay: 100,
+      callback: this.nextTurn,
+      callbackScope: this,
+    })
   },
   nextTurn: function () {
     // if we have victory or game over
@@ -115,10 +124,15 @@ export var BattleScene = new Phaser.Class({
     for (i = 0; i < this.heroes.length; i++) {
       if (this.heroes[i].living) gameOver = false
     }
-    return victory || gameOver
+    if (victory) {
+      this.endBattleVictory()
+      return true
+    }
+    return gameOver
   },
   // when the player have selected the enemy to be attacked
   receivePlayerSelection: function (action, target) {
+    this.time.removeAllEvents()
     let attacker = this.units[this.index]
     let victim = this.enemies[target]
 
@@ -163,16 +177,8 @@ export var BattleScene = new Phaser.Class({
     })
   },
   endBattle: function () {
-    // save hero data, todo add level up 
-    let partyData = this.registry.get('partyData')
-    for (let i = 0; i < this.heroes.length; i++) {
-      partyData[i].hp = this.heroes[i].hp
-      partyData[i].mp = this.heroes[i].mp
-      partyData[i].xp = this.heroes[i].xp
-      partyData[i].level = this.heroes[i].level
-    }
-      this.registry.set('partyData', partyData)
     // clear state, remove sprites
+    this.time.removeAllEvents()
     this.heroes.length = 0
     this.enemies.length = 0
     for (var i = 0; i < this.units.length; i++) {
@@ -184,14 +190,70 @@ export var BattleScene = new Phaser.Class({
     this.enemies = []
     this.units = []
     // sleep the UI
+    this.scene.stop('UIScene')
+    // return to WorldScene and sleep current BattleScene, todo delete later if no bugs
+    //this.scene.switch('WorldScene')
+  },
+
+  // Handle victory, give xp and loot and show victory scene
+  endBattleVictory: function () {
+    // total values for xp and loot
+    let totalXp = 0
+    let totalLoot = []
+    // add enemies xp and loot to totals
+    for (let i = 0; i < this.enemies.length; i++) {
+      totalXp += this.enemies[i].xpDrop
+      // todo add randomness and more loot to loot table
+      if (this.enemies[i].lootTable.length > 0) {
+        totalLoot.push(this.enemies[i].lootTable[0])
+      }
+    }
+    for (let i = 0; i < this.heroes.length; i++) {
+      this.heroes[i].xp += totalXp
+    }
+
+    const lootData = {
+      xp: totalXp,
+      loot: totalLoot,
+    }
+    // save hero data
+    this.saveHeroData()
+    // Scene management
     this.scene.sleep('UIScene')
-    // return to WorldScene and sleep current BattleScene
-    this.scene.switch('WorldScene')
+    this.scene.pause()
+    this.scene.launch('VictoryScene', lootData)
+  },
+  saveHeroData: function () {
+    // save hero data, todo add level up
+    let partyData = this.registry.get('partyData')
+    for (let i = 0; i < partyData.length; i++) {
+      let hero = this.heroes[i]
+
+      // todo improve xp requirement formula
+      let xpReq = hero.level * 20
+
+      // while allows for multiple level ups in case of big xp gains
+      while (hero.xp >= xpReq) {
+        hero.xp -= xpReq
+        hero.levelUp()
+        xpReq = hero.level * 20
+      }
+
+      partyData[i].hp = hero.hp
+      partyData[i].maxHp = hero.maxHp
+      partyData[i].mp = hero.mp
+      partyData[i].maxMp = hero.maxMp
+      partyData[i].level = hero.level
+      partyData[i].damage = hero.damage
+      partyData[i].xp = hero.xp
+      partyData[i].skills = hero.skills
+    }
+    this.registry.set('partyData', partyData)
   },
 })
 
 // ----------------------------------- MENUS ---------------------------------------
-// Maybe move to separate module later
+// Maybe move to separate module later todo
 
 var MenuItem = new Phaser.Class({
   Extends: Phaser.GameObjects.Text,
@@ -356,7 +418,7 @@ var EnemiesMenu = new Phaser.Class({
   },
 })
 
-// ------------------------------ UI SCENE maybe move to own file ----------------------------
+// ------------------------------ UI SCENE maybe move to own file todo ----------------------------
 // User Interface scene
 export var UIScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -399,9 +461,11 @@ export var UIScene = new Phaser.Class({
     this.battleScene = this.scene.get('BattleScene')
 
     // listen for keyboard events
+    this.input.keyboard.off('keydown')
     this.input.keyboard.on('keydown', this.onKeyInput, this)
 
     // when its player cunit turn to move
+    this.battleScene.events.off('PlayerSelect')
     this.battleScene.events.on('PlayerSelect', this.onPlayerSelect, this)
 
     // The skills menu
@@ -411,14 +475,19 @@ export var UIScene = new Phaser.Class({
 
     // when the action on the menu is selected
     // for now we have only one action so we dont send and action id
+    this.events.off('SelectedAction')
     this.events.on('SelectedAction', this.onSelectedAction, this)
+    this.events.off('SelectedSkills')
     this.events.on('SelectedSkills', this.onSelectedSkills, this)
+    this.events.off('SkillSelected')
     this.events.on('SkillSelected', this.onSkillSelected, this)
 
     // an enemy is selected
+    this.events.off('Enemy')
     this.events.on('Enemy', this.onEnemy, this)
 
     // when the player doesn't have enough mana to use a skill
+    this.battleScene.events.off('noMana')
     this.battleScene.events.on('noMana', this.onNoMana, this)
 
     // when the scene receives wake event
@@ -435,8 +504,8 @@ export var UIScene = new Phaser.Class({
     this.remapHeroes()
     // map enemies menu items to enemies
     this.remapEnemies()
-    // first move
-    this.battleScene.nextTurn()
+    // first move, TODO delete this if no bugs
+    // this.battleScene.nextTurn()
   },
   onEnemy: function (index) {
     // when the enemy is selected, we deselect all menus and send event with the enemy id
@@ -556,6 +625,7 @@ var Message = new Phaser.Class({
     })
     this.add(this.text)
     this.text.setOrigin(0.5)
+    events.off('Message')
     events.on('Message', this.showMessage, this)
     this.visible = false
   },

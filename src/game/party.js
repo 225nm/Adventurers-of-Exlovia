@@ -1,8 +1,7 @@
 import Phaser from 'phaser'
 import { skillsIndex } from './skills/skillsIndex'
 
-//Party with warrior and ranger
-/*
+//Party with warrior and mage
 export let Party = {
   Heroes: [
     {
@@ -30,8 +29,7 @@ export let Party = {
   ],
 }
 
-*/
-
+/* 
 //Party with warrior and ranger
 export let Party = {
   Heroes: [
@@ -58,4 +56,4 @@ export let Party = {
       skills: skillsIndex.rangerSkills,
     },
   ],
-}
+} */
