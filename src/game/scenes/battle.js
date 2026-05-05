@@ -29,6 +29,7 @@ export var BattleScene = new Phaser.Class({
     this.time.removeAllEvents()
     this.scene.stop('UIScene')
     this.events.off('PlayerSelect')
+
     // (scene, x, y, texture, frame, type, hp, damage, xp)
     // saved data
     let partyData = this.registry.get('partyData')
@@ -37,27 +38,20 @@ export var BattleScene = new Phaser.Class({
     // populate hero array with save data
     for (let i = 0; i < partyData.length; i++) {
       let hero = new heroesIndex[partyData[i].type](this, 250, 50 + i * 50)
+      hero.level = partyData[i].level
       hero.maxHp = partyData[i].maxHp || hero.maxHp
       hero.hp = partyData[i].hp
       hero.mp = partyData[i].mp
       hero.xp = partyData[i].xp
       hero.maxMp = partyData[i].maxMp
-      hero.level = partyData[i].level
       hero.damage = partyData[i].damage
+      if (hero.checkSkills) {
+        hero.checkSkills()
+      }
       this.heroes.push(hero)
       this.add.existing(hero)
       hero.updateStatusBar()
     }
-    // OLD logic todo delete later when its safe to do so
-    /*     // player character - warrior
-    let warriorUnit = new heroesIndex.Warrior(this, 250, 50)
-    this.add.existing(warriorUnit)
-
-    // player character - mage
-    let mageUnit = new heroesIndex.Mage(this, 250, 100)
-    this.add.existing(mageUnit) */
-    /*     // array with heroes
-    this.heroes = [warriorUnit, mageUnit] */
 
     // enemy 1
     let enemy1 = new enemiesIndex.blueDragon(this, 50, 50)

@@ -45,6 +45,7 @@ export let Mage = new Phaser.Class({
     this.damage += 2
     this.mp += 8
     this.maxMp += 8
+    this.checkSkills()
   },
   // AI suggested syntax, checks which skills are available based on level
   checkSkills: function () {

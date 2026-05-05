@@ -35,7 +35,7 @@ export let Ranger = new Phaser.Class({
       level || 1,
       maxHp || 70
     )
-    this.skills = [...rangerSkills]
+    this.checkSkills()
     this.flipX = true
     this.setScale(2)
   },
@@ -45,5 +45,9 @@ export let Ranger = new Phaser.Class({
     this.damage += 3
     this.mp += 6
     this.maxMp += 6
+    this.checkSkills()
   },
+    checkSkills: function () {
+      this.skills = rangerSkills.filter((skill) => this.level >= skill.levelReq)
+    },
 })
