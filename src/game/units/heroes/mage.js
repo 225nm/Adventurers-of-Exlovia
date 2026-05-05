@@ -42,6 +42,7 @@ export let Mage = new Phaser.Class({
   levelUp: function () {
     this.level += 1
     this.hp += 6
+    this.maxHp += 6
     this.damage += 2
     this.mp += 8
     this.maxMp += 8

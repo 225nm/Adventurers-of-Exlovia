@@ -43,6 +43,7 @@ export let Warrior = new Phaser.Class({
   levelUp: function () {
     this.level += 1
     this.hp += 10
+    this.maxHp += 10
     this.damage += 4
     this.mp += 5
     this.maxMp += 5

@@ -42,6 +42,7 @@ export let Ranger = new Phaser.Class({
   levelUp: function () {
     this.level += 1
     this.hp += 7
+    this.maxHp += 7
     this.damage += 3
     this.mp += 6
     this.maxMp += 6
