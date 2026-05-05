@@ -29,7 +29,6 @@ export var BootScene = new Phaser.Class({
 
     // ranger
     this.load.image('ranger', 'assets/ranger.png')
-
   },
 
   create: function () {

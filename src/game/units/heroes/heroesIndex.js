@@ -9,5 +9,5 @@ export { Warrior, Mage, Ranger }
 export const heroesIndex = {
   Warrior,
   Mage,
-  Ranger
+  Ranger,
 }

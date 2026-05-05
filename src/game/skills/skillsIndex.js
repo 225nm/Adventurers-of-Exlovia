@@ -9,5 +9,5 @@ export { warriorSkills, mageSkills, rangerSkills }
 export const skillsIndex = {
   warriorSkills,
   mageSkills,
-  rangerSkills
+  rangerSkills,
 }

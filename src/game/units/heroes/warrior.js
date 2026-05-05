@@ -49,7 +49,7 @@ export let Warrior = new Phaser.Class({
     // check for new skills on level up
     this.checkSkills()
   },
-    checkSkills: function () {
-      this.skills = warriorSkills.filter((skill) => this.level >= skill.levelReq)
-    },
+  checkSkills: function () {
+    this.skills = warriorSkills.filter((skill) => this.level >= skill.levelReq)
+  },
 })

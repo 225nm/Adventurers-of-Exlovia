@@ -3,7 +3,17 @@ import Phaser from 'phaser'
 export var Unit = new Phaser.Class({
   Extends: Phaser.GameObjects.Sprite,
 
-  initialize: function Unit(scene, x, y, texture, frame, type, hp, damage, maxHp) {
+  initialize: function Unit(
+    scene,
+    x,
+    y,
+    texture,
+    frame,
+    type,
+    hp,
+    damage,
+    maxHp
+  ) {
     Phaser.GameObjects.Sprite.call(this, scene, x, y, texture, frame)
     this.type = type
     this.hp = hp
