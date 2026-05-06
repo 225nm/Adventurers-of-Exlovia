@@ -1,0 +1,10 @@
+name: aoe-prod
+services:
+  game:
+    build:
+      target: production
+    restart: always
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      - NODE_ENV=production

@@ -1,0 +1,17 @@
+# exclude all
+*
+
+# config
+!package.json
+!package-lock.json
+!index.html
+
+# code and assets
+!src/
+!public/
+!src/**
+!public/**
+
+# vite to build
+!vite.config.*
+!vite/
