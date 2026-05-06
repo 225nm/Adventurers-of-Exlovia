@@ -1,6 +1,6 @@
 services:
-game:
-  build:
-    context: .
-    dockerfile: Dockerfile
-  container_name: AoE
+  game:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: AoE
