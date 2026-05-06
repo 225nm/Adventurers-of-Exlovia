@@ -20,7 +20,9 @@
     "dev-nolog": "vite --config vite/config.dev.mjs",
     "build-nolog": "vite build --config vite/config.prod.mjs",
     "lint": "eslint . && prettier --check .",
-    "lint:fix": "prettier --write . && eslint  . --fix"
+    "lint:fix": "prettier --write . && eslint  . --fix",
+    "deploy:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d",
+    "deploy:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
