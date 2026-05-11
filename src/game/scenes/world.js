@@ -62,6 +62,9 @@ export var WorldScene = new Phaser.Class({
     // our player sprite created through the phycis system
     this.player = this.physics.add.sprite(50, 100, 'player', 6)
 
+    // Spawn radius where enemies will not spawn. In pixels.
+    const spawnRadius = 120
+
     // don't go out of the map
     this.physics.world.bounds.width = map.widthInPixels
     this.physics.world.bounds.height = map.heightInPixels
@@ -84,9 +87,21 @@ export var WorldScene = new Phaser.Class({
       classType: Phaser.Physics.Arcade.Sprite,
     })
     for (var i = 0; i < 20; i++) {
-      var x = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
-      var y = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
+      let x
+      let y
+      let distance
+      // check that enemies spawn minimum 120 pixels away from player spawn
       // parameters are x, y, width, height
+      do {
+        x = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
+        y = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
+        distance = Phaser.Math.Distance.Between(
+          x,
+          y,
+          this.player.x,
+          this.player.y
+        )
+      } while (distance < spawnRadius)
 
       // TODO add array of enemies here later
       let enemy = this.spawns.create(x, y, 'dragonblue')
@@ -119,9 +134,22 @@ export var WorldScene = new Phaser.Class({
     this.cursors.down.reset()
   },
   onMeetEnemy: function (player, zone) {
-    // we move the zone to some other location
-    zone.x = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
-    zone.y = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
+    const safeRadius = 80
+    let newX
+    let newY
+    let distanceRespawn
+    do {
+      newX = Phaser.Math.RND.between(0, this.physics.world.bounds.width)
+      newY = Phaser.Math.RND.between(0, this.physics.world.bounds.height)
+      distanceRespawn = Phaser.Math.Distance.Between(
+        newX,
+        newY,
+        player.x,
+        player.y
+      )
+    } while (distanceRespawn < safeRadius)
+    zone.x = newX
+    zone.y = newY
 
     // TODO implement battle scene transition
     // shake the world

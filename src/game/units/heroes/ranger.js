@@ -54,13 +54,13 @@ export let Ranger = new Phaser.Class({
   },
 })
 Ranger.baseStats = {
-    type: 'Ranger',
-    hp: 70,
-    maxHp: 70,
-    mp: 50,
-    maxMp: 50,
-    xp: 0,
-    level: 1,
-    damage: 12,
-    skills: rangerSkills.filter(s => s.levelReq <= 1)
-};
+  type: 'Ranger',
+  hp: 70,
+  maxHp: 70,
+  mp: 50,
+  maxMp: 50,
+  xp: 0,
+  level: 1,
+  damage: 12,
+  skills: rangerSkills.filter((s) => s.levelReq <= 1),
+}

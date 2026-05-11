@@ -64,5 +64,5 @@ Warrior.baseStats = {
   xp: 0,
   level: 1,
   damage: 20,
-  skills: warriorSkills.filter(s => s.levelReq <= 1)
+  skills: warriorSkills.filter((s) => s.levelReq <= 1),
 }

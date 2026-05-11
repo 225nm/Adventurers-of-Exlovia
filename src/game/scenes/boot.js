@@ -25,12 +25,12 @@ export var BootScene = new Phaser.Class({
     this.load.image('ranger', 'assets/ranger.png')
 
     // our two characters
-    this.load.spritesheet('player', 'assets/RPG_assets.png', {
+    ;(this.load.spritesheet('player', 'assets/RPG_assets.png', {
       frameWidth: 16,
       frameHeight: 16,
     }),
       // Font file
-      this.load.addFile(new CustomFontFile(this.load, 'Press Start 2P'))
+      this.load.addFile(new CustomFontFile(this.load, 'Press Start 2P')))
   },
 
   create: function () {

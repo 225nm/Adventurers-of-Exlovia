@@ -7,22 +7,24 @@ export const Party = {
   /**
    * Generates a fresh party based on the hero classes' baseStats.
    */
-  getStartingParty: function() {
+  getStartingParty: function () {
     // starting lineup
-    const lineup = ['Warrior', 'Mage']; 
-    
-    return lineup.map(className => {
-      const HeroClass = heroesIndex[className];
-      
-      if (HeroClass && HeroClass.baseStats) {
-        // Return a copy of the baseStats
-        return { ...HeroClass.baseStats };
-      }
-      
-      return null;
-    }).filter(h => h !== null);
-  }
-};
+    const lineup = ['Warrior', 'Mage']
+
+    return lineup
+      .map((className) => {
+        const HeroClass = heroesIndex[className]
+
+        if (HeroClass && HeroClass.baseStats) {
+          // Return a copy of the baseStats
+          return { ...HeroClass.baseStats }
+        }
+
+        return null
+      })
+      .filter((h) => h !== null)
+  },
+}
 //Party with warrior and mage
 /* export let Party = {
   Heroes: [

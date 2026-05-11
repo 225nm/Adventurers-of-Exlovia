@@ -82,7 +82,9 @@ export var TitleScene = new Phaser.Class({
       .setOrigin(0.5) */
     // Key listeners
     this.cursors = this.input.keyboard.createCursorKeys()
-    this.confirmKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z)
+    this.confirmKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.Z
+    )
     // old input todo delete if no issues
     //this.input.keyboard.on('keydown-Z', this.confirmSelection, this)
 
@@ -100,7 +102,7 @@ export var TitleScene = new Phaser.Class({
     }
   },
 
-moveSelection: function (direction) {
+  moveSelection: function (direction) {
     this.selectedIndex += direction
 
     // Wrap around

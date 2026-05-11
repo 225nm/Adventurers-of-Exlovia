@@ -55,13 +55,13 @@ export let Mage = new Phaser.Class({
   },
 })
 Mage.baseStats = {
-    type: 'Mage',
-    hp: 80,
-    maxHp: 80,
-    mp: 50,
-    maxMp: 50,
-    xp: 0,
-    level: 1,
-    damage: 8,
-    skills: mageSkills.filter(s => s.levelReq <= 1)
-};
+  type: 'Mage',
+  hp: 80,
+  maxHp: 80,
+  mp: 50,
+  maxMp: 50,
+  xp: 0,
+  level: 1,
+  damage: 8,
+  skills: mageSkills.filter((s) => s.levelReq <= 1),
+}
