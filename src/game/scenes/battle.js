@@ -54,16 +54,18 @@ export var BattleScene = new Phaser.Class({
       hero.updateStatusBar()
     }
 
-    // enemy 1
-    let enemy1 = new enemiesIndex.blueDragon(this, 50, 50)
-    this.add.existing(enemy1)
-
-    // enemy 2
-    let enemy2 = new enemiesIndex.orangeDragon(this, 50, 100)
-    this.add.existing(enemy2)
-
     // array with enemies
-    this.enemies = [enemy1, enemy2]
+    this.enemies = []
+    const allEnemies = Object.keys(enemiesIndex)
+    let enemyAmount = 2
+
+    for (let i = 0; i < enemyAmount; i++) {
+      const rnd = allEnemies[Math.floor(Math.random() * allEnemies.length)]
+
+      let enemy = new enemiesIndex[rnd](this, 50, 50 + i * 50)
+      this.add.existing(enemy)
+      this.enemies.push(enemy)
+    }
     // array with both parties, who will attack
     this.units = this.heroes.concat(this.enemies)
 

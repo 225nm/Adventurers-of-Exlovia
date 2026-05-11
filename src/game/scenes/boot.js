@@ -21,16 +21,18 @@ export var BootScene = new Phaser.Class({
     // enemies
     this.load.image('dragonblue', 'assets/dragonblue.png')
     this.load.image('dragonorrange', 'assets/dragonorrange.png')
-    // ranger
+    this.load.image('ogre', 'assets/ogre.png')
+
+    // Ranger
     this.load.image('ranger', 'assets/ranger.png')
 
-    // our two characters
-    ;(this.load.spritesheet('player', 'assets/RPG_assets.png', {
+    // our two characters, mage and warrior
+    this.load.spritesheet('player', 'assets/RPG_assets.png', {
       frameWidth: 16,
       frameHeight: 16,
-    }),
-      // Font file
-      this.load.addFile(new CustomFontFile(this.load, 'Press Start 2P')))
+    })
+    // Font file
+    this.load.addFile(new CustomFontFile(this.load, 'Press Start 2P'))
   },
 
   create: function () {
