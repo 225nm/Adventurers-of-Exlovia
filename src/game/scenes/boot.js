@@ -21,15 +21,16 @@ export var BootScene = new Phaser.Class({
     // enemies
     this.load.image('dragonblue', 'assets/dragonblue.png')
     this.load.image('dragonorrange', 'assets/dragonorrange.png')
+    // ranger
+    this.load.image('ranger', 'assets/ranger.png')
 
     // our two characters
     this.load.spritesheet('player', 'assets/RPG_assets.png', {
       frameWidth: 16,
       frameHeight: 16,
-    })
-
-    // ranger
-    this.load.image('ranger', 'assets/ranger.png')
+    }),
+      // Font file
+      this.load.addFile(new CustomFontFile(this.load, 'Press Start 2P'))
   },
 
   create: function () {
@@ -37,3 +38,15 @@ export var BootScene = new Phaser.Class({
     this.scene.start('TitleScene')
   },
 })
+
+// AI suggested custom class in order to load font before Title screen is loaded
+class CustomFontFile extends Phaser.Loader.File {
+  constructor(loader, fontName) {
+    super(loader, { type: 'text', key: fontName })
+  }
+  load() {
+    document.fonts.load(`10px "${this.key}"`).then(() => {
+      this.loader.nextFile(this, true)
+    })
+  }
+}
