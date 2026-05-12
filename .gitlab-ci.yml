@@ -34,8 +34,10 @@ stages:
 # Job to compile the code in the build stage.
 build-job:
   stage: build
+  image: node:20.17.0-alpine
   script:
-    - echo "Compile complete."
+    - npm ci
+    - npm run build
 
 # Job to run unit tests in the test stage.
 unit-test-job:
