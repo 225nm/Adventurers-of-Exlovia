@@ -17,6 +17,7 @@ export default [
       'docker-compose.yml',
       'docker-compose.prod.yml',
       'docker-compose.dev.yml',
+      '.gitlab-ci.yml'
     ],
   },
   js.configs.recommended,
