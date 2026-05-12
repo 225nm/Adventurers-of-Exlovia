@@ -17,6 +17,7 @@ export var BattleScene = new Phaser.Class({
     this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)')
 
     // on wake event we call startBattle too
+    this.sys.events.off('wake')
     this.sys.events.on('wake', this.startBattle, this)
 
     this.startBattle()

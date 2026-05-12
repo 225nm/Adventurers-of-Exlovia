@@ -25,15 +25,16 @@ export let WorldMenuScene = new Phaser.Class({
 
     this.menuIndex = 0
     this.menuItems[this.menuIndex].setColor('#f8ff38')
-
-    // Input handlers
-    this.input.keyboard.on('keydown', this.handleInput, this)
+    // Delay input handler to prevent input crashes
+    this.time.delayedCall(100, () => {
+      this.input.keyboard.on('keydown', this.handleInput, this)
+    })
   },
 
   setupMenuItem: function (x, y, text, action) {
     let item = this.add.text(x, y, text, {
       fontFamily: '"Press Start 2P"',
-      fontSize: '10px',
+      fontSize: '8px',
     })
     item.action = action
     this.menuItems.push(item)
@@ -75,7 +76,7 @@ export let WorldMenuScene = new Phaser.Class({
       saveSystem.saveGame(this.registry)
       let saveText = this.add.text(50, 175, 'GAME SAVED!', {
         fontFamily: '"Press Start 2P"',
-        fontSize: '10px',
+        fontSize: '8px',
       })
       this.time.delayedCall(1500, () => saveText.destroy())
     }
@@ -110,13 +111,13 @@ export let WorldMenuScene = new Phaser.Class({
       this.scene.start('TitleScene')
     } else if (event.code === 'KeyX' || event.code === 'Escape') {
       this.confirmBox.destroy()
-      this.menuState = 'MAIN'
+      this.menuState = 'main'
     }
   },
   showFeedback: function (text) {
     let feed = this.add.text(50, 175, text, {
       fontFamily: '"Press Start 2P"',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#f8ff38',
     })
     this.time.delayedCall(1500, () => feed.destroy())

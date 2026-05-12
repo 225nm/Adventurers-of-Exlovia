@@ -72,6 +72,5 @@ export var VictoryScene = new Phaser.Class({
     this.scene.stop('UIScene')
 
     this.scene.wake('WorldScene')
-    this.scene.bringToTop('WorldScene')
   },
 })

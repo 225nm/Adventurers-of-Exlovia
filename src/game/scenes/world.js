@@ -23,8 +23,13 @@ export var WorldScene = new Phaser.Class({
     // make all tiles in obstacles collidable
     obstacles.setCollisionByExclusion([-1])
 
+    // Clean up old listeners
+    this.input.keyboard.off('keydown-C')
+    this.input.keyboard.off('keydown-ESC')
+
     // Input listener for the pause menu on C key
     this.input.keyboard.on('keydown-C', () => {
+      if (this.scene.isActive('WorldMenuScene')) return
       this.scene.pause()
       this.scene.launch('WorldMenuScene')
     })
@@ -143,6 +148,8 @@ export var WorldScene = new Phaser.Class({
     this.cursors.right.reset()
     this.cursors.up.reset()
     this.cursors.down.reset()
+
+    this.input.keyboard.clearCaptures()
   },
   onMeetEnemy: function (player, zone) {
     const safeRadius = 80
@@ -166,7 +173,6 @@ export var WorldScene = new Phaser.Class({
     // shake the world
     //this.cameras.main.shake(300)
 
-    this.input.stopPropagation()
     // start battle
     this.scene.switch('BattleScene')
   },
