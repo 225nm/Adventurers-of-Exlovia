@@ -58,7 +58,7 @@ export var TitleScene = new Phaser.Class({
       .text(
         160,
         215,
-        'Use the arrow keys to move \n Z to confirm and X to cancel',
+        'Use the arrow keys to move \n Z to confirm \n X to cancel \n C to open the menu',
         {
           fontSize: '8px',
           fontFamily: '"Press Start 2P", cursive',

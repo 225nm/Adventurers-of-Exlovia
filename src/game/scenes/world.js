@@ -23,6 +23,17 @@ export var WorldScene = new Phaser.Class({
     // make all tiles in obstacles collidable
     obstacles.setCollisionByExclusion([-1])
 
+    // Input listener for the pause menu on C key
+    this.input.keyboard.on('keydown-C', () => {
+      this.scene.pause()
+      this.scene.launch('WorldMenuScene')
+    })
+    // Input listener for escape to open menu
+    this.input.keyboard.on('keydown-ESC', () => {
+      this.scene.pause()
+      this.scene.launch('WorldMenuScene')
+    })
+
     //  animation with key 'left', we don't need left and right as we will use one and flip the sprite
     this.anims.create({
       key: 'left',
