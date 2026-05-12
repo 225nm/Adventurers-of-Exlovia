@@ -12,7 +12,7 @@ import { WorldMenuScene } from './game/scenes/worldmenu'
 var config = {
   type: Phaser.AUTO,
   parent: 'content',
-       width: 320,
+  width: 320,
   height: 240,
   pixelArt: true,
   roundPixels: true,
