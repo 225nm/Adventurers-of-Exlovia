@@ -15,7 +15,7 @@ export let PartyScene = new Phaser.Class({
   },
 
   create: function () {
- // clear listeners to avoid bugs
+    // clear listeners to avoid bugs
     this.input.keyboard.off('keydown', this.handleInput, this)
     // Menu graphic box
     this.graphics = this.add.graphics()

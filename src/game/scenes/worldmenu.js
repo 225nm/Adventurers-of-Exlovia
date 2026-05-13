@@ -79,7 +79,7 @@ export let WorldMenuScene = new Phaser.Class({
 
   confirmSelection: function () {
     let selection = this.menuItems[this.menuIndex].action
-// clean up old scenes
+    // clean up old scenes
     this.scene.stop('ItemScene')
     this.scene.stop('PartyScene')
 
@@ -98,7 +98,7 @@ export let WorldMenuScene = new Phaser.Class({
       })
       this.time.delayedCall(1500, () => saveText.destroy())
     } else if (selection === 'ItemMenu') {
-            this.scene.stop('PartyScene')
+      this.scene.stop('PartyScene')
       this.input.keyboard.off('keydown', this.handleInput, this)
       this.scene.sleep('WorldMenuScene')
       this.scene.launch('ItemScene')

@@ -91,15 +91,14 @@ export let ItemScene = new Phaser.Class({
   exitMenu: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
 
-
-this.scene.stop('PartyScene')
+    this.scene.stop('PartyScene')
     this.scene.stop()
 
-  if (this.scene.isSleeping('WorldMenuScene')) {
-    this.scene.wake('WorldMenuScene')
-  } else {
-    this.scene.resume('WorldScene')
-  }
+    if (this.scene.isSleeping('WorldMenuScene')) {
+      this.scene.wake('WorldMenuScene')
+    } else {
+      this.scene.resume('WorldScene')
+    }
   },
   setupInput: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
