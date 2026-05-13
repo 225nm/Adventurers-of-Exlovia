@@ -7,6 +7,7 @@ import { TitleScene } from './game/scenes/title'
 import { VictoryScene } from './game/scenes/victory'
 import { PartyScene } from './game/scenes/partymenu'
 import { WorldMenuScene } from './game/scenes/worldmenu'
+import { ItemScene } from './game/scenes/itemmenu'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
 var config = {
@@ -36,6 +37,7 @@ var config = {
     VictoryScene,
     PartyScene,
     WorldMenuScene,
+    ItemScene,
   ],
 }
 var game = new Phaser.Game(config)

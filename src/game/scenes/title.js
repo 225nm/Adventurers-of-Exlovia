@@ -133,11 +133,14 @@ export var TitleScene = new Phaser.Class({
   continueGame: function () {
     // Load data straight into the registry
     saveSystem.loadGame(this.registry)
+    this.game.inventory.items = this.registry.get('inventory') || []
     this.scene.start('WorldScene')
   },
   // Start a new game
   startNewGame: function () {
     localStorage.removeItem('party_data')
+    this.registry.set('inventory', [])
+    this.game.inventory.items = []
     const defaultParty = Party.getStartingParty()
 
     this.registry.set('partyData', defaultParty)

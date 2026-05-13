@@ -6,8 +6,13 @@ const save_key = 'party_data'
 export const saveSystem = {
   saveGame: function (registry) {
     const partyData = registry.get('partyData')
+    const inventoryData = registry.get('inventory')
+    const fullSaveData = {
+      party: partyData,
+      inventory: inventoryData,
+    }
     if (partyData) {
-      localStorage.setItem(save_key, JSON.stringify(partyData))
+      localStorage.setItem(save_key, JSON.stringify(fullSaveData))
     }
   },
   // Loads game data
@@ -16,7 +21,13 @@ export const saveSystem = {
 
     if (saveData) {
       const jsonData = JSON.parse(saveData)
-      registry.set('partyData', jsonData)
+
+      if (jsonData.party) {
+        registry.set('partyData', jsonData.party)
+      }
+      if (jsonData.inventory) {
+        registry.set('inventory', jsonData.inventory)
+      }
     }
   },
   // Resets game data

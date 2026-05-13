@@ -29,12 +29,24 @@ export var WorldScene = new Phaser.Class({
 
     // Input listener for the pause menu on C key
     this.input.keyboard.on('keydown-C', () => {
+      if (
+        this.scene.isActive('WorldMenuScene') ||
+        this.scene.isActive('ItemScene') ||
+        this.scene.isActive('PartyScene')
+      )
+        return
       if (this.scene.isActive('WorldMenuScene')) return
       this.scene.pause()
       this.scene.launch('WorldMenuScene')
     })
     // Input listener for escape to open menu
     this.input.keyboard.on('keydown-ESC', () => {
+      if (
+        this.scene.isActive('WorldMenuScene') ||
+        this.scene.isActive('ItemScene') ||
+        this.scene.isActive('PartyScene')
+      )
+        return
       this.scene.pause()
       this.scene.launch('WorldMenuScene')
     })

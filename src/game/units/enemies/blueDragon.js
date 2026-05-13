@@ -5,7 +5,7 @@ export let blueDragon = new Phaser.Class({
   initialize: function blueDragon(scene, x, y) {
     // Parameters: scene, x, y, texture, frame, name, hp, dmg, xpDrop, lootTable
     Enemy.call(this, scene, x, y, 'dragonblue', null, 'B. Dragon', 60, 4, 30, [
-      'loottable blue',
+      'Potion',
     ])
   },
 })

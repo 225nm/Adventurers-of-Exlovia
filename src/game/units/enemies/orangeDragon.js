@@ -16,7 +16,7 @@ export let orangeDragon = new Phaser.Class({
       50,
       3,
       20,
-      ['loottable orng']
+      ['Potion']
     )
   },
 })

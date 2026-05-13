@@ -25,9 +25,21 @@ export let WorldMenuScene = new Phaser.Class({
 
     this.menuIndex = 0
     this.menuItems[this.menuIndex].setColor('#f8ff38')
+
     // Delay input handler to prevent input crashes
     this.time.delayedCall(100, () => {
+      this.setupInput()
+    })
+    this.sys.events.on('wake', this.setupInput, this)
+    /*     this.time.delayedCall(100, () => {
       this.input.keyboard.on('keydown', this.handleInput, this)
+    }) */
+  },
+  setupInput: function () {
+    this.input.keyboard.off('keydown', this.handleInput, this)
+    this.input.keyboard.on('keydown', this.handleInput, this)
+    this.menuItems.forEach((item, i) => {
+      item.setColor(i === this.menuIndex ? '#f8ff38' : '#ffffff')
     })
   },
 
@@ -59,6 +71,7 @@ export let WorldMenuScene = new Phaser.Class({
     } else if (event.code === 'KeyZ' || event.code === 'Enter') {
       this.confirmSelection()
     } else if (event.code === 'Escape' || event.code === 'KeyX') {
+      this.input.keyboard.off('keydown', this.handleInput, this)
       this.scene.resume('WorldScene')
       this.scene.stop()
     }
@@ -66,9 +79,14 @@ export let WorldMenuScene = new Phaser.Class({
 
   confirmSelection: function () {
     let selection = this.menuItems[this.menuIndex].action
+// clean up old scenes
+    this.scene.stop('ItemScene')
+    this.scene.stop('PartyScene')
 
     if (selection === 'PartyMenu') {
-      this.scene.stop()
+      this.scene.stop('ItemScene')
+      this.input.keyboard.off('keydown', this.handleInput, this)
+      this.scene.sleep('WorldMenuScene')
       this.scene.launch('PartyScene')
     } else if (selection === 'TitleScene') {
       this.showQuitConfirm()
@@ -79,6 +97,11 @@ export let WorldMenuScene = new Phaser.Class({
         fontSize: '8px',
       })
       this.time.delayedCall(1500, () => saveText.destroy())
+    } else if (selection === 'ItemMenu') {
+            this.scene.stop('PartyScene')
+      this.input.keyboard.off('keydown', this.handleInput, this)
+      this.scene.sleep('WorldMenuScene')
+      this.scene.launch('ItemScene')
     }
   },
   showQuitConfirm: function () {

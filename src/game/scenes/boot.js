@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { saveSystem } from '../save'
+import { Inventory } from '../inventory'
 
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -36,6 +37,10 @@ export var BootScene = new Phaser.Class({
   },
 
   create: function () {
+    if (!this.registry.get('inventory')) {
+      this.registry.set('inventory', [])
+    }
+    this.game.inventory = new Inventory(this.registry)
     // start the TitleScene
     this.scene.start('TitleScene')
   },

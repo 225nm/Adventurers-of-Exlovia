@@ -206,10 +206,15 @@ export var BattleScene = new Phaser.Class({
     let totalLoot = []
     // add enemies xp and loot to totals
     for (let i = 0; i < this.enemies.length; i++) {
+      let enemy = this.enemies[i]
       totalXp += this.enemies[i].xpDrop
       // todo add randomness and more loot to loot table
       if (this.enemies[i].lootTable.length > 0) {
-        totalLoot.push(this.enemies[i].lootTable[0])
+        let drop = enemy.lootTable[0]
+        totalLoot.push(drop)
+        if (this.game.inventory) {
+          this.game.inventory.addItem(drop, 1)
+        }
       }
     }
     for (let i = 0; i < this.heroes.length; i++) {
