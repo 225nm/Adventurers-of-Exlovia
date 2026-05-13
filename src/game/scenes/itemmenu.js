@@ -64,8 +64,8 @@ export let ItemScene = new Phaser.Class({
     // Logic for using healing items out of battle scene
     if (itemData.healValue) {
       this.registry.set('usedItem', itemName)
-      this.scene.sleep()
-      this.scene.launch('PartyScene', { mode: 'SELECT' })
+      this.scene.stop()
+      this.scene.start('PartyScene', { mode: 'SELECT' })
     }
   },
   updateItemList: function () {

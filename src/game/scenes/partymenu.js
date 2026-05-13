@@ -116,13 +116,13 @@ export let PartyScene = new Phaser.Class({
     this.input.keyboard.off('keydown', this.handleInput, this)
     if (this.mode === 'SELECT') {
       this.scene.stop()
-      this.scene.wake('ItemScene')
+      this.scene.start('ItemScene')
     } else if (this.mode === 'VIEW') {
       this.scene.stop()
       if (this.scene.get('WorldMenuScene').scene.isSleeping()) {
         this.scene.wake('WorldMenuScene')
       } else {
-        this.scene.launch('WorldMenuScene')
+        this.scene.start('WorldMenuScene')
       }
     }
   },

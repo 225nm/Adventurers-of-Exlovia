@@ -86,8 +86,8 @@ export let WorldMenuScene = new Phaser.Class({
     if (selection === 'PartyMenu') {
       this.scene.stop('ItemScene')
       this.input.keyboard.off('keydown', this.handleInput, this)
-      this.scene.sleep('WorldMenuScene')
-      this.scene.launch('PartyScene')
+      this.scene.stop('WorldMenuScene')
+      this.scene.start('PartyScene')
     } else if (selection === 'TitleScene') {
       this.showQuitConfirm()
     } else if (selection === 'SaveGame') {
@@ -100,8 +100,8 @@ export let WorldMenuScene = new Phaser.Class({
     } else if (selection === 'ItemMenu') {
       this.scene.stop('PartyScene')
       this.input.keyboard.off('keydown', this.handleInput, this)
-      this.scene.sleep('WorldMenuScene')
-      this.scene.launch('ItemScene')
+      this.scene.stop('WorldMenuScene')
+      this.scene.start('ItemScene')
     }
   },
   showQuitConfirm: function () {
