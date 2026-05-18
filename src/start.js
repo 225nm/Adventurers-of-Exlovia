@@ -10,6 +10,7 @@ import { WorldMenuScene } from './game/scenes/worldmenu'
 import { ItemScene } from './game/scenes/itemmenu'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
+// Phaser container and physics settings.
 var config = {
   type: Phaser.AUTO,
   parent: 'content',
