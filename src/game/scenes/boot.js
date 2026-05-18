@@ -13,6 +13,18 @@ export var BootScene = new Phaser.Class({
     // map tiles
     this.load.image('tiles', 'assets/map/spritesheet.png')
 
+    // Load bitmap font
+    this.load.bitmapFont(
+      'pressstart',
+      'assets/pressstart.png',
+      'assets/pressstart.fnt'
+    )
+    this.load.bitmapFont(
+      'pressstarty',
+      'assets/pressstarty.png',
+      'assets/pressstarty.fnt'
+    )
+
     // Title image
     this.load.image('title', 'assets/titleScreen.png')
 
@@ -32,8 +44,6 @@ export var BootScene = new Phaser.Class({
       frameWidth: 16,
       frameHeight: 16,
     })
-    // Font file
-    this.load.addFile(new CustomFontFile(this.load, 'Press Start 2P'))
   },
 
   create: function () {
@@ -45,15 +55,3 @@ export var BootScene = new Phaser.Class({
     this.scene.start('TitleScene')
   },
 })
-
-// AI suggested custom class in order to load font before Title screen is loaded
-class CustomFontFile extends Phaser.Loader.File {
-  constructor(loader, fontName) {
-    super(loader, { type: 'text', key: fontName })
-  }
-  load() {
-    document.fonts.load(`10px "${this.key}"`).then(() => {
-      this.loader.nextFile(this, true)
-    })
-  }
-}

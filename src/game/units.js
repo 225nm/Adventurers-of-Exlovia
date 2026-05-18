@@ -29,7 +29,7 @@ export var Unit = new Phaser.Class({
         fontSize: '16px',
         color: '#ffffff',
         stroke: '#000000',
-        strokeThickness: 1,
+        strokeThickness: 0,
       })
       .setOrigin(0.5)
       .setScale(0.5)
@@ -40,7 +40,7 @@ export var Unit = new Phaser.Class({
         fontSize: '16px',
         color: '#ffffff',
         stroke: '#000000',
-        strokeThickness: 1,
+        strokeThickness: 0,
       })
       .setOrigin(0.5)
       .setScale(0.5)

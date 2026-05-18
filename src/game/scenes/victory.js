@@ -10,62 +10,34 @@ export var VictoryScene = new Phaser.Class({
   create: function (lootData) {
     this.cameras.main.setBackgroundColor('#23d2de')
 
-    // Victory text
-    this.add
-      .text(160, 20, 'Victory!', {
-        fontSize: '16px',
-        fontFamily: '"Press Start 2P", cursive',
-        border: '1px solid black',
-        stroke: '#000',
-        strokeThickness: 1,
-      })
-      .setOrigin(0.5)
+    // Victory header text
+    this.add.pixelText(160, 30, 'Victory!')
 
-    // xp Text
-    this.add
-      .text(160, 60, `Your heroes gained ${lootData.xp} XP!`, {
-        fontSize: '8px',
-        fontFamily: '"Press Start 2P", cursive',
-        border: '1px solid black',
-        stroke: '#000',
-        strokeThickness: 1,
-      })
-      .setOrigin(0.5)
+    // Experience award text
+    this.add.pixelText(160, 70, `Your heroes gained ${lootData.xp} XP!`)
 
-    // AI suggested syntax
-    // loot Text
-    if (lootData.loot.length > 0) {
-      this.add
-        .text(160, 100, `Your party found: ${lootData.loot.join(', ')}`, {
-          fontSize: '8px',
-          fontFamily: '"Press Start 2P", cursive',
-          border: '1px solid black',
-          stroke: '#000',
-          strokeThickness: 1,
-          align: 'center',
-          wordWrap: {
-            width: 200,
-            useAdvancedWrap: true,
-          },
-        })
-        .setOrigin(0.5)
+    // Loot awards logic display block
+    if (lootData.loot && lootData.loot.length > 0) {
+      let lootString = `Your party found: ${lootData.loot.join(', ')}`
+
+      let lootText = this.add.pixelText(160, 110, lootString)
+
+      // Handles wrapping cleanly across lines using bitmap font metrics
+      lootText.setMaxWidth(220)
     }
 
-    // Return text
-    this.add
-      .text(160, 200, 'Press Z to return to the world map', {
-        fontSize: '8px',
-        fontFamily: '"Press Start 2P", cursive',
-        border: '1px solid black',
-        stroke: '#000',
-        strokeThickness: 1,
-        fill: '#f5d400',
-      })
-      .setOrigin(0.5)
+    // Return to map control prompt
+    let returnPrompt = this.add.pixelText(
+      160,
+      200,
+      'Press Z to return to the world map'
+    )
+    returnPrompt.setTint(0xf5d400)
 
+    // Input configuration
     this.input.keyboard.once('keydown-Z', this.returnWorld, this)
   },
-  // Scene management
+
   returnWorld: function () {
     this.scene.stop('VictoryScene')
     this.scene.stop('BattleScene')

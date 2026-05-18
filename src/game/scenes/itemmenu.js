@@ -20,47 +20,43 @@ export let ItemScene = new Phaser.Class({
     this.graphics.lineStyle(2, 0xffffff, 1)
     this.graphics.strokeRect(50, 20, 250, 200)
 
-    // Title
-    this.add
-      .text(160, 30, '--- INVENTORY ---', {
-        fontFamily: '"Press Start 2P"',
-        fontSize: '8px',
-      })
-      .setOrigin(0.5)
+    this.add.pixelText(175, 33, '--- INVENTORY ---')
 
     this.updateItemList()
     this.setupInput()
+
     this.sys.events.on('wake', () => {
       this.updateItemList()
       this.setupInput()
     })
   },
-  // input handler
+
   handleInput: function (event) {
     if (this.menuItems.length === 0) {
       if (event.code === 'KeyX' || event.code === 'Escape') this.exitMenu()
       return
     }
+
     if (event.code === 'ArrowDown') {
-      this.menuItems[this.menuIndex].setColor('#ffffff')
       this.menuIndex = (this.menuIndex + 1) % this.menuItems.length
-      this.menuItems[this.menuIndex].setColor('#f8ff38')
+      this.updateSelection()
     } else if (event.code === 'ArrowUp') {
-      this.menuItems[this.menuIndex].setColor('#ffffff')
       this.menuIndex =
         (this.menuIndex - 1 + this.menuItems.length) % this.menuItems.length
-      this.menuItems[this.menuIndex].setColor('#f8ff38')
+      this.updateSelection()
     } else if (event.code === 'KeyZ' || event.code === 'Enter') {
       this.confirmSelection()
     } else if (event.code === 'KeyX' || event.code === 'Escape') {
       this.exitMenu()
     }
   },
+
   confirmSelection: function () {
     if (this.menuItems.length === 0) return
     let selectedItem = this.menuItems[this.menuIndex]
     let itemName = selectedItem.itemName
     let itemData = itemIndex[itemName]
+
     // Logic for using healing items out of battle scene
     if (itemData.healValue) {
       this.registry.set('usedItem', itemName)
@@ -68,26 +64,40 @@ export let ItemScene = new Phaser.Class({
       this.scene.start('PartyScene', { mode: 'SELECT' })
     }
   },
+
   updateItemList: function () {
     this.menuItems.forEach((item) => item.destroy())
     this.menuItems = []
 
     this.inventory.items.forEach((item, index) => {
-      let yPos = 60 + index * 20
-      let itemObj = this.add.text(80, yPos, `${item.name} x${item.qty}`, {
-        fontFamily: '"Press Start 2P"',
-        fontSize: '8px',
-      })
+      let yPos = 65 + index * 20
+
+      let itemObj = this.add.pixelText(175, yPos, `${item.name} x${item.qty}`)
+
       itemObj.itemName = item.name
       this.menuItems.push(itemObj)
     })
 
     if (this.menuItems.length > 0) {
-      if (this.menuIndex >= this.menuItems.length)
+      if (this.menuIndex >= this.menuItems.length) {
         this.menuIndex = this.menuItems.length - 1
-      this.menuItems[this.menuIndex].setColor('#f8ff38')
+      }
+      this.updateSelection()
     }
   },
+
+  updateSelection: function () {
+    this.menuItems.forEach((item, index) => {
+      if (index === this.menuIndex) {
+        item.setTint(0xf8ff38)
+        item.setFont('pressstarty')
+      } else {
+        item.clearTint()
+        item.setFont('pressstart')
+      }
+    })
+  },
+
   exitMenu: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
 
@@ -100,6 +110,7 @@ export let ItemScene = new Phaser.Class({
       this.scene.resume('WorldScene')
     }
   },
+
   setupInput: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
     this.input.keyboard.on('keydown', this.handleInput, this)

@@ -24,15 +24,7 @@ export var TitleScene = new Phaser.Class({
 
     // if save file exists add continue option
     if (saveCheck) {
-      this.continueText = this.add
-        .text(160, menuY, 'Continue', {
-          fontSize: '8px',
-          fontFamily: '"Press Start 2P", cursive',
-          fill: '#ffffff',
-          stroke: '#000',
-          strokeThickness: 3,
-        })
-        .setOrigin(0.5)
+      this.continueText = this.add.pixelText(160, menuY, 'Continue')
       this.menus.push({
         textObject: this.continueText,
         action: this.continueGame,
@@ -40,53 +32,36 @@ export var TitleScene = new Phaser.Class({
       menuY += 20
     }
 
-    this.newGameText = this.add
-      .text(160, menuY, 'New Game', {
-        fontSize: '8px',
-        fontFamily: '"Press Start 2P", cursive',
-        fill: '#ffffff',
-        stroke: '#000',
-        strokeThickness: 3,
-      })
-      .setOrigin(0.5)
+    this.newGameText = this.add.pixelText(160, menuY, 'New Game')
+
     this.menus.push({
       textObject: this.newGameText,
       action: this.startNewGame,
     })
 
-    this.add
-      .text(
-        160,
-        215,
-        'Use the arrow keys to move \n Z to confirm \n X to cancel \n C to open the menu',
-        {
-          fontSize: '8px',
-          fontFamily: '"Press Start 2P", cursive',
-          fill: '#fff',
-          align: 'center',
-          stroke: '#000',
-          strokeThickness: 3,
-        }
-      )
-      .setOrigin(0.5)
+    this.add.pixelText(
+      160,
+      215,
+      'Use the arrow keys to move \n Z to confirm \n X to cancel \n C to open the menu'
+    )
 
-    /*     this.add
-      .text(160, 240, 'Press Z to start the game', {
-        fontSize: '8px',
-        fontFamily: '"Press Start 2P", cursive',
-        fill: '#f5d400',
-        border: '1px solid black',
-        stroke: '#000',
-        strokeThickness: 3,
-      })
-      .setOrigin(0.5) */
     // Key listeners
     this.cursors = this.input.keyboard.createCursorKeys()
     this.confirmKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.Z
     )
-    // old input todo delete if no issues
-    //this.input.keyboard.on('keydown-Z', this.confirmSelection, this)
+
+    this.cursor = this.add.bitmapText(0, 0, 'pressstarty', '>', 8)
+    this.cursor.setOrigin(0, 0.5)
+
+    // Set up the movement tween loop once here so it doesn't infinitely multiply on keypress
+    this.tweens.add({
+      targets: this.cursor,
+      x: '-=2',
+      duration: 300,
+      yoyo: true,
+      repeat: -1,
+    })
 
     this.updateMenuVisuals()
   },
@@ -118,25 +93,28 @@ export var TitleScene = new Phaser.Class({
   updateMenuVisuals: function () {
     this.menus.forEach((option, idx) => {
       if (idx === this.selectedIndex) {
-        option.textObject.setFill('#f5d400') // Yellow highlight
+        option.textObject.setFont('pressstarty')
+
+        this.cursor.x = Math.floor(
+          option.textObject.x - option.textObject.width / 2 - 12
+        )
+
+        this.cursor.y = Math.floor(option.textObject.y)
       } else {
-        option.textObject.setFill('#ffffff') // Plain white
+        option.textObject.setFont('pressstart')
       }
     })
   },
-
   confirmSelection: function () {
-    // Run whichever function is tied to the selected menu item
     this.menus[this.selectedIndex].action.call(this)
   },
 
   continueGame: function () {
-    // Load data straight into the registry
     saveSystem.loadGame(this.registry)
     this.game.inventory.items = this.registry.get('inventory') || []
     this.scene.start('WorldScene')
   },
-  // Start a new game
+
   startNewGame: function () {
     localStorage.removeItem('party_data')
     this.registry.set('inventory', [])
@@ -144,15 +122,6 @@ export var TitleScene = new Phaser.Class({
     const defaultParty = Party.getStartingParty()
 
     this.registry.set('partyData', defaultParty)
-    // Start world scene
     this.scene.start('WorldScene')
   },
-  // start the WorldScene, todo delete if no issues
-  /* startGame: function () {
-    // set save data for party
-    if (!this.registry.get('partyData')) {
-      this.registry.set('partyData', Party.Heroes)
-    }
-    this.scene.start('WorldScene')
-  }, */
 })

@@ -12,15 +12,18 @@ import { ItemScene } from './game/scenes/itemmenu'
 // TODO make resolution/zoom level more uniform and fit on multiple units
 // Phaser container and physics settings.
 var config = {
-  type: Phaser.AUTO,
+  type: Phaser.CANVAS,
   parent: 'content',
   width: 320,
   height: 240,
   pixelArt: true,
   roundPixels: true,
+  antialias: false,
+  antialiasGL: false,
+  /* zoom: 3, */
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.NO_CENTER,
+    autoCenter: Phaser.Scale.NONE,
   },
   physics: {
     default: 'arcade',
@@ -42,3 +45,21 @@ var config = {
   ],
 }
 var game = new Phaser.Game(config)
+
+// AI added custom object for text
+Phaser.GameObjects.GameObjectFactory.register(
+  'pixelText',
+  function (x, y, text, size = 8) {
+    // 1. Create the native bitmap text object
+    const bitmapText = this.scene.add.bitmapText(x, y, 'pressstart', text, size)
+
+    // 2. Set the global default origin for your game (centered)
+    bitmapText.setOrigin(0.5)
+
+    // 3. Prevent floating-point subpixel blur instantly by snapping positions
+    bitmapText.x = Math.floor(bitmapText.x)
+    bitmapText.y = Math.floor(bitmapText.y)
+
+    return bitmapText
+  }
+)
