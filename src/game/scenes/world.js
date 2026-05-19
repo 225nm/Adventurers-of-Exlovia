@@ -107,17 +107,88 @@ export var WorldScene = new Phaser.Class({
     this.cameras.main.startFollow(this.player)
     this.cameras.main.roundPixels = true // avoid tile bleed
 
-    // user input
+    // --------------------------- MAP OBJECTS ----------------------------------------------------------------
+
+    // Chests
+    this.chests = this.physics.add.staticGroup()
+    // Amount of chests
+    let chestAmount = Phaser.Math.RND.between(1, 5)
+    // Loot contained in chests
+    let chestLoot = ['Potion']
+    // Spawn logic for chests
+    for (let i = 0; i < chestAmount; i++) {
+      let x, y, distance, isBlocked
+      do {
+        x = Phaser.Math.RND.between(20, this.physics.world.bounds.width - 20)
+        y = Phaser.Math.RND.between(20, this.physics.world.bounds.height - 20)
+        distance = Phaser.Math.Distance.Between(
+          x,
+          y,
+          this.player.x,
+          this.player.y
+        )
+
+        let tile = obstacles.getTileAtWorldXY(x, y)
+        isBlocked = tile !== null
+      } while (distance < spawnRadius || isBlocked)
+      // Load asset
+      let chest = this.add.sprite(x, y, 'chest')
+      chest.itemName = Phaser.Math.RND.pick(chestLoot)
+      chest.setScale(1)
+      this.chests.add(chest)
+    }
+    // Chest collider physics
+    this.physics.add.overlap(
+      this.player,
+      this.chests,
+      this.onOpenChest,
+      null,
+      this
+    )
+
+    // Stairs
+    let stairs
+    // Spawn logic for stairs
+    let stairsX, stairsY, stairsDistance, isBlockedStairs
+    do {
+      stairsX = Phaser.Math.RND.between(
+        40,
+        this.physics.world.bounds.width - 40
+      )
+      stairsY = Phaser.Math.RND.between(
+        40,
+        this.physics.world.bounds.height - 40
+      )
+      stairsDistance = Phaser.Math.Distance.Between(
+        stairsX,
+        stairsY,
+        this.player.x,
+        this.player.y
+      )
+      let stairsTile = obstacles.getTileAtWorldXY(stairsX, stairsY)
+      isBlockedStairs = stairsTile !== null
+    } while (stairsDistance < spawnRadius || isBlockedStairs)
+    this.stairs = this.physics.add.staticSprite(stairsX, stairsY, 'stairs')
+    this.physics.add.overlap(
+      this.player,
+      this.stairs,
+      this.onTakeStairs,
+      null,
+      this
+    )
+
+    //--------------------------------------- user input --------------------------------------------
     this.cursors = this.input.keyboard.createCursorKeys()
 
-    // where the enemies will be
+    //--------------------------------- Enemy overworld logic -----------------------------------------
     this.spawns = this.physics.add.group({
       classType: Phaser.Physics.Arcade.Sprite,
     })
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 10; i++) {
       let x
       let y
       let distance
+      let enemyBlocked
       // check that enemies spawn minimum 120 pixels away from player spawn
       // parameters are x, y, width, height
       do {
@@ -129,7 +200,9 @@ export var WorldScene = new Phaser.Class({
           this.player.x,
           this.player.y
         )
-      } while (distance < spawnRadius)
+        let tile = obstacles.getTileAtWorldXY(x, y)
+        enemyBlocked = tile !== null
+      } while (distance < spawnRadius || enemyBlocked)
 
       // TODO add array of enemies here later
       let enemy = this.spawns.create(x, y, 'dragonblue')
@@ -144,6 +217,8 @@ export var WorldScene = new Phaser.Class({
     // more colliders for enemies
     this.physics.add.collider(this.spawns, obstacles)
     this.physics.add.collider(this.spawns, this.spawns)
+    this.physics.add.collider(this.spawns, this.chests)
+    this.physics.add.collider(this.spawns, this.stairs)
     // add collider
     this.physics.add.overlap(
       this.player,
@@ -155,6 +230,9 @@ export var WorldScene = new Phaser.Class({
     // we listen for 'wake' event
     this.sys.events.on('wake', this.wake, this)
   },
+
+  // ------------------------------     END OF CREATE ---------------------------------------------------------------
+
   wake: function () {
     this.cursors.left.reset()
     this.cursors.right.reset()
@@ -163,6 +241,7 @@ export var WorldScene = new Phaser.Class({
 
     this.input.keyboard.clearCaptures()
   },
+  // When an enemy object is touched by the player
   onMeetEnemy: function (player, zone) {
     const safeRadius = 80
     let newX
@@ -187,6 +266,25 @@ export var WorldScene = new Phaser.Class({
 
     // start battle
     this.scene.switch('BattleScene')
+  },
+
+  // When player collides with chest object
+  onOpenChest: function (player, chest) {
+    if (!this.game.inventory) {
+      this.game.inventory = { items: [] }
+    }
+    if (!this.game.inventory.items) {
+      this.game.inventory.items = []
+    }
+    this.game.inventory.items.push(chest.itemName)
+    this.registry.set('inventory', this.game.inventory.items)
+
+    chest.destroy()
+  },
+
+  onTakeStairs: function (player, stairs) {
+    // TODO add more game logic to this feature
+    this.scene.restart()
   },
   update: function (time, delta) {
     this.player.body.setVelocity(0)

@@ -12,6 +12,8 @@ export var BootScene = new Phaser.Class({
   preload: function () {
     // map tiles
     this.load.image('tiles', 'assets/map/spritesheet.png')
+    this.load.image('stairs', 'assets/map/stairs.png')
+    this.load.image('chest', 'assets/map/chest.png')
 
     // Load bitmap font
     this.load.bitmapFont(
