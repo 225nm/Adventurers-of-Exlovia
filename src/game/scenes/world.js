@@ -274,17 +274,21 @@ export var WorldScene = new Phaser.Class({
       this.game.inventory.addItem(chest.itemName, 1)
     }
     // AI generated message animation
-    let msg = this.add.pixelText(chest.x, chest.y - 8, `Found a ${chest.itemName}!`)
+    let msg = this.add.pixelText(
+      chest.x,
+      chest.y - 8,
+      `Found a ${chest.itemName}!`
+    )
     msg.setOrigin(0.5)
     this.tweens.add({
       targets: msg,
-      y: chest.y - 40,      // Move 24 pixels upwards
-      alpha: 0,             // Fade out to completely transparent
-      duration: 1500,       // Animation takes 1.5 seconds
+      y: chest.y - 40, // Move 24 pixels upwards
+      alpha: 0, // Fade out to completely transparent
+      duration: 1500, // Animation takes 1.5 seconds
       ease: 'Linear',
       onComplete: function () {
         msg.destroy()
-      }
+      },
     })
     chest.destroy()
   },

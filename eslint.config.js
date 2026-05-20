@@ -9,6 +9,7 @@ export default [
   // Ignored min.js file as it is the "game engine"
   {
     ignores: [
+      'coverage/',
       '**/phaser.min.js',
       'README.md',
       'READMEPhaser.md',
@@ -30,6 +31,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
+        ...globals.jest,
         Phaser: 'readonly',
       },
     },
