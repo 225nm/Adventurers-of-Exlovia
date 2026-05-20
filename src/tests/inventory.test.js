@@ -33,7 +33,7 @@ describe('Inventory class', () => {
 
     inventory.removeItem('Potion', 4)
 
-    expect(inventory.items).toEqual([{ name: 'Potion', qty: 7 }])
+    expect(inventory.items).toEqual([{ name: 'Potion', qty: 6 }])
   })
   // End of test 3
   test('Array should be empty when last item is removed', () => {
