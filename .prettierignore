@@ -8,3 +8,4 @@ READMEPhaser.md
 eslint.config.js
 prettier.config.mjs
 .gitlab-ci.yml
+coverage/
