@@ -268,20 +268,28 @@ export var WorldScene = new Phaser.Class({
     this.scene.switch('BattleScene')
   },
 
-  // When player collides with chest object
+  // Logic when player collides with chest object, add item to inventory and show message
   onOpenChest: function (player, chest) {
-    if (!this.game.inventory) {
-      this.game.inventory = { items: [] }
+    if (this.game.inventory) {
+      this.game.inventory.addItem(chest.itemName, 1)
     }
-    if (!this.game.inventory.items) {
-      this.game.inventory.items = []
-    }
-    this.game.inventory.items.push(chest.itemName)
-    this.registry.set('inventory', this.game.inventory.items)
-
+    // AI generated message animation
+    let msg = this.add.pixelText(chest.x, chest.y - 8, `Found a ${chest.itemName}!`)
+    msg.setOrigin(0.5)
+    this.tweens.add({
+      targets: msg,
+      y: chest.y - 40,      // Move 24 pixels upwards
+      alpha: 0,             // Fade out to completely transparent
+      duration: 1500,       // Animation takes 1.5 seconds
+      ease: 'Linear',
+      onComplete: function () {
+        msg.destroy()
+      }
+    })
     chest.destroy()
   },
 
+  // Logic when player collides with stairs object, creates a new map
   onTakeStairs: function (player, stairs) {
     // TODO add more game logic to this feature
     this.scene.restart()
