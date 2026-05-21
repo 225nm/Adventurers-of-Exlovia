@@ -25,6 +25,15 @@
 # Specify the Docker image to be used for the jobs, which supports Docker commands.
 image: docker:27-cli
 
+
+# Caches files to avoid downloading again
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+
 # Define the stages of the pipeline and their order of execution.
 stages:
   - build
@@ -35,26 +44,27 @@ stages:
 build-job:
   stage: build
   image: node:20.17.0-alpine
+  before_script:
+    - npm ci --cache .npm --prefer-offline
   script:
-    - npm ci
     - npm run build
 
 # Job to run unit tests in the test stage.
 unit-test-job:
   stage: test # Runs after the build stage is successful.
   image: node:24
+  before_script:
+    - npm ci --cache .npm --prefer-offline
   script:
-    - echo "Running unit tests..."
-    - npm ci
     - npm test
 
 # Job to lint the code in the test stage, can run in parallel with unit-test-job.
 lint-test-job:
   stage: test
   image: node:24
+  before_script:
+    - npm ci --cache .npm --prefer-offline
   script:
-    - echo "Linting code..."
-    - npm ci
     - npm run lint
 
 # Job to deploy to the production environment.
