@@ -8,6 +8,7 @@ import { VictoryScene } from './game/scenes/victory'
 import { PartyScene } from './game/scenes/partymenu'
 import { WorldMenuScene } from './game/scenes/worldmenu'
 import { ItemScene } from './game/scenes/itemmenu'
+import { StatsScene } from './game/scenes/heroStats'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
 // Phaser container and physics settings.
@@ -42,6 +43,7 @@ var config = {
     PartyScene,
     WorldMenuScene,
     ItemScene,
+    StatsScene,
   ],
 }
 var game = new Phaser.Game(config)

@@ -10,7 +10,7 @@ export let PartyScene = new Phaser.Class({
 
   init: function (data) {
     this.mode = data.mode || 'VIEW'
-    this.menuIndex = 0
+    this.menuIndex = data.previousIndex || 0
     this.menuItems = []
   },
 
@@ -92,6 +92,13 @@ export let PartyScene = new Phaser.Class({
   confirmSelection: function () {
     if (this.mode === 'SELECT') {
       this.applyItemEffect()
+    } else if (this.mode === 'VIEW') {
+      const selectedHero = this.partyData[this.menuIndex]
+      this.input.keyboard.off('keydown', this.handleInput, this)
+      this.scene.start('StatsScene', {
+        hero: selectedHero,
+        previousIndex: this.menuIndex,
+      })
     }
   },
 
