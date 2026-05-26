@@ -171,6 +171,7 @@ export var Enemy = new Phaser.Class({
     Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
     this.xpDrop = xpDrop || 0
     this.lootTable = lootTable || []
+    this.skills = []
   },
 })
 // Base player character class

@@ -53,7 +53,7 @@ export let StatsScene = new Phaser.Class({
       .pixelText(75, startY + spacing * 4, `DAMAGE: ${this.hero.damage}`)
       .setOrigin(0, 0.5)
 
-    // Make skills fit in UI later
+    //TODO Make skills fit in UI or turn to another menu
     /*      if (this.hero.skills && this.hero.skills.length > 0) {
       this.add.pixelText(60, startY + (spacing*5.5), `SKILLS:`)
       this.hero.skills.forEach((skill, i) => {

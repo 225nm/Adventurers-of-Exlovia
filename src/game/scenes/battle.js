@@ -106,8 +106,35 @@ export var BattleScene = new Phaser.Class({
       do {
         r = Math.floor(Math.random() * this.heroes.length)
       } while (!this.heroes[r].living)
-      // call the enemy's attack function
-      this.units[this.index].attack(this.heroes[r])
+      let enemy = this.units[this.index]
+      let victim = this.heroes[r]
+
+      // Enemies can use skills without mana cost.
+      let skillUsed = false
+      if (enemy.skills && enemy.skills.length > 0) {
+        const useSkillChance = 0.33
+        if (Math.random() < useSkillChance) {
+          let skill = enemy.skills[Math.floor(Math.random() * enemy.skills.length)]
+          enemy.attack(victim, skill.damage)
+          this.events.emit(
+            'Message',
+            enemy.type +
+              ' uses ' +
+              skill.name +
+              ' on ' +
+              victim.type +
+              ' for ' +
+              skill.damage +
+              ' damage!'
+          )
+          skillUsed = true
+        }
+      }
+
+      if (!skillUsed) {
+        enemy.attack(victim)
+      }
+
       // add timer for the next turn, so will have smooth gameplay
       this.time.addEvent({
         delay: 3000,

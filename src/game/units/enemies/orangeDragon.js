@@ -13,10 +13,13 @@ export let orangeDragon = new Phaser.Class({
       'dragonorrange',
       null,
       'O. Dragon',
-      50,
-      3,
+      60,
+      4,
       20,
       ['Potion']
     )
+    this.skills = [
+      { name: 'Scorch', damage: 12, mpCost: 0, levelReq: 1 },
+    ]
   },
 })

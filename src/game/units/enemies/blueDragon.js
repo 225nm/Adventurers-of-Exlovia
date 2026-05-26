@@ -4,8 +4,12 @@ export let blueDragon = new Phaser.Class({
   Extends: Enemy,
   initialize: function blueDragon(scene, x, y) {
     // Parameters: scene, x, y, texture, frame, name, hp, dmg, xpDrop, lootTable
-    Enemy.call(this, scene, x, y, 'dragonblue', null, 'B. Dragon', 60, 4, 30, [
+    Enemy.call(this, scene, x, y, 'dragonblue', null, 'B. Dragon', 80, 8, 30, [
       'Potion',
     ])
+    this.skills = [
+      { name: 'Scorch', damage: 12, mpCost: 0, levelReq: 1 },
+      { name: 'Flame Breath', damage: 16, mpCost: 0, levelReq: 1 },
+    ]
   },
 })
