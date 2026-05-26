@@ -111,21 +111,26 @@ export let PartyScene = new Phaser.Class({
     const itemData = itemIndex[itemName]
     const targetHero = this.partyData[this.menuIndex]
 
-    if (itemData.healValue || itemData.manaValue) {
-      if (
-        targetHero.hp >= targetHero.maxHp ||
-        targetHero.mp >= targetHero.maxMp
-      ) {
-        return
+    const healValue = itemData.healValue || 0
+    const manaValue = itemData.manaValue || 0
+
+    let canHeal = healValue > 0 && targetHero.hp < targetHero.maxHp
+    let canRestoreMana = manaValue > 0 && targetHero.mp < targetHero.maxMp
+
+    if (!canHeal && !canRestoreMana) {
+      return
+    }
+    if (canRestoreMana) {
+      targetHero.mp += manaValue
+      if (targetHero.mp > targetHero.maxMp) {
+        targetHero.mp = targetHero.maxMp
       }
     }
-    targetHero.mp += itemData.manaValue
-    if (targetHero.mp > targetHero.maxMp) {
-      targetHero.mp = targetHero.maxMp
-    }
-    targetHero.hp += itemData.healValue
-    if (targetHero.hp > targetHero.maxHp) {
-      targetHero.hp = targetHero.maxHp
+    if (canHeal) {
+      targetHero.hp += healValue
+      if (targetHero.hp > targetHero.maxHp) {
+        targetHero.hp = targetHero.maxHp
+      }
     }
     this.game.inventory.removeItem(itemName, 1)
     this.registry.set('partyData', this.partyData)

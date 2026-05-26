@@ -199,18 +199,18 @@ export var BattleScene = new Phaser.Class({
           this.events.emit('noMana')
           return
         }
-        if (attacker.mp >= mpCost) {
-          attacker.mp -= mpCost
-          attacker.updateStatusBar()
-        }
+        // Deduct mana
         attacker.mp -= mpCost
         attacker.updateStatusBar()
+
+        // Attack all enemies
         this.enemies.forEach((enemy) => {
           if (enemy.living) {
             attacker.attack(enemy, skill.damage)
           }
         })
       }
+      // Emit message for AoE attack
       this.events.emit(
         'Message',
         attacker.type +
@@ -240,6 +240,7 @@ export var BattleScene = new Phaser.Class({
 
         attacker.attack(victim, skill.damage)
 
+        // Emit message for skill attack
         this.events.emit(
           'Message',
           attacker.type +
@@ -253,7 +254,7 @@ export var BattleScene = new Phaser.Class({
         )
       }
     }
-    // next turn in x seconds
+    // next turn in x/1000 seconds
     this.time.addEvent({
       delay: 1000,
       callback: this.nextTurn,
@@ -601,11 +602,12 @@ export var UIScene = new Phaser.Class({
   onSkillSelected: function (skillName) {
     let currentHero = this.battleScene.heroes[this.heroesMenu.menuItemIndex]
     let skill = currentHero.skills.find((s) => s.name === skillName)
+
     if (skill && skill.target === 'all') {
-      this.battleScene.receivePlayerSelection(skillName, 'all')
       this.currentMenu = null
       this.skillsMenu.visible = false
       this.actionsMenu.visible = false
+      this.battleScene.receivePlayerSelection(skillName, 'all')
     } else {
       this.selectedAction = skillName
       this.skillsMenu.visible = false
