@@ -5,12 +5,14 @@ import { heroesIndex } from '../units/heroes/heroesIndex.js'
 import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
 import { saveSystem } from '../save.js'
 
+// Battle scene where the player fights enemies
 export var BattleScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
   initialize: function BattleScene() {
     Phaser.Scene.call(this, { key: 'BattleScene' })
   },
+  // Initialize the battle scene, set up event listeners
   create: function () {
     this.cameras.main.roundPixels = true
     // change the background to green
@@ -22,6 +24,7 @@ export var BattleScene = new Phaser.Class({
 
     this.startBattle()
   },
+  // Start the battle, initialize heroes and enemies based on saved data, and set up the turn order
   startBattle: function () {
     // Clear any previous battle data to avoid bugs
     this.units = []
@@ -81,6 +84,7 @@ export var BattleScene = new Phaser.Class({
       callbackScope: this,
     })
   },
+  // Handle the logic for the next turn, including checking for end conditions, determining the active unit, and executing enemy actions
   nextTurn: function () {
     // if we have victory or game over
     if (this.checkEndBattle()) {
@@ -109,35 +113,55 @@ export var BattleScene = new Phaser.Class({
       let enemy = this.units[this.index]
       let victim = this.heroes[r]
 
-      // Enemies can use skills without mana cost.
+      // Skill logic for enemies
       let skillUsed = false
+      // Percentage chance to use a skill
       if (enemy.skills && enemy.skills.length > 0) {
         const useSkillChance = 0.33
         if (Math.random() < useSkillChance) {
-          let skill = enemy.skills[Math.floor(Math.random() * enemy.skills.length)]
-          enemy.attack(victim, skill.damage)
-          this.events.emit(
-            'Message',
-            enemy.type +
-              ' uses ' +
-              skill.name +
-              ' on ' +
-              victim.type +
-              ' for ' +
-              skill.damage +
-              ' damage!'
-          )
+          let skill =
+            enemy.skills[Math.floor(Math.random() * enemy.skills.length)]
+          if (skill.target === 'all') {
+            // ENEMY AOE logic
+            this.heroes.forEach((hero) => {
+              if (hero.living) {
+                enemy.attack(hero, skill.damage)
+              }
+            })
+            this.events.emit(
+              'Message',
+              enemy.type +
+                ' uses ' +
+                skill.name +
+                ' on all heroes for ' +
+                skill.damage +
+                ' damage!'
+            )
+          } else {
+            enemy.attack(victim, skill.damage)
+            this.events.emit(
+              'Message',
+              enemy.type +
+                ' uses ' +
+                skill.name +
+                ' on ' +
+                victim.type +
+                ' for ' +
+                skill.damage +
+                ' damage!'
+            )
+          }
           skillUsed = true
         }
       }
-
+      // If no skill used do normal attack
       if (!skillUsed) {
         enemy.attack(victim)
       }
 
       // add timer for the next turn, so will have smooth gameplay
       this.time.addEvent({
-        delay: 3000,
+        delay: 2000,
         callback: this.nextTurn,
         callbackScope: this,
       })
@@ -161,13 +185,44 @@ export var BattleScene = new Phaser.Class({
     }
     return gameOver
   },
-  // when the player have selected the enemy to be attacked
+  // when the player has selected the enemy to be attacked
   receivePlayerSelection: function (action, target) {
     this.time.removeAllEvents()
     let attacker = this.units[this.index]
     let victim = this.enemies[target]
-
-    if (action == 'attack') {
+    // AoE attacks targeting all enemies
+    if (target === 'all') {
+      let skill = attacker.skills.find((s) => s.name === action)
+      if (skill) {
+        let mpCost = skill.mpCost || 0
+        if (attacker.mp < mpCost) {
+          this.events.emit('noMana')
+          return
+        }
+        if (attacker.mp >= mpCost) {
+          attacker.mp -= mpCost
+          attacker.updateStatusBar()
+        }
+        attacker.mp -= mpCost
+        attacker.updateStatusBar()
+        this.enemies.forEach((enemy) => {
+          if (enemy.living) {
+            attacker.attack(enemy, skill.damage)
+          }
+        })
+      }
+      this.events.emit(
+        'Message',
+        attacker.type +
+          ' uses ' +
+          skill.name +
+          ' on ' +
+          ' all enemies ' +
+          ' for ' +
+          skill.damage +
+          ' damage!'
+      )
+    } else if (action == 'attack') {
       attacker.attack(victim)
     } else {
       let skill = this.units[this.index].skills.find((s) => s.name === action)
@@ -198,13 +253,14 @@ export var BattleScene = new Phaser.Class({
         )
       }
     }
-    // next turn in 3 seconds
+    // next turn in x seconds
     this.time.addEvent({
-      delay: 3000,
+      delay: 1000,
       callback: this.nextTurn,
       callbackScope: this,
     })
   },
+  // End battle, clean up data
   endBattle: function () {
     // clear state, remove sprites
     this.time.removeAllEvents()
@@ -250,6 +306,7 @@ export var BattleScene = new Phaser.Class({
     this.scene.pause()
     this.scene.launch('VictoryScene', lootData)
   },
+  // Save hero data after battle to preserve progress
   saveHeroData: function () {
     let partyData = this.registry.get('partyData')
     for (let i = 0; i < partyData.length; i++) {
@@ -277,7 +334,7 @@ export var BattleScene = new Phaser.Class({
 })
 
 // ----------------------------------- MENUS ---------------------------------------
-
+// Base menu item class
 var MenuItem = new Phaser.Class({
   Extends: Phaser.GameObjects.BitmapText,
 
@@ -305,6 +362,7 @@ var MenuItem = new Phaser.Class({
   },
 })
 
+// Base menu class
 var Menu = new Phaser.Class({
   Extends: Phaser.GameObjects.Container,
 
@@ -372,6 +430,7 @@ var Menu = new Phaser.Class({
     this.menuItemIndex = 0
   },
 
+  // Remap skills for the skills menu based on the selected hero's skills
   remapSkills: function (skills) {
     this.clear()
     for (let i = 0; i < skills.length; i++) {
@@ -381,7 +440,7 @@ var Menu = new Phaser.Class({
     }
   },
 })
-
+// Menu for selecting skills, inherits from base Menu class
 let SkillsMenu = new Phaser.Class({
   Extends: Menu,
   initialize: function SkillsMenu(x, y, scene) {
@@ -393,6 +452,7 @@ let SkillsMenu = new Phaser.Class({
     this.scene.events.emit('SkillSelected', skillName)
   },
 })
+// Menu for selecting heroes, inherits from base Menu class
 var HeroesMenu = new Phaser.Class({
   Extends: Menu,
 
@@ -400,7 +460,7 @@ var HeroesMenu = new Phaser.Class({
     Menu.call(this, x, y, scene)
   },
 })
-
+// Menu for selecting actions, inherits from base Menu class
 var ActionsMenu = new Phaser.Class({
   Extends: Menu,
 
@@ -417,7 +477,7 @@ var ActionsMenu = new Phaser.Class({
     }
   },
 })
-
+// Menu for selecting enemies, inherits from base Menu class
 var EnemiesMenu = new Phaser.Class({
   Extends: Menu,
 
@@ -430,6 +490,7 @@ var EnemiesMenu = new Phaser.Class({
 })
 
 // ------------------------------ UI SCENE ----------------------------
+// UI scene to handle menus and player input during battle
 export var UIScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
@@ -500,6 +561,7 @@ export var UIScene = new Phaser.Class({
     this.remapHeroes()
     this.remapEnemies()
   },
+  // Handle enemy selection and emit the selected action and target to the battle scene, then reset menus if not using a skill that targets all enemies
   onEnemy: function (index) {
     let action = this.selectedAction || 'attack'
     this.battleScene.receivePlayerSelection(action, index)
@@ -511,6 +573,7 @@ export var UIScene = new Phaser.Class({
       this.enemiesMenu.deselect()
     }
   },
+  // Handle player selection of a hero, show action menu
   onPlayerSelect: function (id) {
     this.heroesMenu.select(id)
     this.actionsMenu.select(0)
@@ -518,11 +581,13 @@ export var UIScene = new Phaser.Class({
     this.skillsMenu.visible = false
     this.currentMenu = this.actionsMenu
   },
+  // Handle action selection, show enemy menu if attack selected, show skills menu if skills selected
   onSelectedAction: function () {
     this.enemiesMenu.previousMenu = this.actionsMenu
     this.currentMenu = this.enemiesMenu
     this.enemiesMenu.select(0)
   },
+  // Handle skills selection, show skills menu
   onSelectedSkills: function () {
     let currentHero = this.battleScene.heroes[this.heroesMenu.menuItemIndex]
     this.skillsMenu.remapSkills(currentHero.skills)
@@ -532,14 +597,25 @@ export var UIScene = new Phaser.Class({
     this.currentMenu = this.skillsMenu
     this.skillsMenu.select(0)
   },
+  // Handle skill targetting
   onSkillSelected: function (skillName) {
-    this.selectedAction = skillName
-    this.skillsMenu.visible = false
-    this.actionsMenu.visible = false
-    this.enemiesMenu.previousMenu = this.skillsMenu
-    this.currentMenu = this.enemiesMenu
-    this.enemiesMenu.select(0)
+    let currentHero = this.battleScene.heroes[this.heroesMenu.menuItemIndex]
+    let skill = currentHero.skills.find((s) => s.name === skillName)
+    if (skill && skill.target === 'all') {
+      this.battleScene.receivePlayerSelection(skillName, 'all')
+      this.currentMenu = null
+      this.skillsMenu.visible = false
+      this.actionsMenu.visible = false
+    } else {
+      this.selectedAction = skillName
+      this.skillsMenu.visible = false
+      this.actionsMenu.visible = false
+      this.enemiesMenu.previousMenu = this.skillsMenu
+      this.currentMenu = this.enemiesMenu
+      this.enemiesMenu.select(0)
+    }
   },
+  // Handle case when player tries to use a skill without enough mana
   onNoMana: function () {
     this.battleScene.events.emit('Message', 'Not enough MP!')
     this.enemiesMenu.deselect()
@@ -549,7 +625,6 @@ export var UIScene = new Phaser.Class({
     this.currentMenu = this.skillsMenu
     this.currentMenu.selected = true
   },
-
   remapHeroes: function () {
     var heroes = this.battleScene.heroes
     this.heroesMenu.remap(heroes)
@@ -558,6 +633,7 @@ export var UIScene = new Phaser.Class({
     var enemies = this.battleScene.enemies
     this.enemiesMenu.remap(enemies)
   },
+  // Handle key input for menu navigation and selection
   onKeyInput: function (event) {
     if (this.currentMenu && this.currentMenu.selected) {
       if (event.code === 'ArrowUp') {
@@ -579,6 +655,7 @@ export var UIScene = new Phaser.Class({
       }
     }
   },
+  // Handle going back in the menu, return to previous menu or deselect if already in action menu
   menuBack: function () {
     if (this.currentMenu && this.currentMenu.previousMenu) {
       this.currentMenu.deselect()

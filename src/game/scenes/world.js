@@ -114,7 +114,7 @@ export var WorldScene = new Phaser.Class({
     // Amount of chests
     let chestAmount = Phaser.Math.RND.between(1, 5)
     // Loot contained in chests
-    let chestLoot = ['Potion']
+    let chestLoot = ['Potion', 'Elixir']
     // Spawn logic for chests
     for (let i = 0; i < chestAmount; i++) {
       let x, y, distance, isBlocked
@@ -133,6 +133,7 @@ export var WorldScene = new Phaser.Class({
       } while (distance < spawnRadius || isBlocked)
       // Load asset
       let chest = this.add.sprite(x, y, 'chest')
+      // Randomly assign chest item from loot table
       chest.itemName = Phaser.Math.RND.pick(chestLoot)
       chest.setScale(1)
       this.chests.add(chest)
@@ -277,7 +278,7 @@ export var WorldScene = new Phaser.Class({
     let msg = this.add.pixelText(
       chest.x,
       chest.y - 8,
-      `Found a ${chest.itemName}!`
+      `Found one ${chest.itemName}!`
     )
     msg.setOrigin(0.5)
     this.tweens.add({

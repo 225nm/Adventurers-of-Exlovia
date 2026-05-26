@@ -1,17 +1,18 @@
 import Phaser from 'phaser'
+// Scene for displaying hero stats in the party menu
 export let StatsScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
   initialize: function StatsScene() {
     Phaser.Scene.call(this, { key: 'StatsScene' })
   },
-
+  // Init method to receive hero data and previous menu index for navigation purposes
   init: function (data) {
     // load hero data
     this.hero = data.hero
     this.previousIndex = data.previousIndex || 0
   },
-
+  // Create method to set up the stats display, including layout, hero information, and input handling
   create: function () {
     // Clear inputs
     this.input.keyboard.off('keydown', this.handleInput, this)
@@ -67,13 +68,13 @@ export let StatsScene = new Phaser.Class({
     // Handle inputs
     this.input.keyboard.on('keydown', this.handleInput, this)
   },
-
+  // Handles input for closing the stats screen and returning to the party menu
   handleInput: function (event) {
     if (event.code === 'KeyX' || event.code === 'Escape') {
       this.closeStats()
     }
   },
-
+  // Logic for closing the stats screen and returning to the party menu, passing the previous index for navigation purposes
   closeStats: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
     this.scene.stop()

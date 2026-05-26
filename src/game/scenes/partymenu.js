@@ -1,19 +1,21 @@
 import Phaser from 'phaser'
 import { itemIndex } from '../items/itemIndex'
 
+// Party menu scene for world menu
 export let PartyScene = new Phaser.Class({
   Extends: Phaser.Scene,
-
+  // Initializes the scene
   initialize: function PartyScene() {
     Phaser.Scene.call(this, { key: 'PartyScene' })
   },
-
+  // Initializes the scene with mode and previous index for menu navigation
   init: function (data) {
     this.mode = data.mode || 'VIEW'
     this.menuIndex = data.previousIndex || 0
     this.menuItems = []
   },
 
+  // Creates the party menu and sets up input handling
   create: function () {
     // clear listeners to avoid bugs
     this.input.keyboard.off('keydown', this.handleInput, this)
@@ -62,6 +64,7 @@ export let PartyScene = new Phaser.Class({
     this.updateSelection()
   },
 
+  // Handles input for navigating the party menu
   handleInput: function (event) {
     if (event.code === 'ArrowDown') {
       this.menuIndex = (this.menuIndex + 1) % this.menuItems.length
@@ -77,6 +80,7 @@ export let PartyScene = new Phaser.Class({
     }
   },
 
+  // Highlights the selected hero in the menu
   updateSelection: function () {
     this.menuItems.forEach((text, index) => {
       if (index === this.menuIndex) {
@@ -88,7 +92,7 @@ export let PartyScene = new Phaser.Class({
       }
     })
   },
-
+  // Handles confirming a selection in the party menu, either applying an item effect or viewing hero stats
   confirmSelection: function () {
     if (this.mode === 'SELECT') {
       this.applyItemEffect()
@@ -101,16 +105,23 @@ export let PartyScene = new Phaser.Class({
       })
     }
   },
-
+  // Uses an item and applies the effect
   applyItemEffect: function () {
     const itemName = this.registry.get('usedItem')
     const itemData = itemIndex[itemName]
     const targetHero = this.partyData[this.menuIndex]
 
-    if (itemData.healValue) {
-      if (targetHero.hp >= targetHero.maxHp) {
+    if (itemData.healValue || itemData.manaValue) {
+      if (
+        targetHero.hp >= targetHero.maxHp ||
+        targetHero.mp >= targetHero.maxMp
+      ) {
         return
       }
+    }
+    targetHero.mp += itemData.manaValue
+    if (targetHero.mp > targetHero.maxMp) {
+      targetHero.mp = targetHero.maxMp
     }
     targetHero.hp += itemData.healValue
     if (targetHero.hp > targetHero.maxHp) {
@@ -121,6 +132,7 @@ export let PartyScene = new Phaser.Class({
     this.closeMenu()
   },
 
+  // Closes the menu and returns to the appropriate scene based on the current mode
   closeMenu: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
     if (this.mode === 'SELECT') {

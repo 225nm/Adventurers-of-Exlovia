@@ -1,8 +1,7 @@
 import Phaser from 'phaser'
 import { skillsIndex } from './skills/skillsIndex'
 import { heroesIndex } from './units/heroes/heroesIndex'
-
-// AI generated party creator
+// Party management module
 export const Party = {
   /**
    * Generates a fresh party based on the hero classes' baseStats.

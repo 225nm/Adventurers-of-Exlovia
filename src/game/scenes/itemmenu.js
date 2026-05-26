@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { itemIndex } from '../items/itemIndex'
 
+// Inventory menu scene for world menu
 export let ItemScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
@@ -8,6 +9,7 @@ export let ItemScene = new Phaser.Class({
     Phaser.Scene.call(this, { key: 'ItemScene' })
   },
 
+  // Initializes the scene and sets up the inventory menu
   create: function () {
     this.inventory = this.game.inventory
     this.menuIndex = 0
@@ -31,6 +33,7 @@ export let ItemScene = new Phaser.Class({
     })
   },
 
+  // Handles input for navigating the inventory menu
   handleInput: function (event) {
     if (this.menuItems.length === 0) {
       if (event.code === 'KeyX' || event.code === 'Escape') this.exitMenu()
@@ -51,20 +54,26 @@ export let ItemScene = new Phaser.Class({
     }
   },
 
+  // Handles item usage in world menu
   confirmSelection: function () {
     if (this.menuItems.length === 0) return
     let selectedItem = this.menuItems[this.menuIndex]
     let itemName = selectedItem.itemName
     let itemData = itemIndex[itemName]
 
-    // Logic for using healing items out of battle scene
+    // Logic for using healing and mana restoring items out of battle scene
     if (itemData.healValue) {
+      this.registry.set('usedItem', itemName)
+      this.scene.stop()
+      this.scene.start('PartyScene', { mode: 'SELECT' })
+    } else if (itemData.manaValue) {
       this.registry.set('usedItem', itemName)
       this.scene.stop()
       this.scene.start('PartyScene', { mode: 'SELECT' })
     }
   },
 
+  // Updates the inventory
   updateItemList: function () {
     this.menuItems.forEach((item) => item.destroy())
     this.menuItems = []
@@ -86,6 +95,7 @@ export let ItemScene = new Phaser.Class({
     }
   },
 
+  // Highlights the selected item in the menu
   updateSelection: function () {
     this.menuItems.forEach((item, index) => {
       if (index === this.menuIndex) {
@@ -98,6 +108,7 @@ export let ItemScene = new Phaser.Class({
     })
   },
 
+  // Exits the menu and returns to the world scene
   exitMenu: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
 
@@ -111,6 +122,7 @@ export let ItemScene = new Phaser.Class({
     }
   },
 
+  // Sets up input listeners for the menu
   setupInput: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
     this.input.keyboard.on('keydown', this.handleInput, this)

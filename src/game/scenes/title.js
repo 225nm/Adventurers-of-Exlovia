@@ -3,13 +3,14 @@ import { Party } from '../party.js'
 import { saveSystem } from '../save.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
 
+// Title screen class
 export var TitleScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
   initialize: function TitleScene() {
     Phaser.Scene.call(this, { key: 'TitleScene' })
   },
-
+  // Create method to set up the title screen, including background, menu options, and input handling
   create: function () {
     let bg = this.add.image(160, 120, 'title')
     bg.setDisplaySize(320, 240)
@@ -65,7 +66,7 @@ export var TitleScene = new Phaser.Class({
 
     this.updateMenuVisuals()
   },
-
+  // Update loop to handle menu navigation and selection
   update: function () {
     if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
       this.moveSelection(-1)
@@ -77,6 +78,7 @@ export var TitleScene = new Phaser.Class({
     }
   },
 
+  // Moves the menu selection up or down based on the direction parameter
   moveSelection: function (direction) {
     this.selectedIndex += direction
 
@@ -89,7 +91,7 @@ export var TitleScene = new Phaser.Class({
 
     this.updateMenuVisuals()
   },
-
+  // Updates the visual state of the menu options based on the currently selected index
   updateMenuVisuals: function () {
     this.menus.forEach((option, idx) => {
       if (idx === this.selectedIndex) {
@@ -105,16 +107,19 @@ export var TitleScene = new Phaser.Class({
       }
     })
   },
+  // Confirms the selected menu
   confirmSelection: function () {
     this.menus[this.selectedIndex].action.call(this)
   },
 
+  // Logic for continuing a game, loads save data and starts the world scene
   continueGame: function () {
     saveSystem.loadGame(this.registry)
     this.game.inventory.items = this.registry.get('inventory') || []
     this.scene.start('WorldScene')
   },
 
+  // Starts a new game by clearing save data, resetting inventory, and initializing the party
   startNewGame: function () {
     localStorage.removeItem('party_data')
     this.registry.set('inventory', [])

@@ -1,12 +1,12 @@
 import Phaser from 'phaser'
-
+// Victory screen class
 export var VictoryScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
   initialize: function VictoryScene() {
     Phaser.Scene.call(this, { key: 'VictoryScene' })
   },
-
+  // Create method to set up the victory screen, including background, loot display, and input handling
   create: function (lootData) {
     this.cameras.main.setBackgroundColor('#23d2de')
 
@@ -37,7 +37,7 @@ export var VictoryScene = new Phaser.Class({
     // Input configuration
     this.input.keyboard.once('keydown-Z', this.returnWorld, this)
   },
-
+  // Logic for returning to the world scene after victory, stops current scenes and wakes the world scene
   returnWorld: function () {
     this.scene.stop('VictoryScene')
     this.scene.stop('BattleScene')

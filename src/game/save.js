@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 
 const save_key = 'party_data'
 
-// Saves game data
+// Save system to handle saving and loading game data
 export const saveSystem = {
   saveGame: function (registry) {
     const partyData = registry.get('partyData')

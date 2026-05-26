@@ -48,7 +48,7 @@ var config = {
 }
 var game = new Phaser.Game(config)
 
-// AI added custom object for text
+// Text factory
 Phaser.GameObjects.GameObjectFactory.register(
   'pixelText',
   function (x, y, text, size = 8) {

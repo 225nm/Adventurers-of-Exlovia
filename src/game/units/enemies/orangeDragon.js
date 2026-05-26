@@ -1,5 +1,5 @@
 import { Enemy } from '../../units'
-
+// Ogre enemy class with specific stats and skills
 export let orangeDragon = new Phaser.Class({
   Extends: Enemy,
   initialize: function orangeDragon(scene, x, y) {
@@ -19,7 +19,7 @@ export let orangeDragon = new Phaser.Class({
       ['Potion']
     )
     this.skills = [
-      { name: 'Scorch', damage: 12, mpCost: 0, levelReq: 1 },
+      { name: 'Scorch', damage: 12, mpCost: 0, levelReq: 1, target: 'all' },
     ]
   },
 })

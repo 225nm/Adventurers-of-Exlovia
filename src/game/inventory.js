@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 
+// Inventory class
 export class Inventory {
   constructor(registry) {
     this.registry = registry

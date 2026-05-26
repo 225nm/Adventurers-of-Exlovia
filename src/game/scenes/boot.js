@@ -1,14 +1,14 @@
 import Phaser from 'phaser'
 import { saveSystem } from '../save'
 import { Inventory } from '../inventory'
-
+// Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
 
   initialize: function BootScene() {
     Phaser.Scene.call(this, { key: 'BootScene' })
   },
-
+  // Preload method to load all necessary assets for the game, including tiles, fonts, characters, and enemies
   preload: function () {
     // map tiles
     this.load.image('tiles', 'assets/map/spritesheet.png')
@@ -47,7 +47,7 @@ export var BootScene = new Phaser.Class({
       frameHeight: 16,
     })
   },
-
+  // Create method to initialize the inventory and start the title scene
   create: function () {
     if (!this.registry.get('inventory')) {
       this.registry.set('inventory', [])

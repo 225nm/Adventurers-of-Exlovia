@@ -1,12 +1,12 @@
 import Phaser from 'phaser'
 import { saveSystem } from '../save'
-
+// World menu class
 export let WorldMenuScene = new Phaser.Class({
   Extends: Phaser.Scene,
   initialize: function WorldMenuScene() {
     Phaser.Scene.call(this, { key: 'WorldMenuScene' })
   },
-
+  // Create method to set up the world menu, including menu options, input handling, and state management
   create: function () {
     // State handling in order to handle submenus/confirmation menus
     this.menuState = 'main'
@@ -35,19 +35,20 @@ export let WorldMenuScene = new Phaser.Class({
     })
     this.sys.events.on('wake', this.setupInput, this)
   },
-
+  // Clean up input listeners when the scene is stopped to prevent bugs
   setupInput: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
     this.input.keyboard.on('keydown', this.handleInput, this)
     this.updateMenuVisuals()
   },
 
+  // Helper method to create menu items with text and associated actions
   setupMenuItem: function (x, y, text, action) {
     let item = this.add.pixelText(x, y, text)
     item.action = action
     this.menuItems.push(item)
   },
-
+  // Updates the visual state of menu items to indicate which one is currently selected
   updateMenuVisuals: function () {
     this.menuItems.forEach((item, i) => {
       if (i === this.menuIndex) {
@@ -59,7 +60,7 @@ export let WorldMenuScene = new Phaser.Class({
       }
     })
   },
-
+  // Logic for handling menu navigation and selection based on keyboard input
   handleInput: function (event) {
     if (this.menuState === 'confirm') {
       this.handleConfirmInput(event)
@@ -81,7 +82,7 @@ export let WorldMenuScene = new Phaser.Class({
       this.scene.stop()
     }
   },
-
+  // Logic for confirming a menu selection, either navigating to a submenu, saving the game, or showing a quit confirmation
   confirmSelection: function () {
     let selection = this.menuItems[this.menuIndex].action
     this.scene.stop('ItemScene')
@@ -106,7 +107,7 @@ export let WorldMenuScene = new Phaser.Class({
       this.scene.start('ItemScene')
     }
   },
-
+  // Logic for showing a quit confirmation menu when the player selects the quit option
   showQuitConfirm: function () {
     this.menuState = 'confirm'
 
@@ -125,7 +126,7 @@ export let WorldMenuScene = new Phaser.Class({
 
     this.confirmBox.add([overlay, box, msg])
   },
-
+  // Logic for handling input in the quit confirmation menu, either confirming the quit action or returning to the main menu
   handleConfirmInput: function (event) {
     if (event.code === 'KeyZ' || event.code === 'Enter') {
       this.scene.stop('WorldScene')
@@ -135,7 +136,7 @@ export let WorldMenuScene = new Phaser.Class({
       this.menuState = 'main'
     }
   },
-
+  // Logic for showing feedback messages in the world menu, such as confirming a save action or invalid input
   showFeedback: function (text) {
     let feed = this.add.pixelText(100, 175, text)
     feed.setTint(0xf8ff38)
