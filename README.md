@@ -27,7 +27,7 @@ TODO: add GIF/video here later
 
 # Project status
 
-Currently under development, V.0.5.0 is the final release for the 1DV613 course, Mjukvaruutvecklingsprojekt.
+Currently under development, V.0.5.0 is the final release for the 1DV613 course, Mjukvaruutvecklingsprojekt. The project is still in a early state and lacks a lot of features to be classified as an enjoyable game.
 The game currently features movement, multiple playable characters, a save and load system, loot, randomly generated maps, multiple enemies, a turn-based combat system, level up system, skill system. 
 
 All systems are at a very basic and unfinished level currently. Balancing of enemies/units have not been done at all. The items and skills are very few and barebones. There's currently no equipment system. The character customization features are not yet implemented such as being able to switch class and mix skills from different classes. There's currently no "purpose" or goal to the game, defeating enemies simply grants experience and minor loot. Entering the stairs on the map generates a new random map but there's no victory condition at the moment. The game needs more visual feedback when leveling up, using items, turn order etc. The game currently features no sound or music. An Options menu needs to be added. The ability to use items in combat is still missing. 
