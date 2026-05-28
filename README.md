@@ -24,6 +24,7 @@ To launch the game initially open a terminal and run the command "npm i". Then r
 # Visuals
 
 ![Gif](https://i.imgur.com/BEnppsw.gif)
+<img src="https://i.imgur.com/BEnppsw.gif"/>
 
 # Project status
 
