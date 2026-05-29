@@ -1,4 +1,6 @@
 # Adventurers of Exlovia
+<img width="640" height="369" alt="titleScreen" src="https://github.com/user-attachments/assets/1af8a807-bfa3-44c1-b767-a7956b1712f8" />
+
 
 # Description
 This project was made as a first year student at LNU as part of a course in Software development.
