@@ -1,6 +1,7 @@
 # Adventurers of Exlovia
 
 # Description
+This project was made as a first year student at LNU as part of a course in Software development.
 
 This is a turn-based roleplaying game built using Phaser initially following this tutorial: https://gamedevacademy.org/how-to-create-a-turn-based-rpg-game-in-phaser-3-part-1/. All assets and code not written by me are publically sourced and available to be freely used under CC or otherwise properly credited. This project features AI-generated code from Gemini as well as autocompletion by Copilot in VScode. This game also features AI-generated assets. This game was built as part of a course in LNU and migrated from Gitlab.
 
