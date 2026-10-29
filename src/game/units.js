@@ -114,19 +114,19 @@ export var Unit = new Phaser.Class({
   setMenuItem: function (item) {
     this.menuItem = item
   },
-  // attack the target unit, returns the damage actually dealt
-  // baseDamage is the skill's damage, basic attacks leave it out and use the unit's own damage
-  attack: function (target, baseDamage, type = 'physical') {
+  // attack the target unit, skill is left out for basic attacks. Returns the damage actually dealt
+  attack: function (target, skill) {
     if (!target.living) {
       return 0
     }
-    if (baseDamage === undefined) {
-      baseDamage = this.damage
-    }
-    // weapons boost physical attacks, spells get the caster's magic plus staff bonuses
-    let bonus =
-      type === 'magic' ? (this.magic || 0) + this.magicBonus : this.attackBonus
-    return target.takeDamage(baseDamage + bonus, type)
+    let type = (skill && skill.type) || 'physical'
+    let power = skill ? skill.power : 1
+    // physical uses attack plus weapon bonus, magic uses magic plus staff bonus
+    let stat =
+      type === 'magic'
+        ? (this.magic || 0) + this.magicBonus
+        : this.damage + this.attackBonus
+    return target.takeDamage(Math.round(stat * power), type)
   },
   // armor reduces physical damage and robes reduce magic damage, but a hit always deals at least 1
   takeDamage: function (damage, type = 'physical') {
@@ -161,26 +161,34 @@ export var Unit = new Phaser.Class({
   },
 })
 
-// Base enemy class
+// Base enemy class, built from an enemy file's sprite and stats data
+// sprite: { texture, frame, scale, flipX }
+// stats: { name, hp, damage, magic, defense, magicDefense, xp, loot, skills }
+// Stats are the floor 1 values, the battle scene scales them for deeper floors
 export var Enemy = new Phaser.Class({
   Extends: Unit,
 
-  initialize: function Enemy(
-    scene,
-    x,
-    y,
-    texture,
-    frame,
-    type,
-    hp,
-    damage,
-    xpDrop,
-    lootTable
-  ) {
-    Unit.call(this, scene, x, y, texture, frame, type, hp, damage)
-    this.xpDrop = xpDrop || 0
-    this.lootTable = lootTable || []
-    this.skills = []
+  initialize: function Enemy(scene, x, y, sprite, stats) {
+    Unit.call(
+      this,
+      scene,
+      x,
+      y,
+      sprite.texture,
+      sprite.frame,
+      stats.name,
+      stats.hp,
+      stats.damage
+    )
+    this.setScale(sprite.scale || 1)
+    this.flipX = !!sprite.flipX
+    this.magic = stats.magic || 0
+    this.defense = stats.defense || 0
+    this.magicDefense = stats.magicDefense || 0
+    this.xpDrop = stats.xp || 0
+    // [{ item, chance }], each entry rolls separately
+    this.lootTable = stats.loot || []
+    this.skills = stats.skills || []
   },
 })
 // Base player character class
@@ -211,5 +219,15 @@ export var PlayerCharacter = new Phaser.Class({
     this.maxHp = maxHp || hp
 
     this.updateStatusBar()
+  },
+  // Raises the level and adds the hero class's growth ({ hp, mp, damage, magic }) to the stats
+  gainLevel: function (growth) {
+    this.level += 1
+    this.maxHp += growth.hp
+    this.hp += growth.hp
+    this.maxMp += growth.mp
+    this.mp += growth.mp
+    this.damage += growth.damage
+    this.magic += growth.magic
   },
 })

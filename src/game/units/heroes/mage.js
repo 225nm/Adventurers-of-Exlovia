@@ -42,13 +42,7 @@ export let Mage = new Phaser.Class({
     this.magic = Mage.baseStats.magic
   },
   levelUp: function () {
-    this.level += 1
-    this.hp += 6
-    this.maxHp += 6
-    this.damage += 2
-    this.magic += Mage.magicPerLevel
-    this.mp += 8
-    this.maxMp += 8
+    this.gainLevel(Mage.growth)
     this.checkSkills()
   },
   // AI suggested syntax, checks which skills are available based on level
@@ -56,8 +50,11 @@ export let Mage = new Phaser.Class({
     this.skills = mageSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
-// magic gained per level, also used to upgrade old saves
-Mage.magicPerLevel = 3
+// stats gained per level, also used to recruit heroes at higher levels and upgrade old saves
+Mage.growth = { hp: 6, mp: 8, damage: 2, magic: 3 }
+// shown on the party selection screen
+Mage.description = 'Spellcaster'
+Mage.sprite = { texture: 'player', frame: 4 }
 Mage.baseStats = {
   type: 'Mage',
   hp: 80,
