@@ -11,6 +11,7 @@ import { ItemScene } from './game/scenes/itemmenu'
 import { StatsScene } from './game/scenes/heroStats'
 import { OptionsScene } from './game/scenes/options'
 import { GameOverScene } from './game/scenes/gameover'
+import { PartySelectScene } from './game/scenes/partyselect'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
 // Phaser container and physics settings.
@@ -38,6 +39,7 @@ var config = {
   scene: [
     BootScene,
     TitleScene,
+    PartySelectScene,
     WorldScene,
     BattleScene,
     UIScene,

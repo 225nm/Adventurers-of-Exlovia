@@ -66,6 +66,6 @@ export const Progression = {
     return Math.round(20 * Math.pow(level, 1.4))
   },
 
-  // Floor where the Ranger joins the party
-  rangerJoinFloor: 3,
+  // Floor where the hero class not picked at the start joins the party
+  recruitFloor: 3,
 }

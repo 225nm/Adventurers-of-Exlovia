@@ -2,19 +2,8 @@ import Phaser from 'phaser'
 import { skillsIndex } from './skills/skillsIndex'
 import { heroesIndex } from './units/heroes/heroesIndex'
 // Party management module
+// The starting party is chosen on PartySelectScene
 export const Party = {
-  /**
-   * Generates a fresh party based on the hero classes' baseStats.
-   */
-  getStartingParty: function () {
-    // starting lineup, the Ranger joins later in the dungeon
-    const lineup = ['Warrior', 'Mage']
-
-    return lineup
-      .map((className) => this.createHero(className, 1))
-      .filter((h) => h !== null)
-  },
-
   /**
    * Creates a hero's party data at the given level, as if it had leveled up from 1.
    */

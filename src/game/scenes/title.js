@@ -1,5 +1,4 @@
 import Phaser from 'phaser'
-import { Party } from '../party.js'
 import { saveSystem } from '../save.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
 import { Music } from '../audio/music.js'
@@ -139,15 +138,8 @@ export var TitleScene = new Phaser.Class({
     this.scene.start('WorldScene')
   },
 
-  // Starts a new game by clearing save data, resetting inventory, and initializing the party
+  // Starts a new game: the party selection screen sets up the party and clears the old save
   startNewGame: function () {
-    localStorage.removeItem('party_data')
-    this.registry.set('inventory', [])
-    this.game.inventory.items = []
-    const defaultParty = Party.getStartingParty()
-
-    this.registry.set('partyData', defaultParty)
-    this.registry.set('floor', 1)
-    this.scene.start('WorldScene')
+    this.scene.start('PartySelectScene')
   },
 })

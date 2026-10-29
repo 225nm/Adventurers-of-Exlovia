@@ -430,14 +430,16 @@ export var WorldScene = new Phaser.Class({
       hero.mp = Math.min(hero.maxMp, hero.mp + Math.ceil(hero.maxMp / 2))
     })
 
-    // the Ranger joins at the party's average level so they can keep up
-    let hasRanger = partyData.some((hero) => hero.type === 'Ranger')
-    if (floor >= Progression.rangerJoinFloor && !hasRanger) {
+    // the hero class not picked at the start joins, at the party's average level so they can keep up
+    let recruit = Object.keys(heroesIndex).find(
+      (type) => !partyData.some((hero) => hero.type === type)
+    )
+    if (floor >= Progression.recruitFloor && recruit) {
       let averageLevel = Math.round(
         partyData.reduce((sum, hero) => sum + hero.level, 0) / partyData.length
       )
-      partyData.push(Party.createHero('Ranger', averageLevel))
-      message = 'The Ranger joins your party!'
+      partyData.push(Party.createHero(recruit, averageLevel))
+      message = `The ${recruit} joins your party!`
     }
 
     this.registry.set('partyData', partyData)
