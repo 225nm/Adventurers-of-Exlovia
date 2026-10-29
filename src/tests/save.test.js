@@ -1,4 +1,4 @@
-import { saveSystem } from '../game/save'
+import { saveSystem, migrateHero } from '../game/save'
 
 // REQ-2 FR-2 Game data must persist between sessions
 
@@ -86,5 +86,33 @@ test('Game data can be loaded', () => {
 
   saveSystem.loadGame(mockRegistry)
 
-  expect(registryMock.get('partyData')).toEqual(testParty)
+  // old saves come back with every saved stat intact, plus the newer stats filled in
+  expect(registryMock.get('partyData')).toMatchObject(testParty)
+})
+
+// Saves from before the magic stat and equipment existed are upgraded on load
+test('Old saves get magic and equipment when loaded', () => {
+  const oldMage = { type: 'Mage', level: 3, damage: 12, hp: 92, maxHp: 92 }
+  const upgraded = migrateHero(oldMage)
+
+  // base 8 magic plus 3 per level gained
+  expect(upgraded.magic).toBe(14)
+  expect(upgraded.equipment).toEqual({ weapon: null, armor: null })
+  expect(upgraded.damage).toBe(12)
+
+  // stats that already exist are never overwritten
+  const newMage = {
+    ...oldMage,
+    magic: 20,
+    equipment: { weapon: 'Oak Staff', armor: null },
+  }
+  expect(migrateHero(newMage)).toEqual(newMage)
+})
+
+test('Saves record their version', () => {
+  localStorage.clear()
+  const registry = new Map([['partyData', [{ type: 'Warrior', level: 1 }]]])
+  saveSystem.saveGame({ get: (key) => registry.get(key) })
+
+  expect(JSON.parse(localStorage.getItem('party_data')).version).toBe(2)
 })
