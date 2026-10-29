@@ -9,6 +9,7 @@ import { PartyScene } from './game/scenes/partymenu'
 import { WorldMenuScene } from './game/scenes/worldmenu'
 import { ItemScene } from './game/scenes/itemmenu'
 import { StatsScene } from './game/scenes/heroStats'
+import { OptionsScene } from './game/scenes/options'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
 // Phaser container and physics settings.
@@ -44,6 +45,8 @@ var config = {
     WorldMenuScene,
     ItemScene,
     StatsScene,
+    // last so it draws on top of whichever scene opened it
+    OptionsScene,
   ],
 }
 var game = new Phaser.Game(config)
@@ -63,5 +66,23 @@ Phaser.GameObjects.GameObjectFactory.register(
     bitmapText.y = Math.floor(bitmapText.y)
 
     return bitmapText
+  }
+)
+
+// Colored text factory. The game uses the Canvas renderer where setTint does nothing,
+// so colored text uses a regular text object with the same pixel font instead
+Phaser.GameObjects.GameObjectFactory.register(
+  'colorText',
+  function (x, y, text, color = '#ffffff') {
+    return this.scene.add
+      .text(x, y, text, {
+        fontFamily: '"Press Start 2P", cursive',
+        fontSize: '16px',
+        color: color,
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
+      .setScale(0.5)
   }
 )
