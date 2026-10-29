@@ -39,12 +39,14 @@ export let Mage = new Phaser.Class({
     this.checkSkills()
     this.flipX = true
     this.setScale(2)
+    this.magic = Mage.baseStats.magic
   },
   levelUp: function () {
     this.level += 1
     this.hp += 6
     this.maxHp += 6
     this.damage += 2
+    this.magic += Mage.magicPerLevel
     this.mp += 8
     this.maxMp += 8
     this.checkSkills()
@@ -54,6 +56,8 @@ export let Mage = new Phaser.Class({
     this.skills = mageSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
+// magic gained per level, also used to upgrade old saves
+Mage.magicPerLevel = 3
 Mage.baseStats = {
   type: 'Mage',
   hp: 80,
@@ -63,5 +67,7 @@ Mage.baseStats = {
   xp: 0,
   level: 1,
   damage: 8,
+  magic: 8,
   skills: mageSkills.filter((s) => s.levelReq <= 1),
+  equipment: { weapon: null, armor: null },
 }

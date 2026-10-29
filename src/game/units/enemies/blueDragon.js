@@ -8,14 +8,27 @@ export let blueDragon = new Phaser.Class({
       'Potion',
       'Elixir',
     ])
+    // hard scales block weapons, magic gets through
+    this.defense = 4
+    this.magicDefense = 1
     this.skills = [
-      { name: 'Scorch', damage: 12, mpCost: 0, levelReq: 1, target: 'all' },
+      {
+        name: 'Scorch',
+        damage: 12,
+        mpCost: 0,
+        levelReq: 1,
+        target: 'all',
+        type: 'magic',
+        element: 'fire',
+      },
       {
         name: 'Flame Breath',
         damage: 16,
         mpCost: 0,
         levelReq: 1,
         target: 'all',
+        type: 'magic',
+        element: 'fire',
       },
     ]
   },

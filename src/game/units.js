@@ -19,6 +19,15 @@ export var Unit = new Phaser.Class({
     this.hp = hp
     this.maxHp = maxHp || hp
     this.damage = damage // default damage
+    // magic power added to spells, heroes set their own
+    this.magic = 0
+    // bonuses from equipment, set by the battle scene for heroes
+    this.attackBonus = 0
+    this.magicBonus = 0
+    this.defense = 0
+    this.magicDefense = 0
+    // ranged units shoot instead of running up to the target
+    this.ranged = false
     this.living = true
     this.menuItem = null
 
@@ -105,25 +114,24 @@ export var Unit = new Phaser.Class({
   setMenuItem: function (item) {
     this.menuItem = item
   },
-  // attack the target unit
-  attack: function (target, modifiedDamage) {
-    if (target.living) {
-      let finalDamage = modifiedDamage || this.damage
-      target.takeDamage(finalDamage)
-      if (!modifiedDamage) {
-        this.scene.events.emit(
-          'Message',
-          this.type +
-            ' attacks ' +
-            target.type +
-            ' for ' +
-            finalDamage +
-            ' damage'
-        )
-      }
+  // attack the target unit, returns the damage actually dealt
+  // baseDamage is the skill's damage, basic attacks leave it out and use the unit's own damage
+  attack: function (target, baseDamage, type = 'physical') {
+    if (!target.living) {
+      return 0
     }
+    if (baseDamage === undefined) {
+      baseDamage = this.damage
+    }
+    // weapons boost physical attacks, spells get the caster's magic plus staff bonuses
+    let bonus =
+      type === 'magic' ? (this.magic || 0) + this.magicBonus : this.attackBonus
+    return target.takeDamage(baseDamage + bonus, type)
   },
-  takeDamage: function (damage) {
+  // armor reduces physical damage and robes reduce magic damage, but a hit always deals at least 1
+  takeDamage: function (damage, type = 'physical') {
+    let reduction = type === 'magic' ? this.magicDefense : this.defense
+    damage = Math.max(1, damage - reduction)
     this.hp -= damage
     if (this.hp <= 0) {
       this.hp = 0
@@ -136,6 +144,7 @@ export var Unit = new Phaser.Class({
       this.menuItem = null
     }
     this.updateStatusBar()
+    return damage
   },
   // removes unit and text from screen
   destroy: function () {

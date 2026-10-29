@@ -18,8 +18,19 @@ export let orangeDragon = new Phaser.Class({
       20,
       ['Potion']
     )
+    // hard scales block weapons, magic gets through
+    this.defense = 4
+    this.magicDefense = 1
     this.skills = [
-      { name: 'Scorch', damage: 12, mpCost: 0, levelReq: 1, target: 'all' },
+      {
+        name: 'Scorch',
+        damage: 12,
+        mpCost: 0,
+        levelReq: 1,
+        target: 'all',
+        type: 'magic',
+        element: 'fire',
+      },
     ]
   },
 })

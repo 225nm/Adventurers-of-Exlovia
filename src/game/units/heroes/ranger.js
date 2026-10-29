@@ -37,14 +37,18 @@ export let Ranger = new Phaser.Class({
       maxHp || 70
     )
     this.checkSkills()
+    // shoots arrows instead of running up to the target
+    this.ranged = true
     this.flipX = true
     this.setScale(2)
+    this.magic = Ranger.baseStats.magic
   },
   levelUp: function () {
     this.level += 1
     this.hp += 7
     this.maxHp += 7
     this.damage += 3
+    this.magic += Ranger.magicPerLevel
     this.mp += 6
     this.maxMp += 6
     this.checkSkills()
@@ -53,6 +57,8 @@ export let Ranger = new Phaser.Class({
     this.skills = rangerSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
+// magic gained per level, also used to upgrade old saves
+Ranger.magicPerLevel = 1
 Ranger.baseStats = {
   type: 'Ranger',
   hp: 70,
@@ -62,5 +68,7 @@ Ranger.baseStats = {
   xp: 0,
   level: 1,
   damage: 12,
+  magic: 4,
   skills: rangerSkills.filter((s) => s.levelReq <= 1),
+  equipment: { weapon: null, armor: null },
 }

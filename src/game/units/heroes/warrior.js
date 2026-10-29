@@ -40,12 +40,14 @@ export let Warrior = new Phaser.Class({
     this.checkSkills()
     this.flipX = true
     this.setScale(2)
+    this.magic = Warrior.baseStats.magic
   },
   levelUp: function () {
     this.level += 1
     this.hp += 10
     this.maxHp += 10
     this.damage += 4
+    this.magic += Warrior.magicPerLevel
     this.mp += 5
     this.maxMp += 5
     // check for new skills on level up
@@ -55,6 +57,8 @@ export let Warrior = new Phaser.Class({
     this.skills = warriorSkills.filter((skill) => this.level >= skill.levelReq)
   },
 })
+// magic gained per level, also used to upgrade old saves
+Warrior.magicPerLevel = 1
 Warrior.baseStats = {
   type: 'Warrior',
   hp: 100,
@@ -64,5 +68,7 @@ Warrior.baseStats = {
   xp: 0,
   level: 1,
   damage: 20,
+  magic: 2,
   skills: warriorSkills.filter((s) => s.levelReq <= 1),
+  equipment: { weapon: null, armor: null },
 }
