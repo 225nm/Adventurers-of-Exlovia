@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-.
+
 node_modules
 dist
 dist-ssr
@@ -25,3 +25,14 @@ dist-ssr
 
 # Test logs
 coverage/
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Personal Claude Code files
+CLAUDE.local.md
+.claude/settings.local.json
