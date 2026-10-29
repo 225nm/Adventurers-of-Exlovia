@@ -1,21 +1,18 @@
 import Phaser from 'phaser'
-import { Potion } from './potion'
-import { Elixir } from './elixir'
-import { IronSword, HuntingBow, OakStaff } from './weapons'
-import { LeatherArmor, ChainMail, MageRobe } from './armor'
+import * as potions from './potion'
+import * as elixirs from './elixir'
+import * as weapons from './weapons'
+import * as armor from './armor'
 // individual exports
-export { Potion }
-export { Elixir }
-export { IronSword, HuntingBow, OakStaff }
-export { LeatherArmor, ChainMail, MageRobe }
-// list export, keys must match the item names stored in the inventory
-export const itemIndex = {
-  Potion,
-  Elixir,
-  'Iron Sword': IronSword,
-  'Hunting Bow': HuntingBow,
-  'Oak Staff': OakStaff,
-  'Leather Armor': LeatherArmor,
-  'Chain Mail': ChainMail,
-  'Mage Robe': MageRobe,
-}
+export * from './potion'
+export * from './elixir'
+export * from './weapons'
+export * from './armor'
+
+// list export, keyed by the item names stored in the inventory
+export const itemIndex = {}
+;[potions, elixirs, weapons, armor].forEach((group) =>
+  Object.values(group).forEach((item) => {
+    itemIndex[item.name] = item
+  })
+)
