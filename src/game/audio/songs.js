@@ -74,6 +74,21 @@ export const SONGS = {
     `,
   },
 
+  // Slow, sad phrase when the party falls, plays once
+  defeat: {
+    bpm: 70,
+    loop: false,
+    lead: 'flute',
+    arp: 'harp',
+    bass: 'half',
+    pad: true,
+    drums: null,
+    chords: ['Am', 'F', 'Dm', 'E'],
+    melody: `
+      E5 2, D5 1, C5 1 | A4 3, C5 1 | D5 2, F5 1, E5 1 | E5 4
+    `,
+  },
+
   // Short fanfare after winning, plays once
   victory: {
     bpm: 140,

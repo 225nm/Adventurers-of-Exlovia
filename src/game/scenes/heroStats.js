@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { Equipment } from '../equipment'
 import { Sfx } from '../audio/sfx'
+import { Progression } from '../progression'
 // Scene for displaying hero stats in the party menu
 export let StatsScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -38,7 +39,7 @@ export let StatsScene = new Phaser.Class({
     // Stats display, defenses only come from equipment
     let lines = [
       `LEVEL:  ${this.hero.level}`,
-      `XP:     ${this.hero.xp}`,
+      `XP:     ${this.hero.xp}/${Progression.xpToNext(this.hero.level)}`,
       `HP:     ${this.hero.hp}/${this.hero.maxHp}`,
       `MP:     ${this.hero.mp}/${this.hero.maxMp}`,
       `DAMAGE: ${this.hero.damage}` + (attackBonus ? ` +${attackBonus}` : ''),

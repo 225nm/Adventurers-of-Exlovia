@@ -1,6 +1,12 @@
 import Phaser from 'phaser'
 import { Music } from '../audio/music.js'
 import { Sfx } from '../audio/sfx.js'
+import { Progression } from '../progression.js'
+import { Loot } from '../loot.js'
+import { Party } from '../party.js'
+import { saveSystem } from '../save.js'
+import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
+import { heroesIndex } from '../units/heroes/heroesIndex.js'
 
 export var WorldScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -115,24 +121,13 @@ export var WorldScene = new Phaser.Class({
 
     // --------------------------- MAP OBJECTS ----------------------------------------------------------------
 
+    // current dungeon floor, decides enemies and loot
+    this.floor = this.registry.get('floor') || 1
+
     // Chests
     this.chests = this.physics.add.staticGroup()
     // Amount of chests
-    let chestAmount = Phaser.Math.RND.between(1, 5)
-    // Loot contained in chests
-    // consumables are listed twice so they are found more often than equipment
-    let chestLoot = [
-      'Potion',
-      'Potion',
-      'Elixir',
-      'Elixir',
-      'Iron Sword',
-      'Hunting Bow',
-      'Oak Staff',
-      'Leather Armor',
-      'Chain Mail',
-      'Mage Robe',
-    ]
+    let chestAmount = Phaser.Math.RND.between(2, 4)
     // Spawn logic for chests
     for (let i = 0; i < chestAmount; i++) {
       let x, y, distance, isBlocked
@@ -151,8 +146,8 @@ export var WorldScene = new Phaser.Class({
       } while (distance < spawnRadius || isBlocked)
       // Load asset
       let chest = this.add.sprite(x, y, 'chest')
-      // Randomly assign chest item from loot table
-      chest.itemName = Phaser.Math.RND.pick(chestLoot)
+      // chest contents get better on deeper floors
+      chest.itemName = Loot.rollChest(this.floor)
       chest.setScale(1)
       this.chests.add(chest)
     }
@@ -203,7 +198,9 @@ export var WorldScene = new Phaser.Class({
     this.spawns = this.physics.add.group({
       classType: Phaser.Physics.Arcade.Sprite,
     })
-    for (var i = 0; i < 10; i++) {
+    // more enemies roam deeper floors
+    let enemyAmount = Math.min(8 + this.floor, 14)
+    for (var i = 0; i < enemyAmount; i++) {
       let x
       let y
       let distance
@@ -223,8 +220,13 @@ export var WorldScene = new Phaser.Class({
         enemyBlocked = tile !== null
       } while (distance < spawnRadius || enemyBlocked)
 
-      // TODO add array of enemies here later
-      let enemy = this.spawns.create(x, y, 'dragonblue')
+      // each roaming enemy shows the enemy type that leads the battle when touched
+      let enemyType = Progression.pickEnemy(this.floor)
+      let sprite = enemiesIndex[enemyType].sprite
+      let enemy = this.spawns.create(x, y, sprite.texture, sprite.frame)
+      enemy.enemyType = enemyType
+      enemy.setScale(sprite.worldScale || 1)
+      enemy.flipX = !!sprite.flipX
 
       enemy.setCollideWorldBounds(true)
       enemy.setBounce(1)
@@ -247,12 +249,51 @@ export var WorldScene = new Phaser.Class({
       this
     )
     // we listen for 'wake' event
+    // remove the listener from before a restart (stairs), or wake would run once per floor visited
+    this.sys.events.off('wake', this.wake, this)
     this.sys.events.on('wake', this.wake, this)
 
     this.transitioning = false
     this.invulnerable = false
     this.graceBlink = null
+    this.graceTimer = null
+    this.descending = false
     Music.play('overworld')
+
+    this.createFloorHud()
+  },
+
+  // Floor number in the corner, and a banner announcing the floor when it starts
+  createFloorHud: function () {
+    this.add
+      .pixelText(6, 6, `FLOOR ${this.floor}`)
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(100)
+
+    let banner = this.add
+      .pixelText(160, 100, `FLOOR ${this.floor}`, 16)
+      .setScrollFactor(0)
+      .setDepth(100)
+    let parts = [banner]
+    // set when taking the stairs, e.g. resting or a new hero joining
+    let message = this.registry.get('floorMessage')
+    if (message) {
+      parts.push(
+        this.add
+          .colorText(160, 125, message, '#f8ff38')
+          .setScrollFactor(0)
+          .setDepth(100)
+      )
+      this.registry.set('floorMessage', null)
+    }
+    this.tweens.add({
+      targets: parts,
+      alpha: 0,
+      delay: 1800,
+      duration: 600,
+      onComplete: () => parts.forEach((part) => part.destroy()),
+    })
   },
 
   // ------------------------------     END OF CREATE ---------------------------------------------------------------
@@ -283,7 +324,9 @@ export var WorldScene = new Phaser.Class({
   startGracePeriod: function () {
     const duration = 2000
     this.invulnerable = true
+    // restart cleanly if a grace period is already running
     if (this.graceBlink) this.graceBlink.stop()
+    if (this.graceTimer) this.graceTimer.remove()
     this.graceBlink = this.tweens.add({
       targets: this.player,
       alpha: 0.3,
@@ -291,17 +334,18 @@ export var WorldScene = new Phaser.Class({
       yoyo: true,
       repeat: -1,
     })
-    this.time.delayedCall(duration, () => {
+    this.graceTimer = this.time.delayedCall(duration, () => {
       this.invulnerable = false
       this.graceBlink.stop()
       this.graceBlink = null
+      this.graceTimer = null
       this.player.alpha = 1
     })
   },
   // When an enemy object is touched by the player
   onMeetEnemy: function (player, zone) {
     // ignore enemies touched while the transition plays or during the grace period after a battle
-    if (this.transitioning || this.invulnerable) return
+    if (this.transitioning || this.invulnerable || this.descending) return
     this.transitioning = true
     const safeRadius = 80
     let newX
@@ -319,6 +363,9 @@ export var WorldScene = new Phaser.Class({
     } while (distanceRespawn < safeRadius)
     zone.x = newX
     zone.y = newY
+
+    // the touched enemy's type leads the battle
+    this.registry.set('encounter', zone.enemyType)
 
     // SNES-style battle transition: flash, then the screen swirls and zooms into darkness
     Music.stop()
@@ -368,15 +415,45 @@ export var WorldScene = new Phaser.Class({
     chest.destroy()
   },
 
-  // Logic when player collides with stairs object, creates a new map
+  // Going down the stairs: next floor with stronger enemies and better loot.
+  // The party rests (recovers half their HP and MP), new heroes may join, and the game autosaves
   onTakeStairs: function (player, stairs) {
-    // TODO add more game logic to this feature
-    this.scene.restart()
+    if (this.descending || this.transitioning) return
+    this.descending = true
+
+    let floor = this.floor + 1
+    let partyData = this.registry.get('partyData')
+    let message = 'Your party rests and recovers'
+
+    partyData.forEach((hero) => {
+      hero.hp = Math.min(hero.maxHp, hero.hp + Math.ceil(hero.maxHp / 2))
+      hero.mp = Math.min(hero.maxMp, hero.mp + Math.ceil(hero.maxMp / 2))
+    })
+
+    // the Ranger joins at the party's average level so they can keep up
+    let hasRanger = partyData.some((hero) => hero.type === 'Ranger')
+    if (floor >= Progression.rangerJoinFloor && !hasRanger) {
+      let averageLevel = Math.round(
+        partyData.reduce((sum, hero) => sum + hero.level, 0) / partyData.length
+      )
+      partyData.push(Party.createHero('Ranger', averageLevel))
+      message = 'The Ranger joins your party!'
+    }
+
+    this.registry.set('partyData', partyData)
+    this.registry.set('floor', floor)
+    this.registry.set('floorMessage', message)
+    saveSystem.saveGame(this.registry)
+
+    Sfx.descend()
+    this.player.body.setVelocity(0)
+    this.cameras.main.fadeOut(500, 0, 0, 0)
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart())
   },
   update: function (time, delta) {
     this.player.body.setVelocity(0)
-    // player can't move during the battle transition
-    if (this.transitioning) return
+    // player can't move during the battle transition or while going down the stairs
+    if (this.transitioning || this.descending) return
 
     // Horizontal movement
     if (this.cursors.left.isDown) {

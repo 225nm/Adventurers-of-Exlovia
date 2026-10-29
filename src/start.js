@@ -10,6 +10,7 @@ import { WorldMenuScene } from './game/scenes/worldmenu'
 import { ItemScene } from './game/scenes/itemmenu'
 import { StatsScene } from './game/scenes/heroStats'
 import { OptionsScene } from './game/scenes/options'
+import { GameOverScene } from './game/scenes/gameover'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
 // Phaser container and physics settings.
@@ -45,6 +46,7 @@ var config = {
     WorldMenuScene,
     ItemScene,
     StatsScene,
+    GameOverScene,
     // last so it draws on top of whichever scene opened it
     OptionsScene,
   ],

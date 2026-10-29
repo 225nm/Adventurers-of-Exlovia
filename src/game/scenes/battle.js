@@ -8,6 +8,20 @@ import { Equipment } from '../equipment.js'
 import { BattleAnimations } from '../battleAnimations.js'
 import { Music } from '../audio/music.js'
 import { Sfx } from '../audio/sfx.js'
+import { Progression } from '../progression.js'
+import { Loot } from '../loot.js'
+
+// y positions for 1-3 units on each side, kept above the menu boxes at y 150
+const ROWS = { 1: [79], 2: [55, 100], 3: [44, 79, 114] }
+// every other row is shifted sideways (a staggered formation),
+// so a unit's sprite doesn't cover the HP/MP bars of the unit above it
+const STAGGER = 48
+const HERO_X = 236
+const ENEMY_X = 40
+const formation = (baseX, shift, i, count) => ({
+  x: baseX + (i % 2 ? shift : 0),
+  y: ROWS[count][i],
+})
 
 // Battle scene where the player fights enemies
 export var BattleScene = new Phaser.Class({
@@ -50,7 +64,8 @@ export var BattleScene = new Phaser.Class({
 
     // populate hero array with save data
     for (let i = 0; i < partyData.length; i++) {
-      let hero = new heroesIndex[partyData[i].type](this, 250, 50 + i * 50)
+      let pos = formation(HERO_X, STAGGER, i, partyData.length)
+      let hero = new heroesIndex[partyData[i].type](this, pos.x, pos.y)
       hero.level = partyData[i].level
       hero.maxHp = partyData[i].maxHp || hero.maxHp
       hero.hp = partyData[i].hp
@@ -72,15 +87,21 @@ export var BattleScene = new Phaser.Class({
       hero.updateStatusBar()
     }
 
-    // array with enemies
+    // array with enemies: the one touched on the map leads, the rest come from the floor's pool,
+    // all scaled to the current floor
     this.enemies = []
-    const allEnemies = Object.keys(enemiesIndex)
-    let enemyAmount = 2
+    let floor = this.registry.get('floor') || 1
+    let encounter = this.registry.get('encounter')
+    let enemyAmount = Progression.enemyCount(floor)
 
     for (let i = 0; i < enemyAmount; i++) {
-      const rnd = allEnemies[Math.floor(Math.random() * allEnemies.length)]
-
-      let enemy = new enemiesIndex[rnd](this, 50, 50 + i * 50)
+      let type =
+        i === 0 && enemiesIndex[encounter]
+          ? encounter
+          : Progression.pickEnemy(floor)
+      let pos = formation(ENEMY_X, STAGGER, i, enemyAmount)
+      let enemy = new enemiesIndex[type](this, pos.x, pos.y)
+      Progression.scaleEnemy(enemy, floor)
       this.add.existing(enemy)
       this.enemies.push(enemy)
     }
@@ -102,7 +123,11 @@ export var BattleScene = new Phaser.Class({
   nextTurn: function () {
     // if we have victory or game over
     if (this.checkEndBattle()) {
+      let defeat = this.heroes.every((hero) => !hero.living)
       this.endBattle()
+      if (defeat) {
+        this.gameOver()
+      }
       return
     }
     do {
@@ -207,14 +232,11 @@ export var BattleScene = new Phaser.Class({
   },
   // Plays the attack animation and deals damage to each target when the hit lands, skill is null for basic attacks
   performAction: function (attacker, targets, skill) {
-    // basic attacks are physical and use the attacker's own damage
-    let type = (skill && skill.type) || 'physical'
-    let baseDamage = skill ? skill.damage : undefined
     let color = BattleAnimations.colorFor(skill)
     let results = []
 
     BattleAnimations.play(this, attacker, targets, skill, (target) => {
-      let dealt = attacker.attack(target, baseDamage, type)
+      let dealt = attacker.attack(target, skill)
       BattleAnimations.damageNumber(this, target, dealt, color)
       if (!target.living) {
         BattleAnimations.death(this, target)
@@ -261,17 +283,14 @@ export var BattleScene = new Phaser.Class({
   endBattleVictory: function () {
     let totalXp = 0
     let totalLoot = []
-    // add enemies xp and loot to totals
+    // add enemies xp and loot to totals, every loot table entry has its own drop chance
     for (let i = 0; i < this.enemies.length; i++) {
       let enemy = this.enemies[i]
-      totalXp += this.enemies[i].xpDrop
-      if (this.enemies[i].lootTable.length > 0) {
-        let drop = enemy.lootTable[0]
-        totalLoot.push(drop)
-        if (this.game.inventory) {
-          this.game.inventory.addItem(drop, 1)
-        }
-      }
+      totalXp += enemy.xpDrop
+      totalLoot.push(...Loot.rollDrops(enemy))
+    }
+    if (this.game.inventory) {
+      totalLoot.forEach((drop) => this.game.inventory.addItem(drop, 1))
     }
     for (let i = 0; i < this.heroes.length; i++) {
       this.heroes[i].xp += totalXp
@@ -287,25 +306,36 @@ export var BattleScene = new Phaser.Class({
     this.scene.pause()
     this.scene.launch('VictoryScene', lootData)
   },
+  // Every hero has fallen, the run ends at the game over screen
+  gameOver: function () {
+    Music.stop()
+    this.scene.stop('UIScene')
+    this.cameras.main.fadeOut(800, 0, 0, 0)
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.launch('GameOverScene')
+      this.scene.pause()
+    })
+  },
   // Save hero data after battle to preserve progress, returns the heroes that leveled up
   saveHeroData: function () {
     let partyData = this.registry.get('partyData')
     let levelUps = []
     for (let i = 0; i < partyData.length; i++) {
       let hero = this.heroes[i]
-      let xpReq = hero.level * 20
+      let xpReq = Progression.xpToNext(hero.level)
       let startLevel = hero.level
 
       while (hero.xp >= xpReq) {
         hero.xp -= xpReq
         hero.levelUp()
-        xpReq = hero.level * 20
+        xpReq = Progression.xpToNext(hero.level)
       }
       if (hero.level > startLevel) {
         levelUps.push({ type: hero.type, level: hero.level })
       }
 
-      partyData[i].hp = hero.hp
+      // heroes knocked out during a won battle get back up with 1 HP
+      partyData[i].hp = Math.max(hero.hp, 1)
       partyData[i].maxHp = hero.maxHp
       partyData[i].mp = hero.mp
       partyData[i].maxMp = hero.maxMp

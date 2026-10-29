@@ -4,13 +4,14 @@ import { heroesIndex } from './units/heroes/heroesIndex'
 const save_key = 'party_data'
 // Version 1: no version field, heroes have no magic stat or equipment
 // Version 2: heroes have magic and equipment
-const SAVE_VERSION = 2
+// Version 3: the dungeon floor is saved, older saves start on floor 1
+const SAVE_VERSION = 3
 
 // Fills in stats that older saves don't have, as if the hero had them since level 1
 export function migrateHero(hero) {
   const HeroClass = heroesIndex[hero.type] || {}
   const baseMagic = (HeroClass.baseStats && HeroClass.baseStats.magic) || 0
-  const growth = HeroClass.magicPerLevel || 0
+  const growth = (HeroClass.growth && HeroClass.growth.magic) || 0
   return {
     ...hero,
     magic: hero.magic ?? baseMagic + ((hero.level || 1) - 1) * growth,
@@ -27,6 +28,7 @@ export const saveSystem = {
       version: SAVE_VERSION,
       party: partyData,
       inventory: inventoryData,
+      floor: registry.get('floor') || 1,
     }
     if (partyData) {
       localStorage.setItem(save_key, JSON.stringify(fullSaveData))
@@ -45,6 +47,7 @@ export const saveSystem = {
       if (jsonData.inventory) {
         registry.set('inventory', jsonData.inventory)
       }
+      registry.set('floor', jsonData.floor || 1)
     }
   },
   // Resets game data

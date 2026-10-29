@@ -147,6 +147,7 @@ export var TitleScene = new Phaser.Class({
     const defaultParty = Party.getStartingParty()
 
     this.registry.set('partyData', defaultParty)
+    this.registry.set('floor', 1)
     this.scene.start('WorldScene')
   },
 })
