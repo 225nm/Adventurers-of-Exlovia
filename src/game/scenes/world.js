@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import { Music } from '../audio/music.js'
+import { Sfx } from '../audio/sfx.js'
 
 export var WorldScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -36,6 +38,8 @@ export var WorldScene = new Phaser.Class({
       )
         return
       if (this.scene.isActive('WorldMenuScene')) return
+      if (this.transitioning) return
+      Sfx.confirm()
       this.scene.pause()
       this.scene.launch('WorldMenuScene')
     })
@@ -47,6 +51,8 @@ export var WorldScene = new Phaser.Class({
         this.scene.isActive('PartyScene')
       )
         return
+      if (this.transitioning) return
+      Sfx.confirm()
       this.scene.pause()
       this.scene.launch('WorldMenuScene')
     })
@@ -114,7 +120,19 @@ export var WorldScene = new Phaser.Class({
     // Amount of chests
     let chestAmount = Phaser.Math.RND.between(1, 5)
     // Loot contained in chests
-    let chestLoot = ['Potion', 'Elixir']
+    // consumables are listed twice so they are found more often than equipment
+    let chestLoot = [
+      'Potion',
+      'Potion',
+      'Elixir',
+      'Elixir',
+      'Iron Sword',
+      'Hunting Bow',
+      'Oak Staff',
+      'Leather Armor',
+      'Chain Mail',
+      'Mage Robe',
+    ]
     // Spawn logic for chests
     for (let i = 0; i < chestAmount; i++) {
       let x, y, distance, isBlocked
@@ -230,6 +248,11 @@ export var WorldScene = new Phaser.Class({
     )
     // we listen for 'wake' event
     this.sys.events.on('wake', this.wake, this)
+
+    this.transitioning = false
+    this.invulnerable = false
+    this.graceBlink = null
+    Music.play('overworld')
   },
 
   // ------------------------------     END OF CREATE ---------------------------------------------------------------
@@ -241,9 +264,45 @@ export var WorldScene = new Phaser.Class({
     this.cursors.down.reset()
 
     this.input.keyboard.clearCaptures()
+
+    // undo the battle transition and fade back in
+    this.transitioning = false
+    const cam = this.cameras.main
+    // the battle starts when the fade ends, which can be a frame before the swirl tween ends,
+    // and a paused tween would resume on wake and zoom/rotate the camera again
+    this.tweens.killTweensOf(cam)
+    cam.resetFX()
+    cam.setZoom(1)
+    cam.setRotation(0)
+    cam.fadeIn(400)
+    Music.play('overworld')
+
+    this.startGracePeriod()
+  },
+  // After a battle the player can't be attacked for a moment and blinks to show it
+  startGracePeriod: function () {
+    const duration = 2000
+    this.invulnerable = true
+    if (this.graceBlink) this.graceBlink.stop()
+    this.graceBlink = this.tweens.add({
+      targets: this.player,
+      alpha: 0.3,
+      duration: 125,
+      yoyo: true,
+      repeat: -1,
+    })
+    this.time.delayedCall(duration, () => {
+      this.invulnerable = false
+      this.graceBlink.stop()
+      this.graceBlink = null
+      this.player.alpha = 1
+    })
   },
   // When an enemy object is touched by the player
   onMeetEnemy: function (player, zone) {
+    // ignore enemies touched while the transition plays or during the grace period after a battle
+    if (this.transitioning || this.invulnerable) return
+    this.transitioning = true
     const safeRadius = 80
     let newX
     let newY
@@ -261,12 +320,26 @@ export var WorldScene = new Phaser.Class({
     zone.x = newX
     zone.y = newY
 
-    // TODO implement battle scene transition
-    // shake the world
-    //this.cameras.main.shake(300)
+    // SNES-style battle transition: flash, then the screen swirls and zooms into darkness
+    Music.stop()
+    Sfx.encounter()
+    this.player.body.setVelocity(0)
+    this.player.anims.stop()
 
-    // start battle
-    this.scene.switch('BattleScene')
+    const cam = this.cameras.main
+    cam.flash(150, 255, 255, 255)
+    this.tweens.add({
+      targets: cam,
+      zoom: 4,
+      rotation: Math.PI * 1.5,
+      duration: 700,
+      ease: 'Cubic.easeIn',
+    })
+    cam.fadeOut(700, 0, 0, 0)
+    // start battle once the screen is black
+    cam.once('camerafadeoutcomplete', () => {
+      this.scene.switch('BattleScene')
+    })
   },
 
   // Logic when player collides with chest object, add item to inventory and show message
@@ -274,6 +347,7 @@ export var WorldScene = new Phaser.Class({
     if (this.game.inventory) {
       this.game.inventory.addItem(chest.itemName, 1)
     }
+    Sfx.itemGet()
     // AI generated message animation
     let msg = this.add.pixelText(
       chest.x,
@@ -301,6 +375,8 @@ export var WorldScene = new Phaser.Class({
   },
   update: function (time, delta) {
     this.player.body.setVelocity(0)
+    // player can't move during the battle transition
+    if (this.transitioning) return
 
     // Horizontal movement
     if (this.cursors.left.isDown) {
