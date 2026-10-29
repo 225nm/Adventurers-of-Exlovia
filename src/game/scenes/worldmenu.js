@@ -92,7 +92,8 @@ export let WorldMenuScene = new Phaser.Class({
       this.scene.stop('ItemScene')
       this.input.keyboard.off('keydown', this.handleInput, this)
       this.scene.stop('WorldMenuScene')
-      this.scene.start('PartyScene')
+      // pass the mode explicitly, Phaser reuses the last start data (e.g. EQUIP) when none is given
+      this.scene.start('PartyScene', { mode: 'VIEW' })
     } else if (selection === 'TitleScene') {
       this.showQuitConfirm()
     } else if (selection === 'SaveGame') {
