@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { itemIndex } from '../items/itemIndex'
+import { Equipment } from '../equipment'
+import { Sfx } from '../audio/sfx'
 
 // Party menu scene for world menu
 export let PartyScene = new Phaser.Class({
@@ -67,15 +69,18 @@ export let PartyScene = new Phaser.Class({
   // Handles input for navigating the party menu
   handleInput: function (event) {
     if (event.code === 'ArrowDown') {
+      Sfx.cursor()
       this.menuIndex = (this.menuIndex + 1) % this.menuItems.length
       this.updateSelection()
     } else if (event.code === 'ArrowUp') {
+      Sfx.cursor()
       this.menuIndex =
         (this.menuIndex - 1 + this.menuItems.length) % this.menuItems.length
       this.updateSelection()
     } else if (event.code === 'KeyZ' || event.code === 'Enter') {
       this.confirmSelection()
     } else if (event.code === 'KeyX' || event.code === 'Escape') {
+      Sfx.cancel()
       this.closeMenu()
     }
   },
@@ -96,7 +101,10 @@ export let PartyScene = new Phaser.Class({
   confirmSelection: function () {
     if (this.mode === 'SELECT') {
       this.applyItemEffect()
+    } else if (this.mode === 'EQUIP') {
+      this.equipItem()
     } else if (this.mode === 'VIEW') {
+      Sfx.confirm()
       const selectedHero = this.partyData[this.menuIndex]
       this.input.keyboard.off('keydown', this.handleInput, this)
       this.scene.start('StatsScene', {
@@ -117,9 +125,12 @@ export let PartyScene = new Phaser.Class({
     let canHeal = healValue > 0 && targetHero.hp < targetHero.maxHp
     let canRestoreMana = manaValue > 0 && targetHero.mp < targetHero.maxMp
 
+    // hero is already full, the item would be wasted
     if (!canHeal && !canRestoreMana) {
+      Sfx.error()
       return
     }
+    Sfx.heal()
     if (canRestoreMana) {
       targetHero.mp += manaValue
       if (targetHero.mp > targetHero.maxMp) {
@@ -136,11 +147,24 @@ export let PartyScene = new Phaser.Class({
     this.registry.set('partyData', this.partyData)
     this.closeMenu()
   },
+  // Equips a weapon or armor on the selected hero, any replaced item goes back to the inventory
+  equipItem: function () {
+    const itemName = this.registry.get('usedItem')
+    const targetHero = this.partyData[this.menuIndex]
+
+    if (Equipment.equip(targetHero, itemName, this.game.inventory)) {
+      Sfx.equip()
+    } else {
+      Sfx.error()
+    }
+    this.registry.set('partyData', this.partyData)
+    this.closeMenu()
+  },
 
   // Closes the menu and returns to the appropriate scene based on the current mode
   closeMenu: function () {
     this.input.keyboard.off('keydown', this.handleInput, this)
-    if (this.mode === 'SELECT') {
+    if (this.mode === 'SELECT' || this.mode === 'EQUIP') {
       this.scene.stop()
       this.scene.start('ItemScene')
     } else if (this.mode === 'VIEW') {

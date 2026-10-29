@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { saveSystem } from '../save'
+import { Sfx } from '../audio/sfx'
 // World menu class
 export let WorldMenuScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -14,9 +15,9 @@ export let WorldMenuScene = new Phaser.Class({
     // Menu box
     this.graphics = this.add.graphics()
     this.graphics.fillStyle(0x031f4c, 1)
-    this.graphics.fillRect(50, 20, 100, 150)
+    this.graphics.fillRect(50, 20, 100, 180)
     this.graphics.lineStyle(2, 0xffffff, 1)
-    this.graphics.strokeRect(50, 20, 100, 150)
+    this.graphics.strokeRect(50, 20, 100, 180)
 
     // Menu options
     this.menuItems = []
@@ -24,7 +25,8 @@ export let WorldMenuScene = new Phaser.Class({
     this.setupMenuItem(100, 40, 'PARTY', 'PartyMenu')
     this.setupMenuItem(100, 70, 'ITEMS', 'ItemMenu')
     this.setupMenuItem(100, 100, 'SAVE', 'SaveGame')
-    this.setupMenuItem(100, 130, 'QUIT', 'TitleScene')
+    this.setupMenuItem(100, 130, 'OPTIONS', 'Options')
+    this.setupMenuItem(100, 160, 'QUIT', 'TitleScene')
 
     this.menuIndex = 0
     this.updateMenuVisuals()
@@ -68,15 +70,18 @@ export let WorldMenuScene = new Phaser.Class({
     }
 
     if (event.code === 'ArrowDown') {
+      Sfx.cursor()
       this.menuIndex = (this.menuIndex + 1) % this.menuItems.length
       this.updateMenuVisuals()
     } else if (event.code === 'ArrowUp') {
+      Sfx.cursor()
       this.menuIndex =
         (this.menuIndex - 1 + this.menuItems.length) % this.menuItems.length
       this.updateMenuVisuals()
     } else if (event.code === 'KeyZ' || event.code === 'Enter') {
       this.confirmSelection()
     } else if (event.code === 'Escape' || event.code === 'KeyX') {
+      Sfx.cancel()
       this.input.keyboard.off('keydown', this.handleInput, this)
       this.scene.resume('WorldScene')
       this.scene.stop()
@@ -87,6 +92,10 @@ export let WorldMenuScene = new Phaser.Class({
     let selection = this.menuItems[this.menuIndex].action
     this.scene.stop('ItemScene')
     this.scene.stop('PartyScene')
+    // saving plays its own chime
+    if (selection !== 'SaveGame') {
+      Sfx.confirm()
+    }
 
     if (selection === 'PartyMenu') {
       this.scene.stop('ItemScene')
@@ -98,9 +107,14 @@ export let WorldMenuScene = new Phaser.Class({
       this.showQuitConfirm()
     } else if (selection === 'SaveGame') {
       saveSystem.saveGame(this.registry)
+      Sfx.save()
 
-      let saveText = this.add.pixelText(100, 175, 'GAME SAVED!')
+      let saveText = this.add.pixelText(100, 188, 'GAME SAVED!')
       this.time.delayedCall(1500, () => saveText.destroy())
+    } else if (selection === 'Options') {
+      // the world menu pauses while the options menu is open and resumes when it closes
+      this.scene.pause()
+      this.scene.launch('OptionsScene', { returnTo: 'WorldMenuScene' })
     } else if (selection === 'ItemMenu') {
       this.scene.stop('PartyScene')
       this.input.keyboard.off('keydown', this.handleInput, this)
@@ -130,9 +144,11 @@ export let WorldMenuScene = new Phaser.Class({
   // Logic for handling input in the quit confirmation menu, either confirming the quit action or returning to the main menu
   handleConfirmInput: function (event) {
     if (event.code === 'KeyZ' || event.code === 'Enter') {
+      Sfx.confirm()
       this.scene.stop('WorldScene')
       this.scene.start('TitleScene')
     } else if (event.code === 'KeyX' || event.code === 'Escape') {
+      Sfx.cancel()
       this.confirmBox.destroy()
       this.menuState = 'main'
     }

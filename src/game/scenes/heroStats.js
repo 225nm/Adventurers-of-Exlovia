@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import { Equipment } from '../equipment'
+import { Sfx } from '../audio/sfx'
 // Scene for displaying hero stats in the party menu
 export let StatsScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -27,32 +29,28 @@ export let StatsScene = new Phaser.Class({
     // Header
     this.add.pixelText(160, 35, `${this.hero.type.toUpperCase()} STATS`)
     // text layout variables
-    let startY = 60
-    let spacing = 20
-    // Stats display
-    this.add
-      .pixelText(75, startY, `LEVEL:  ${this.hero.level}`)
-      .setOrigin(0, 0.5)
-    this.add
-      .pixelText(75, startY + spacing, `XP:     ${this.hero.xp}`)
-      .setOrigin(0, 0.5)
-    this.add
-      .pixelText(
-        75,
-        startY + spacing * 2,
-        `HP:     ${this.hero.hp}/${this.hero.maxHp}`
-      )
-      .setOrigin(0, 0.5)
-    this.add
-      .pixelText(
-        75,
-        startY + spacing * 3,
-        `MP:     ${this.hero.mp}/${this.hero.maxMp}`
-      )
-      .setOrigin(0, 0.5)
-    this.add
-      .pixelText(75, startY + spacing * 4, `DAMAGE: ${this.hero.damage}`)
-      .setOrigin(0, 0.5)
+    let startY = 52
+    let spacing = 15
+    let equipped = this.hero.equipment || {}
+    let bonus = (stat) => Equipment.getBonus(this.hero, stat)
+    let attackBonus = bonus('attack')
+    let magicBonus = bonus('magic')
+    // Stats display, defenses only come from equipment
+    let lines = [
+      `LEVEL:  ${this.hero.level}`,
+      `XP:     ${this.hero.xp}`,
+      `HP:     ${this.hero.hp}/${this.hero.maxHp}`,
+      `MP:     ${this.hero.mp}/${this.hero.maxMp}`,
+      `DAMAGE: ${this.hero.damage}` + (attackBonus ? ` +${attackBonus}` : ''),
+      `MAGIC:  ${this.hero.magic || 0}` + (magicBonus ? ` +${magicBonus}` : ''),
+      `DEFENSE:${bonus('defense')}`,
+      `M.DEF:  ${bonus('magicDefense')}`,
+      `WEAPON: ${equipped.weapon || 'None'}`,
+      `ARMOR:  ${equipped.armor || 'None'}`,
+    ]
+    lines.forEach((line, i) => {
+      this.add.pixelText(75, startY + spacing * i, line).setOrigin(0, 0.5)
+    })
 
     //TODO Make skills fit in UI or turn to another menu
     /*      if (this.hero.skills && this.hero.skills.length > 0) {
@@ -71,6 +69,7 @@ export let StatsScene = new Phaser.Class({
   // Handles input for closing the stats screen and returning to the party menu
   handleInput: function (event) {
     if (event.code === 'KeyX' || event.code === 'Escape') {
+      Sfx.cancel()
       this.closeStats()
     }
   },

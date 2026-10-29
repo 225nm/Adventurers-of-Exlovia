@@ -2,6 +2,8 @@ import Phaser from 'phaser'
 import { Party } from '../party.js'
 import { saveSystem } from '../save.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
+import { Music } from '../audio/music.js'
+import { Sfx } from '../audio/sfx.js'
 
 // Title screen class
 export var TitleScene = new Phaser.Class({
@@ -21,7 +23,8 @@ export var TitleScene = new Phaser.Class({
     this.menus = []
     this.selectedIndex = 0
 
-    let menuY = 160
+    // starts higher to make room for Options above the controls text
+    let menuY = 140
 
     // if save file exists add continue option
     if (saveCheck) {
@@ -39,6 +42,15 @@ export var TitleScene = new Phaser.Class({
       textObject: this.newGameText,
       action: this.startNewGame,
     })
+    menuY += 20
+
+    this.optionsText = this.add.pixelText(160, menuY, 'Options')
+    this.menus.push({
+      textObject: this.optionsText,
+      action: this.openOptions,
+    })
+
+    Music.play('title')
 
     this.add.pixelText(
       160,
@@ -89,6 +101,7 @@ export var TitleScene = new Phaser.Class({
       this.selectedIndex = 0
     }
 
+    Sfx.cursor()
     this.updateMenuVisuals()
   },
   // Updates the visual state of the menu options based on the currently selected index
@@ -109,7 +122,14 @@ export var TitleScene = new Phaser.Class({
   },
   // Confirms the selected menu
   confirmSelection: function () {
+    Sfx.confirm()
     this.menus[this.selectedIndex].action.call(this)
+  },
+
+  // Opens the options menu on top of the title screen, which pauses until it closes
+  openOptions: function () {
+    this.scene.pause()
+    this.scene.launch('OptionsScene', { returnTo: 'TitleScene' })
   },
 
   // Logic for continuing a game, loads save data and starts the world scene
