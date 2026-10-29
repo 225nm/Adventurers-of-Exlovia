@@ -192,6 +192,40 @@ export const Sfx = {
     })
   },
 
+  // Sharp crackle and zap
+  thunder: function () {
+    noise({
+      duration: 0.35,
+      volume: 0.28,
+      filterType: 'highpass',
+      filterFreq: 1500,
+      echo: true,
+    })
+    tone({
+      type: 'square',
+      freq: 1600,
+      slideTo: 80,
+      duration: 0.3,
+      volume: 0.07,
+      filter: 4000,
+    })
+  },
+
+  // Descending steps when taking the stairs
+  descend: function () {
+    ;[784, 659, 523, 392, 330].forEach((freq, i) =>
+      tone({
+        type: 'triangle',
+        freq,
+        start: at(i * 0.09),
+        duration: 0.18,
+        volume: 0.12,
+        pluck: true,
+        echo: true,
+      })
+    )
+  },
+
   magicHit: function () {
     tone({
       type: 'sine',

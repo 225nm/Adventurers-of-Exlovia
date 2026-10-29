@@ -1,36 +1,34 @@
+import Phaser from 'phaser'
 import { Enemy } from '../../units'
-// Ogre enemy class with specific stats and skills
+// Orange Dragon: hard scales block weapons, magic gets through
 export let orangeDragon = new Phaser.Class({
   Extends: Enemy,
   initialize: function orangeDragon(scene, x, y) {
-    // Parameters: scene, x, y, texture, frame, name, hp, dmg, xpDrop, lootTable
-    // leave orrange typo in i guess
-    Enemy.call(
-      this,
-      scene,
-      x,
-      y,
-      'dragonorrange',
-      null,
-      'O. Dragon',
-      60,
-      4,
-      20,
-      ['Potion']
-    )
-    // hard scales block weapons, magic gets through
-    this.defense = 4
-    this.magicDefense = 1
-    this.skills = [
-      {
-        name: 'Scorch',
-        damage: 12,
-        mpCost: 0,
-        levelReq: 1,
-        target: 'all',
-        type: 'magic',
-        element: 'fire',
-      },
-    ]
+    Enemy.call(this, scene, x, y, orangeDragon.sprite, orangeDragon.stats)
   },
 })
+orangeDragon.minFloor = 3
+// leave orrange typo in i guess
+orangeDragon.sprite = { texture: 'dragonorrange', scale: 1, worldScale: 0.8 }
+orangeDragon.stats = {
+  name: 'O. Dragon',
+  hp: 70,
+  damage: 9,
+  magic: 10,
+  defense: 4,
+  magicDefense: 1,
+  xp: 26,
+  loot: [
+    { item: 'Potion', chance: 0.4 },
+    { item: 'Chain Mail', chance: 0.06 },
+  ],
+  skills: [
+    {
+      name: 'Scorch',
+      power: 1.1,
+      type: 'magic',
+      element: 'fire',
+      target: 'all',
+    },
+  ],
+}

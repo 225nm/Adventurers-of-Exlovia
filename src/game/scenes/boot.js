@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { saveSystem } from '../save'
 import { Inventory } from '../inventory'
 import { AudioEngine } from '../audio/audioEngine'
+import { Sprites } from '../sprites'
 // Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -38,6 +39,8 @@ export var BootScene = new Phaser.Class({
     this.load.image('dragonblue', 'assets/dragonblue.png')
     this.load.image('dragonorrange', 'assets/dragonorrange.png')
     this.load.image('ogre', 'assets/ogre.png')
+    // goblin, dark mage and wisps, cut into frames in Sprites.createAll
+    this.load.image('monsterSheet', 'assets/ogrewizardwisp.png')
 
     // Ranger
     this.load.image('ranger', 'assets/ranger.png')
@@ -61,6 +64,7 @@ export var BootScene = new Phaser.Class({
       'spark-ice': 0x9fe6ff,
       'spark-magic': 0xd59cff,
       'spark-white': 0xffffff,
+      'spark-bolt': 0xffe66d,
     }
     Object.entries(sparks).forEach(([key, color]) => {
       const g = this.make.graphics({ x: 0, y: 0, add: false })
@@ -69,6 +73,9 @@ export var BootScene = new Phaser.Class({
       g.generateTexture(key, 6, 6)
       g.destroy()
     })
+
+    // pixel art enemies and frames from the monster sprite sheet
+    Sprites.createAll(this)
 
     // audio can only start after the player's first key press
     AudioEngine.installUnlock()

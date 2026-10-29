@@ -1,15 +1,24 @@
+import Phaser from 'phaser'
 import { Enemy } from '../../units'
-// Ogre enemy class with specific stats and skills
+// Ogre: thick hide shrugs off magic, but blades get through
 export let ogre = new Phaser.Class({
   Extends: Enemy,
   initialize: function ogre(scene, x, y) {
-    // Parameters: scene, x, y, texture, frame, name, hp, dmg, xpDrop, lootTable
-    Enemy.call(this, scene, x, y, 'ogre', null, 'Ogre', 10, 1, 15, ['Potion'])
-    // thick hide shrugs off magic, but blades get through
-    this.defense = 1
-    this.magicDefense = 3
-    this.skills = [
-      { name: 'Smash', damage: 6, mpCost: 0, levelReq: 1, type: 'physical' },
-    ]
+    Enemy.call(this, scene, x, y, ogre.sprite, ogre.stats)
   },
 })
+ogre.minFloor = 2
+ogre.sprite = { texture: 'ogre', scale: 1, worldScale: 0.75 }
+ogre.stats = {
+  name: 'Ogre',
+  hp: 40,
+  damage: 7,
+  defense: 1,
+  magicDefense: 3,
+  xp: 14,
+  loot: [
+    { item: 'Potion', chance: 0.3 },
+    { item: 'Leather Armor', chance: 0.05 },
+  ],
+  skills: [{ name: 'Smash', power: 1.8, type: 'physical' }],
+}

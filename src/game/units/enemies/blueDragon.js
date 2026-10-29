@@ -1,35 +1,41 @@
+import Phaser from 'phaser'
 import { Enemy } from '../../units'
-// Blue Dragon enemy class with specific stats and skills
+// Blue Dragon: the strongest dragon, hard scales block weapons, magic gets through
 export let blueDragon = new Phaser.Class({
   Extends: Enemy,
   initialize: function blueDragon(scene, x, y) {
-    // Parameters: scene, x, y, texture, frame, name, hp, dmg, xpDrop, lootTable
-    Enemy.call(this, scene, x, y, 'dragonblue', null, 'B. Dragon', 80, 8, 30, [
-      'Potion',
-      'Elixir',
-    ])
-    // hard scales block weapons, magic gets through
-    this.defense = 4
-    this.magicDefense = 1
-    this.skills = [
-      {
-        name: 'Scorch',
-        damage: 12,
-        mpCost: 0,
-        levelReq: 1,
-        target: 'all',
-        type: 'magic',
-        element: 'fire',
-      },
-      {
-        name: 'Flame Breath',
-        damage: 16,
-        mpCost: 0,
-        levelReq: 1,
-        target: 'all',
-        type: 'magic',
-        element: 'fire',
-      },
-    ]
+    Enemy.call(this, scene, x, y, blueDragon.sprite, blueDragon.stats)
   },
 })
+blueDragon.minFloor = 5
+blueDragon.sprite = { texture: 'dragonblue', scale: 1, worldScale: 0.8 }
+blueDragon.stats = {
+  name: 'B. Dragon',
+  hp: 110,
+  damage: 11,
+  magic: 12,
+  defense: 5,
+  magicDefense: 2,
+  xp: 45,
+  loot: [
+    { item: 'Hi-Potion', chance: 0.3 },
+    { item: 'Steel Sword', chance: 0.08 },
+    { item: 'Iron Plate', chance: 0.06 },
+  ],
+  skills: [
+    {
+      name: 'Scorch',
+      power: 1.1,
+      type: 'magic',
+      element: 'fire',
+      target: 'all',
+    },
+    {
+      name: 'Flame Breath',
+      power: 1.4,
+      type: 'magic',
+      element: 'fire',
+      target: 'all',
+    },
+  ],
+}

@@ -9,6 +9,13 @@ import { Sfx } from './audio/sfx'
 const ELEMENTS = {
   fire: { color: 0xff7a1a, spark: 'spark-fire', sound: 'fire', rise: -60 },
   ice: { color: 0x66ccff, spark: 'spark-ice', sound: 'ice', rise: 40 },
+  lightning: {
+    color: 0xffe66d,
+    spark: 'spark-bolt',
+    sound: 'thunder',
+    rise: 0,
+  },
+  dark: { color: 0x9b5de5, spark: 'spark-magic', sound: 'magicHit', rise: 20 },
 }
 const DEFAULT_ELEMENT = {
   color: 0xc77dff,
