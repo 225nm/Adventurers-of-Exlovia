@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { saveSystem } from '../save'
 import { Inventory } from '../inventory'
+import { AudioEngine } from '../audio/audioEngine'
 // Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -53,6 +54,25 @@ export var BootScene = new Phaser.Class({
       this.registry.set('inventory', [])
     }
     this.game.inventory = new Inventory(this.registry)
+
+    // small colored dots for spell and hit particles, drawn here so no image files are needed
+    const sparks = {
+      'spark-fire': 0xff8a2a,
+      'spark-ice': 0x9fe6ff,
+      'spark-magic': 0xd59cff,
+      'spark-white': 0xffffff,
+    }
+    Object.entries(sparks).forEach(([key, color]) => {
+      const g = this.make.graphics({ x: 0, y: 0, add: false })
+      g.fillStyle(color, 1)
+      g.fillCircle(3, 3, 3)
+      g.generateTexture(key, 6, 6)
+      g.destroy()
+    })
+
+    // audio can only start after the player's first key press
+    AudioEngine.installUnlock()
+
     // start the TitleScene
     this.scene.start('TitleScene')
   },

@@ -34,5 +34,6 @@ test('Loot and experience are properly distributed after a battle victory', () =
   expect(testScene.scene.launch).toHaveBeenCalledWith('VictoryScene', {
     xp: 60,
     loot: ['Potion'],
+    levelUps: [],
   })
 })

@@ -4,6 +4,10 @@ import { skillsIndex } from '../skills/skillsIndex.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
 import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
 import { saveSystem } from '../save.js'
+import { Equipment } from '../equipment.js'
+import { BattleAnimations } from '../battleAnimations.js'
+import { Music } from '../audio/music.js'
+import { Sfx } from '../audio/sfx.js'
 
 // Battle scene where the player fights enemies
 export var BattleScene = new Phaser.Class({
@@ -35,6 +39,10 @@ export var BattleScene = new Phaser.Class({
     this.scene.stop('UIScene')
     this.events.off('PlayerSelect')
 
+    // fade in from the black of the world map's transition
+    this.cameras.main.fadeIn(400, 0, 0, 0)
+    Music.play('battle')
+
     // (scene, x, y, texture, frame, type, hp, damage, xp)
     // saved data
     let partyData = this.registry.get('partyData')
@@ -50,6 +58,12 @@ export var BattleScene = new Phaser.Class({
       hero.xp = partyData[i].xp
       hero.maxMp = partyData[i].maxMp
       hero.damage = partyData[i].damage
+      hero.magic = partyData[i].magic ?? hero.magic
+      // equipment bonuses are kept separate from base damage so they are never saved into it
+      hero.attackBonus = Equipment.getBonus(partyData[i], 'attack')
+      hero.magicBonus = Equipment.getBonus(partyData[i], 'magic')
+      hero.defense = Equipment.getBonus(partyData[i], 'defense')
+      hero.magicDefense = Equipment.getBonus(partyData[i], 'magicDefense')
       if (hero.checkSkills) {
         hero.checkSkills()
       }
@@ -113,51 +127,22 @@ export var BattleScene = new Phaser.Class({
       let enemy = this.units[this.index]
       let victim = this.heroes[r]
 
-      // Skill logic for enemies
-      let skillUsed = false
-      // Percentage chance to use a skill
-      if (enemy.skills && enemy.skills.length > 0) {
-        const useSkillChance = 0.33
-        if (Math.random() < useSkillChance) {
-          let skill =
-            enemy.skills[Math.floor(Math.random() * enemy.skills.length)]
-          if (skill.target === 'all') {
-            // ENEMY AOE logic
-            this.heroes.forEach((hero) => {
-              if (hero.living) {
-                enemy.attack(hero, skill.damage)
-              }
-            })
-            this.events.emit(
-              'Message',
-              enemy.type +
-                ' uses ' +
-                skill.name +
-                ' on all heroes for ' +
-                skill.damage +
-                ' damage!'
-            )
-          } else {
-            enemy.attack(victim, skill.damage)
-            this.events.emit(
-              'Message',
-              enemy.type +
-                ' uses ' +
-                skill.name +
-                ' on ' +
-                victim.type +
-                ' for ' +
-                skill.damage +
-                ' damage!'
-            )
-          }
-          skillUsed = true
-        }
+      // Skill logic for enemies, percentage chance to use a skill instead of a normal attack
+      let skill = null
+      const useSkillChance = 0.33
+      if (
+        enemy.skills &&
+        enemy.skills.length > 0 &&
+        Math.random() < useSkillChance
+      ) {
+        skill = enemy.skills[Math.floor(Math.random() * enemy.skills.length)]
       }
-      // If no skill used do normal attack
-      if (!skillUsed) {
-        enemy.attack(victim)
-      }
+      // ENEMY AOE logic
+      let targets =
+        skill && skill.target === 'all'
+          ? this.heroes.filter((hero) => hero.living)
+          : [victim]
+      this.performAction(enemy, targets, skill)
 
       // add timer for the next turn, so will have smooth gameplay
       this.time.addEvent({
@@ -189,69 +174,28 @@ export var BattleScene = new Phaser.Class({
   receivePlayerSelection: function (action, target) {
     this.time.removeAllEvents()
     let attacker = this.units[this.index]
-    let victim = this.enemies[target]
-    // AoE attacks targeting all enemies
-    if (target === 'all') {
+    // AoE attacks target all living enemies
+    let targets =
+      target === 'all'
+        ? this.enemies.filter((enemy) => enemy.living)
+        : [this.enemies[target]]
+
+    if (action == 'attack') {
+      this.performAction(attacker, targets, null)
+    } else {
       let skill = attacker.skills.find((s) => s.name === action)
+
       if (skill) {
         let mpCost = skill.mpCost || 0
         if (attacker.mp < mpCost) {
           this.events.emit('noMana')
           return
         }
-        // Deduct mana
+        // Deduct mana before the animation, the attacker's bars must not redraw mid-dash
         attacker.mp -= mpCost
         attacker.updateStatusBar()
 
-        // Attack all enemies
-        this.enemies.forEach((enemy) => {
-          if (enemy.living) {
-            attacker.attack(enemy, skill.damage)
-          }
-        })
-      }
-      // Emit message for AoE attack
-      this.events.emit(
-        'Message',
-        attacker.type +
-          ' uses ' +
-          skill.name +
-          ' on ' +
-          ' all enemies ' +
-          ' for ' +
-          skill.damage +
-          ' damage!'
-      )
-    } else if (action == 'attack') {
-      attacker.attack(victim)
-    } else {
-      let skill = this.units[this.index].skills.find((s) => s.name === action)
-
-      if (skill) {
-        let mpCost = skill.mpCost || 0
-        if (attacker.mp < mpCost) {
-          this.events.emit('noMana')
-          return
-        }
-        if (attacker.mp >= mpCost) {
-          attacker.mp -= mpCost
-          attacker.updateStatusBar()
-        }
-
-        attacker.attack(victim, skill.damage)
-
-        // Emit message for skill attack
-        this.events.emit(
-          'Message',
-          attacker.type +
-            ' uses ' +
-            skill.name +
-            ' on ' +
-            victim.type +
-            ' for ' +
-            skill.damage +
-            ' damage!'
-        )
+        this.performAction(attacker, targets, skill)
       }
     }
     // next turn in x/1000 seconds
@@ -260,6 +204,41 @@ export var BattleScene = new Phaser.Class({
       callback: this.nextTurn,
       callbackScope: this,
     })
+  },
+  // Plays the attack animation and deals damage to each target when the hit lands, skill is null for basic attacks
+  performAction: function (attacker, targets, skill) {
+    // basic attacks are physical and use the attacker's own damage
+    let type = (skill && skill.type) || 'physical'
+    let baseDamage = skill ? skill.damage : undefined
+    let color = BattleAnimations.colorFor(skill)
+    let results = []
+
+    BattleAnimations.play(this, attacker, targets, skill, (target) => {
+      let dealt = attacker.attack(target, baseDamage, type)
+      BattleAnimations.damageNumber(this, target, dealt, color)
+      if (!target.living) {
+        BattleAnimations.death(this, target)
+      }
+      results.push(dealt)
+      // report once every target has been hit
+      if (results.length === targets.length) {
+        this.reportAction(attacker, targets, skill, results)
+      }
+    })
+  },
+  // Shows the battle message for a finished action
+  reportAction: function (attacker, targets, skill, results) {
+    let message
+    if (!skill) {
+      message = `${attacker.type} attacks ${targets[0].type} for ${results[0]} damage`
+    } else if (skill.target === 'all') {
+      // damage differs per target because of defenses, so no number here
+      let side = this.heroes.includes(attacker) ? 'enemies' : 'heroes'
+      message = `${attacker.type} uses ${skill.name} on all ${side}!`
+    } else {
+      message = `${attacker.type} uses ${skill.name} on ${targets[0].type} for ${results[0]} damage!`
+    }
+    this.events.emit('Message', message)
   },
   // End battle, clean up data
   endBattle: function () {
@@ -301,23 +280,29 @@ export var BattleScene = new Phaser.Class({
     const lootData = {
       xp: totalXp,
       loot: totalLoot,
+      levelUps: this.saveHeroData() || [],
     }
-    this.saveHeroData()
+    Music.play('victory')
     this.scene.sleep('UIScene')
     this.scene.pause()
     this.scene.launch('VictoryScene', lootData)
   },
-  // Save hero data after battle to preserve progress
+  // Save hero data after battle to preserve progress, returns the heroes that leveled up
   saveHeroData: function () {
     let partyData = this.registry.get('partyData')
+    let levelUps = []
     for (let i = 0; i < partyData.length; i++) {
       let hero = this.heroes[i]
       let xpReq = hero.level * 20
+      let startLevel = hero.level
 
       while (hero.xp >= xpReq) {
         hero.xp -= xpReq
         hero.levelUp()
         xpReq = hero.level * 20
+      }
+      if (hero.level > startLevel) {
+        levelUps.push({ type: hero.type, level: hero.level })
       }
 
       partyData[i].hp = hero.hp
@@ -326,11 +311,13 @@ export var BattleScene = new Phaser.Class({
       partyData[i].maxMp = hero.maxMp
       partyData[i].level = hero.level
       partyData[i].damage = hero.damage
+      partyData[i].magic = hero.magic
       partyData[i].xp = hero.xp
       partyData[i].skills = hero.skills
     }
     this.registry.set('partyData', partyData)
     saveSystem.saveGame(this.registry)
+    return levelUps
   },
 })
 
@@ -619,6 +606,7 @@ export var UIScene = new Phaser.Class({
   },
   // Handle case when player tries to use a skill without enough mana
   onNoMana: function () {
+    Sfx.error()
     this.battleScene.events.emit('Message', 'Not enough MP!')
     this.enemiesMenu.deselect()
     this.selectedAction = null
@@ -639,20 +627,24 @@ export var UIScene = new Phaser.Class({
   onKeyInput: function (event) {
     if (this.currentMenu && this.currentMenu.selected) {
       if (event.code === 'ArrowUp') {
+        Sfx.cursor()
         this.currentMenu.moveSelectionUp()
       } else if (event.code === 'ArrowDown') {
+        Sfx.cursor()
         this.currentMenu.moveSelectionDown()
       } else if (
         event.code === 'ArrowRight' ||
         event.code === 'KeyX' ||
         event.code === 'Escape'
       ) {
+        Sfx.cancel()
         this.menuBack()
       } else if (
         event.code === 'KeyZ' ||
         event.code === 'ArrowLeft' ||
         event.code === 'Enter'
       ) {
+        Sfx.confirm()
         this.currentMenu.confirm()
       }
     }
