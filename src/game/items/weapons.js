@@ -62,9 +62,10 @@ export const MythrilBlade = {
 
 export const ElvenBow = {
   name: 'Elven Bow',
-  description: 'Attack +13',
+  description: 'Attack +13, Speed +3',
   slot: 'weapon',
   attack: 13,
+  speed: 3,
   tier: 3,
 }
 

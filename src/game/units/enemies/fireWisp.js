@@ -18,6 +18,7 @@ fireWisp.stats = {
   name: 'Fire Wisp',
   hp: 24,
   damage: 4,
+  speed: 12,
   magic: 9,
   magicDefense: 6,
   xp: 12,

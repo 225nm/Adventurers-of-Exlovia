@@ -21,9 +21,12 @@ export var Unit = new Phaser.Class({
     this.damage = damage // default damage
     // magic power added to spells, heroes set their own
     this.magic = 0
+    // faster units act earlier in each round
+    this.speed = 10
     // bonuses from equipment, set by the battle scene for heroes
     this.attackBonus = 0
     this.magicBonus = 0
+    this.speedBonus = 0
     this.defense = 0
     this.magicDefense = 0
     // ranged units shoot instead of running up to the target
@@ -74,12 +77,12 @@ export var Unit = new Phaser.Class({
     }
     this.statusBar.clear()
 
-    // background
-    this.statusBar.fillStyle(0x000000)
-    // posx, posy, width, height
     // bars sit just below the sprite, whatever its size (y + 18 for a 32px sprite)
     let barY = Math.round(this.y + this.displayHeight / 2 + 2)
 
+    // background
+    this.statusBar.fillStyle(0x000000)
+    // posx, posy, width, height
     this.statusBar.fillRect(this.x - 28, barY, 56, 8)
 
     // health bar
@@ -160,7 +163,7 @@ export var Unit = new Phaser.Class({
 
 // Base enemy class, built from an enemy file's sprite and stats data
 // sprite: { texture, frame, scale, flipX }
-// stats: { name, hp, damage, magic, defense, magicDefense, xp, loot, skills }
+// stats: { name, hp, damage, magic, speed, defense, magicDefense, xp, loot, skills }
 // Stats are the floor 1 values, the battle scene scales them for deeper floors
 export var Enemy = new Phaser.Class({
   Extends: Unit,
@@ -180,6 +183,7 @@ export var Enemy = new Phaser.Class({
     this.setScale(sprite.scale || 1)
     this.flipX = !!sprite.flipX
     this.magic = stats.magic || 0
+    this.speed = stats.speed || 10
     this.defense = stats.defense || 0
     this.magicDefense = stats.magicDefense || 0
     this.xpDrop = stats.xp || 0
@@ -226,5 +230,6 @@ export var PlayerCharacter = new Phaser.Class({
     this.mp += growth.mp
     this.damage += growth.damage
     this.magic += growth.magic
+    this.speed += growth.speed || 0
   },
 })

@@ -59,8 +59,9 @@ export let PartySelectScene = new Phaser.Class({
       `MP  ${stats.maxMp}`,
       `ATK ${stats.damage}`,
       `MAG ${stats.magic}`,
+      `SPD ${stats.speed}`,
     ].forEach((line, row) => {
-      this.add.pixelText(x - 30, 140 + row * 13, line).setOrigin(0, 0.5)
+      this.add.pixelText(x - 30, 136 + row * 12, line).setOrigin(0, 0.5)
     })
     // shows the pick order, [1] or [2]
     return { badge: this.add.pixelText(x, 54, '').setFont('pressstarty') }

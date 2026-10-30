@@ -27,6 +27,7 @@ export const Party = {
       maxMp: maxMp,
       damage: base.damage + growth.damage * levels,
       magic: base.magic + growth.magic * levels,
+      speed: base.speed + growth.speed * levels,
       // own object, so equipping never changes the class's baseStats
       equipment: { weapon: null, armor: null },
     }

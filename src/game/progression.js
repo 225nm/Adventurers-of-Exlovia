@@ -12,6 +12,7 @@ export const Progression = {
     return {
       hp: 1 + 0.2 * depth,
       damage: 1 + 0.12 * depth,
+      speed: 1 + 0.05 * depth,
       xp: 1 + 0.25 * depth,
       defense: Math.floor(depth / 2),
     }
@@ -24,6 +25,7 @@ export const Progression = {
     enemy.hp = enemy.maxHp
     enemy.damage = Math.round(enemy.damage * scale.damage)
     enemy.magic = Math.round(enemy.magic * scale.damage)
+    enemy.speed = Math.round(enemy.speed * scale.speed)
     enemy.defense += scale.defense
     enemy.magicDefense += scale.defense
     enemy.xpDrop = Math.round(enemy.xpDrop * scale.xp)

@@ -5,16 +5,19 @@ const save_key = 'party_data'
 // Version 1: no version field, heroes have no magic stat or equipment
 // Version 2: heroes have magic and equipment
 // Version 3: the dungeon floor is saved, older saves start on floor 1
-const SAVE_VERSION = 3
+// Version 4: heroes have speed
+const SAVE_VERSION = 4
 
 // Fills in stats that older saves don't have, as if the hero had them since level 1
 export function migrateHero(hero) {
   const HeroClass = heroesIndex[hero.type] || {}
-  const baseMagic = (HeroClass.baseStats && HeroClass.baseStats.magic) || 0
-  const growth = (HeroClass.growth && HeroClass.growth.magic) || 0
+  const base = HeroClass.baseStats || {}
+  const growth = HeroClass.growth || {}
+  const levels = (hero.level || 1) - 1
   return {
     ...hero,
-    magic: hero.magic ?? baseMagic + ((hero.level || 1) - 1) * growth,
+    magic: hero.magic ?? (base.magic || 0) + levels * (growth.magic || 0),
+    speed: hero.speed ?? (base.speed || 10) + levels * (growth.speed || 0),
     equipment: hero.equipment || { weapon: null, armor: null },
   }
 }

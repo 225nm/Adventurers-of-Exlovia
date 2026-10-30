@@ -41,6 +41,7 @@ export let Ranger = new Phaser.Class({
     this.ranged = true
     this.flipX = true
     this.magic = Ranger.baseStats.magic
+    this.speed = Ranger.baseStats.speed
   },
   levelUp: function () {
     this.gainLevel(Ranger.growth)
@@ -51,7 +52,7 @@ export let Ranger = new Phaser.Class({
   },
 })
 // stats gained per level, also used to recruit heroes at higher levels and upgrade old saves
-Ranger.growth = { hp: 7, mp: 6, damage: 3, magic: 1 }
+Ranger.growth = { hp: 7, mp: 6, damage: 3, magic: 1, speed: 2 }
 // shown on the party selection screen
 Ranger.description = 'Fast archer'
 Ranger.sprite = { texture: 'hero-ranger', frame: 'down0' }
@@ -65,6 +66,7 @@ Ranger.baseStats = {
   level: 1,
   damage: 12,
   magic: 4,
+  speed: 13,
   skills: rangerSkills.filter((s) => s.levelReq <= 1),
   equipment: { weapon: null, armor: null },
 }

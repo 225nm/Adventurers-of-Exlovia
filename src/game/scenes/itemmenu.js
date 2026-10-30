@@ -9,6 +9,7 @@ const STAT_LABELS = {
   magic: 'MAG',
   defense: 'DEF',
   magicDefense: 'MDF',
+  speed: 'SPD',
 }
 
 // Inventory menu scene for world menu

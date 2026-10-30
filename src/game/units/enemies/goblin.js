@@ -18,6 +18,7 @@ goblin.stats = {
   name: 'Goblin',
   hp: 32,
   damage: 8,
+  speed: 10,
   defense: 2,
   xp: 12,
   loot: [

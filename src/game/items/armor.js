@@ -4,9 +4,10 @@
 // ---- tier 1 ----
 export const LeatherArmor = {
   name: 'Leather Armor',
-  description: 'Defense +1',
+  description: 'Defense +1, Speed +1',
   slot: 'armor',
   defense: 1,
+  speed: 1,
   tier: 1,
 }
 

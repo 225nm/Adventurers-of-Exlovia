@@ -18,6 +18,7 @@ blueDragon.stats = {
   name: 'B. Dragon',
   hp: 110,
   damage: 11,
+  speed: 8,
   magic: 12,
   defense: 5,
   magicDefense: 2,

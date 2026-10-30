@@ -18,6 +18,7 @@ ogre.stats = {
   name: 'Ogre',
   hp: 40,
   damage: 7,
+  speed: 5,
   defense: 1,
   magicDefense: 3,
   xp: 14,

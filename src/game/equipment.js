@@ -3,7 +3,7 @@ import { itemIndex } from './items/itemIndex'
 // Equipment module, works on the plain hero objects stored in partyData
 export const Equipment = {
   slots: ['weapon', 'armor'],
-  stats: ['attack', 'magic', 'defense', 'magicDefense'],
+  stats: ['attack', 'magic', 'defense', 'magicDefense', 'speed'],
 
   // Sums a stat (one of the stats above) over everything the hero has equipped
   getBonus: function (hero, stat) {

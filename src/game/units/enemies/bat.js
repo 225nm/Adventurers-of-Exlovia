@@ -13,6 +13,7 @@ bat.stats = {
   name: 'Bat',
   hp: 14,
   damage: 5,
+  speed: 14,
   magicDefense: 1,
   xp: 6,
   loot: [{ item: 'Potion', chance: 0.15 }],

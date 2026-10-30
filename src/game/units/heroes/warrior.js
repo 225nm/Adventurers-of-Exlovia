@@ -40,6 +40,7 @@ export let Warrior = new Phaser.Class({
     this.checkSkills()
     this.flipX = true
     this.magic = Warrior.baseStats.magic
+    this.speed = Warrior.baseStats.speed
   },
   levelUp: function () {
     this.gainLevel(Warrior.growth)
@@ -51,7 +52,7 @@ export let Warrior = new Phaser.Class({
   },
 })
 // stats gained per level, also used to recruit heroes at higher levels and upgrade old saves
-Warrior.growth = { hp: 10, mp: 5, damage: 4, magic: 1 }
+Warrior.growth = { hp: 10, mp: 5, damage: 4, magic: 1, speed: 1 }
 // shown on the party selection screen
 Warrior.description = 'Melee tank'
 Warrior.sprite = { texture: 'hero-warrior', frame: 'down0' }
@@ -65,6 +66,7 @@ Warrior.baseStats = {
   level: 1,
   damage: 20,
   magic: 2,
+  speed: 8,
   skills: warriorSkills.filter((s) => s.levelReq <= 1),
   equipment: { weapon: null, armor: null },
 }

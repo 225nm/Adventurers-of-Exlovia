@@ -18,6 +18,7 @@ orangeDragon.stats = {
   name: 'O. Dragon',
   hp: 70,
   damage: 9,
+  speed: 7,
   magic: 10,
   defense: 4,
   magicDefense: 1,

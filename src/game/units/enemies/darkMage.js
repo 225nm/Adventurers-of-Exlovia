@@ -18,6 +18,7 @@ darkMage.stats = {
   name: 'Dark Mage',
   hp: 50,
   damage: 5,
+  speed: 9,
   magic: 13,
   defense: 1,
   magicDefense: 5,

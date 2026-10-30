@@ -76,9 +76,11 @@ export var BattleScene = new Phaser.Class({
       hero.maxMp = partyData[i].maxMp
       hero.damage = partyData[i].damage
       hero.magic = partyData[i].magic ?? hero.magic
+      hero.speed = partyData[i].speed ?? hero.speed
       // equipment bonuses are kept separate from base damage so they are never saved into it
       hero.attackBonus = Equipment.getBonus(partyData[i], 'attack')
       hero.magicBonus = Equipment.getBonus(partyData[i], 'magic')
+      hero.speedBonus = Equipment.getBonus(partyData[i], 'speed')
       hero.defense = Equipment.getBonus(partyData[i], 'defense')
       hero.magicDefense = Equipment.getBonus(partyData[i], 'magicDefense')
       if (hero.checkSkills) {
@@ -111,6 +113,7 @@ export var BattleScene = new Phaser.Class({
     this.units = this.heroes.concat(this.enemies)
 
     this.index = -1 // currently active unit
+    this.turnQueue = [] // units still to act this round, fastest first
 
     this.scene.run('UIScene')
 
@@ -132,14 +135,16 @@ export var BattleScene = new Phaser.Class({
       }
       return
     }
+    // next unit in speed order, a new round starts when everyone has acted
+    let unit
     do {
-      // currently active unit
-      this.index++
-      // if there are no more units, we start again from the first one
-      if (this.index >= this.units.length) {
-        this.index = 0
+      if (this.turnQueue.length === 0) {
+        this.turnQueue = this.turnOrder()
       }
-    } while (!this.units[this.index].living)
+      unit = this.turnQueue.shift()
+    } while (!unit.living)
+    // currently active unit
+    this.index = this.units.indexOf(unit)
     // if its player hero
     if (this.heroes.includes(this.units[this.index])) {
       // we need the player to select action and then enemy
@@ -178,6 +183,17 @@ export var BattleScene = new Phaser.Class({
         callbackScope: this,
       })
     }
+  },
+  // Order for a round: fastest first, with a small random roll so similar speeds can swap places
+  turnOrder: function () {
+    return this.units
+      .filter((unit) => unit.living)
+      .map((unit) => ({
+        unit,
+        roll: unit.speed + unit.speedBonus + Math.random() * 3,
+      }))
+      .sort((a, b) => b.roll - a.roll)
+      .map((entry) => entry.unit)
   },
   // check for game over or victory
   checkEndBattle: function () {
@@ -388,6 +404,7 @@ var Menu = new Phaser.Class({
 
   initialize: function Menu(x, y, scene, heroes) {
     Phaser.GameObjects.Container.call(this, scene, x, y)
+      partyData[i].speed = hero.speed
     this.menuItems = []
     this.menuItemIndex = 0
     this.x = x

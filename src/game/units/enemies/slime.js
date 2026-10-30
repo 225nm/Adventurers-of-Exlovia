@@ -18,6 +18,7 @@ slime.stats = {
   name: 'Slime',
   hp: 18,
   damage: 4,
+  speed: 6,
   xp: 6,
   loot: [{ item: 'Potion', chance: 0.25 }],
   skills: [],

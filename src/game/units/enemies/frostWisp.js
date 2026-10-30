@@ -18,6 +18,7 @@ frostWisp.stats = {
   name: 'Frost Wisp',
   hp: 30,
   damage: 4,
+  speed: 11,
   magic: 10,
   magicDefense: 6,
   xp: 15,

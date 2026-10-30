@@ -39,6 +39,7 @@ export let Mage = new Phaser.Class({
     this.checkSkills()
     this.flipX = true
     this.magic = Mage.baseStats.magic
+    this.speed = Mage.baseStats.speed
   },
   levelUp: function () {
     this.gainLevel(Mage.growth)
@@ -50,7 +51,7 @@ export let Mage = new Phaser.Class({
   },
 })
 // stats gained per level, also used to recruit heroes at higher levels and upgrade old saves
-Mage.growth = { hp: 6, mp: 8, damage: 2, magic: 3 }
+Mage.growth = { hp: 6, mp: 8, damage: 2, magic: 3, speed: 1 }
 // shown on the party selection screen
 Mage.description = 'Spellcaster'
 Mage.sprite = { texture: 'hero-mage', frame: 'down0' }
@@ -64,6 +65,7 @@ Mage.baseStats = {
   level: 1,
   damage: 8,
   magic: 8,
+  speed: 9,
   skills: mageSkills.filter((s) => s.levelReq <= 1),
   equipment: { weapon: null, armor: null },
 }
