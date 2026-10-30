@@ -5,7 +5,7 @@
 # Description
 This project was made as a first year student at LNU as part of a course in Software development.
 
-This is a turn-based roleplaying game built using Phaser initially following this tutorial: https://gamedevacademy.org/how-to-create-a-turn-based-rpg-game-in-phaser-3-part-1/. All sprites, tiles and backgrounds are original pixel art drawn in code (see `src/game/art/`). The only third-party asset is the Press Start 2P font, used under the SIL Open Font License (see `public/assets/CREDITS.md`). Code not written by me is publicly sourced and freely usable, or otherwise properly credited. This project features AI-generated code from Gemini and Claude (Claude Code) as well as autocompletion by Copilot in VScode. This game was built as part of a course in LNU and migrated from Gitlab.
+This is a turn-based roleplaying game built using Phaser initially following this tutorial: https://gamedevacademy.org/how-to-create-a-turn-based-rpg-game-in-phaser-3-part-1/. All sprites, tiles and backgrounds are original pixel art. Map sprites, tiles and backgrounds are drawn in code (see `src/game/art/`), and battle and title sprites are rendered from original SVG illustrations (see `tools/sprites/`). The only third-party asset is the Press Start 2P font, used under the SIL Open Font License (see `public/assets/CREDITS.md`). Code not written by me is publicly sourced and freely usable, or otherwise properly credited. This project features AI-generated code from Gemini and Claude (Claude Code) as well as autocompletion by Copilot in VScode. This game was built as part of a course in LNU and migrated from Gitlab.
 
 ## Installation
 
