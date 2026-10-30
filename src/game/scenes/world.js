@@ -304,7 +304,7 @@ export var WorldScene = new Phaser.Class({
   },
   // After a battle the player can't be attacked for a moment and blinks to show it
   startGracePeriod: function () {
-    const duration = 2000
+    const duration = 1400
     this.invulnerable = true
     // restart cleanly if a grace period is already running
     if (this.graceBlink) this.graceBlink.stop()
