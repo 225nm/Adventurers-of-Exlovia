@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { saveSystem } from '../save'
 import { Sfx } from '../audio/sfx'
+import { Ui } from '../ui'
 // World menu class
 export let WorldMenuScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -13,11 +14,7 @@ export let WorldMenuScene = new Phaser.Class({
     this.menuState = 'main'
 
     // Menu box
-    this.graphics = this.add.graphics()
-    this.graphics.fillStyle(0x031f4c, 1)
-    this.graphics.fillRect(50, 20, 100, 180)
-    this.graphics.lineStyle(2, 0xffffff, 1)
-    this.graphics.strokeRect(50, 20, 100, 180)
+    this.graphics = Ui.window(this, 50, 20, 100, 180)
 
     // Menu options
     this.menuItems = []
@@ -36,6 +33,16 @@ export let WorldMenuScene = new Phaser.Class({
       this.setupInput()
     })
     this.sys.events.on('wake', this.setupInput, this)
+
+    // hand cursor beside the highlighted entry
+    this.pointer = Ui.pointer(this)
+  },
+  // Keeps the hand cursor beside the highlighted entry
+  update: function () {
+    let item = this.menuItems[this.menuIndex]
+    let show = !!item && this.menuState === 'main'
+    this.pointer.setVisible(show)
+    if (show) this.pointer.pointAt(item.x - item.width * item.originX, item.y)
   },
   // Clean up input listeners when the scene is stopped to prevent bugs
   setupInput: function () {
@@ -131,11 +138,7 @@ export let WorldMenuScene = new Phaser.Class({
     overlay.fillStyle(0x000000, 0.7)
     overlay.fillRect(0, 0, 320, 240)
 
-    let box = this.add.graphics()
-    box.fillStyle(0x031f4c, 1)
-    box.lineStyle(2, 0xffffff, 1)
-    box.fillRect(80, 70, 160, 50)
-    box.strokeRect(80, 70, 160, 50)
+    let box = Ui.window(this, 80, 70, 160, 50)
 
     let msg = this.add.pixelText(160, 95, 'QUIT TO TITLE?\n\n(Z) YES  (X) NO')
 

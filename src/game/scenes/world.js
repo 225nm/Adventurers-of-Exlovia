@@ -7,6 +7,11 @@ import { Party } from '../party.js'
 import { saveSystem } from '../save.js'
 import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
+import { seededRandom, GRASS_VARIANTS, DECORATION_KINDS } from '../art/world'
+import { Ui } from '../ui'
+
+// map objects are drawn in order of their feet's y position, the HUD above all of them
+const HUD_DEPTH = 10000
 
 export var WorldScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -30,6 +35,13 @@ export var WorldScene = new Phaser.Class({
 
     // make all tiles in obstacles collidable
     obstacles.setCollisionByExclusion([-1])
+
+    // the map only marks where grass and trees are: grass tiles get a mix of grass variants and the
+    // trees are drawn as taller sprites, so their crowns overlap and the player can walk behind them
+    this.floor = this.registry.get('floor') || 1
+    this.scatterGrass(grass)
+    this.plantTrees(obstacles)
+    this.scatterDecorations(obstacles)
 
     // Clean up old listeners
     this.input.keyboard.off('keydown-C')
@@ -105,9 +117,6 @@ export var WorldScene = new Phaser.Class({
 
     // --------------------------- MAP OBJECTS ----------------------------------------------------------------
 
-    // current dungeon floor, decides enemies and loot
-    this.floor = this.registry.get('floor') || 1
-
     // Chests
     this.chests = this.physics.add.staticGroup()
     // Amount of chests
@@ -129,7 +138,7 @@ export var WorldScene = new Phaser.Class({
         isBlocked = tile !== null
       } while (distance < spawnRadius || isBlocked)
       // Load asset
-      let chest = this.add.sprite(x, y, 'chest')
+      let chest = this.add.sprite(x, y, 'chest').setDepth(y + 8)
       // chest contents get better on deeper floors
       chest.itemName = Loot.rollChest(this.floor)
       chest.setScale(1)
@@ -249,16 +258,17 @@ export var WorldScene = new Phaser.Class({
 
   // Floor number in the corner, and a banner announcing the floor when it starts
   createFloorHud: function () {
+    Ui.window(this, 2, 2, 76, 18).setScrollFactor(0).setDepth(HUD_DEPTH)
     this.add
-      .pixelText(6, 6, `FLOOR ${this.floor}`)
+      .pixelText(10, 7, `FLOOR ${this.floor}`)
       .setOrigin(0, 0)
       .setScrollFactor(0)
-      .setDepth(100)
+      .setDepth(HUD_DEPTH)
 
     let banner = this.add
       .pixelText(160, 100, `FLOOR ${this.floor}`, 16)
       .setScrollFactor(0)
-      .setDepth(100)
+      .setDepth(HUD_DEPTH)
     let parts = [banner]
     // set when taking the stairs, e.g. resting or a new hero joining
     let message = this.registry.get('floorMessage')
@@ -267,7 +277,7 @@ export var WorldScene = new Phaser.Class({
         this.add
           .colorText(160, 125, message, '#f8ff38')
           .setScrollFactor(0)
-          .setDepth(100)
+          .setDepth(HUD_DEPTH)
       )
       this.registry.set('floorMessage', null)
     }
@@ -385,7 +395,7 @@ export var WorldScene = new Phaser.Class({
       chest.y - 8,
       `Found one ${chest.itemName}!`
     )
-    msg.setOrigin(0.5)
+    msg.setOrigin(0.5).setDepth(HUD_DEPTH)
     this.tweens.add({
       targets: msg,
       y: chest.y - 40, // Move 24 pixels upwards
@@ -437,6 +447,11 @@ export var WorldScene = new Phaser.Class({
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart())
   },
   update: function (time, delta) {
+    // nearer things (further down the map) are drawn in front
+    this.player.setDepth(this.player.y + 12)
+    this.spawns
+      .getChildren()
+      .forEach((enemy) => enemy.setDepth(enemy.y + enemy.displayHeight / 2))
     this.player.body.setVelocity(0)
     // player can't move during the battle transition or while going down the stairs
     if (this.transitioning || this.descending) return
@@ -471,6 +486,59 @@ export var WorldScene = new Phaser.Class({
       this.player.setFrame(`${this.facing}0`)
     }
   },
+  // Gives every grass tile one of the grass variants, the same mix each time a floor is visited
+  scatterGrass: function (layer) {
+    const random = seededRandom(this.floor * 7919)
+    const total = GRASS_VARIANTS.reduce((sum, [, weight]) => sum + weight, 0)
+    layer.forEachTile((tile) => {
+      if (tile.index < 0) return
+      let roll = random() * total
+      const [index] = GRASS_VARIANTS.find(([, weight]) => (roll -= weight) < 0)
+      tile.index = index
+    })
+  },
+
+  // Hides the tree tiles (they still block the way) and stands a tree sprite on each one, nudged a
+  // little so a wood doesn't look like a grid
+  plantTrees: function (layer) {
+    const kinds = {
+      2: 'tree-pine',
+      4: 'tree-round',
+      5: 'tree-dark',
+      6: 'tree-round',
+    }
+    const random = seededRandom(this.floor * 104729)
+    layer.setVisible(false)
+    layer.forEachTile((tile) => {
+      const key = kinds[tile.index]
+      if (!key) return
+      const x = tile.pixelX + 8 + Math.round((random() - 0.5) * 4)
+      const y = tile.pixelY + 15 + Math.round(random() * 2)
+      this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+    })
+  },
+
+  // Bushes, rocks, flowers and tufts on open grass, away from the trees. They are only scenery,
+  // nothing collides with them
+  scatterDecorations: function (obstacles) {
+    const random = seededRandom(this.floor * 15485863)
+    const total = DECORATION_KINDS.reduce((sum, [, weight]) => sum + weight, 0)
+    const { widthInPixels, heightInPixels } = obstacles.tilemap
+    for (let i = 0; i < 70; i++) {
+      const x = 8 + Math.floor(random() * (widthInPixels - 16))
+      const y = 8 + Math.floor(random() * (heightInPixels - 16))
+      if (
+        obstacles.getTileAtWorldXY(x, y) ||
+        obstacles.getTileAtWorldXY(x, y + 8)
+      ) {
+        continue
+      }
+      let roll = random() * total
+      const [key] = DECORATION_KINDS.find(([, weight]) => (roll -= weight) < 0)
+      this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+    }
+  },
+
   // Plays the leader's walking animation for a direction: down, up or side
   walk: function (direction) {
     this.facing = direction

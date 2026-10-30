@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { itemIndex } from '../items/itemIndex'
 import { Equipment } from '../equipment'
 import { Sfx } from '../audio/sfx'
+import { Ui } from '../ui'
 
 // Short stat names that fit in the item description panel
 const STAT_LABELS = {
@@ -28,13 +29,9 @@ export let ItemScene = new Phaser.Class({
     this.detailBox = null
 
     // Menu graphic box
-    this.graphics = this.add.graphics()
-    this.graphics.fillStyle(0x031f4c, 0.9)
-    this.graphics.fillRect(50, 20, 250, 200)
-    this.graphics.lineStyle(2, 0xffffff, 1)
-    this.graphics.strokeRect(50, 20, 250, 200)
+    this.graphics = Ui.window(this, 50, 20, 250, 200)
 
-    this.add.pixelText(175, 33, '--- INVENTORY ---')
+    this.add.pixelText(175, 33, 'INVENTORY').setFont('pressstarty')
 
     this.updateItemList()
     this.setupInput()
@@ -43,6 +40,16 @@ export let ItemScene = new Phaser.Class({
       this.updateItemList()
       this.setupInput()
     })
+
+    // hand cursor beside the highlighted entry
+    this.pointer = Ui.pointer(this)
+  },
+  // Keeps the hand cursor beside the highlighted entry
+  update: function () {
+    let item = this.menuItems[this.menuIndex]
+    let show = !!item && !this.detailBox
+    this.pointer.setVisible(show)
+    if (show) this.pointer.pointAt(item.x - item.width * item.originX, item.y)
   },
 
   // Handles input for navigating the inventory menu
@@ -92,11 +99,7 @@ export let ItemScene = new Phaser.Class({
     let itemName = this.menuItems[this.menuIndex].itemName
     let itemData = itemIndex[itemName]
 
-    let box = this.add.graphics()
-    box.fillStyle(0x031f4c, 1)
-    box.fillRect(60, 55, 230, 140)
-    box.lineStyle(2, 0xffffff, 1)
-    box.strokeRect(60, 55, 230, 140)
+    let box = Ui.window(this, 60, 55, 230, 140)
 
     // yellow font for the title, setTint does nothing with the Canvas renderer
     let title = this.add.pixelText(175, 70, itemName).setFont('pressstarty')

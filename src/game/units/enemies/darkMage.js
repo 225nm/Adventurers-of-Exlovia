@@ -13,6 +13,7 @@ darkMage.sprite = {
   world: 'dark-mage-mini',
   scale: 1,
   worldScale: 1,
+  hover: true,
 }
 darkMage.stats = {
   name: 'Dark Mage',

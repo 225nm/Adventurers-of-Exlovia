@@ -13,6 +13,7 @@ fireWisp.sprite = {
   world: 'wisp-fire-mini',
   scale: 1,
   worldScale: 1,
+  hover: true,
 }
 fireWisp.stats = {
   name: 'Fire Wisp',

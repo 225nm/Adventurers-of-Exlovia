@@ -10,18 +10,42 @@ import { Music } from '../audio/music.js'
 import { Sfx } from '../audio/sfx.js'
 import { Progression } from '../progression.js'
 import { Loot } from '../loot.js'
+import { Ui } from '../ui.js'
 
-// y positions for 1-3 units on each side, kept above the menu boxes at y 150
-const ROWS = { 1: [78], 2: [56, 100], 3: [40, 74, 108] }
-// every other row is shifted sideways (a staggered formation),
-// so a unit's sprite doesn't cover the HP/MP bars of the unit above it
-const STAGGER = 48
-const HERO_X = 236
-const ENEMY_X = 40
-const formation = (baseX, shift, i, count) => ({
-  x: baseX + (i % 2 ? shift : 0),
-  y: ROWS[count][i],
-})
+// Where 1-3 units stand on each side: [x, y of their feet], kept above the menu windows at y 152.
+// Units further down the screen are closer and drawn in front, every other one steps forward
+const ENEMY_SLOTS = {
+  1: [[76, 128]],
+  2: [
+    [52, 108],
+    [114, 140],
+  ],
+  3: [
+    [46, 96],
+    [118, 116],
+    [60, 142],
+  ],
+}
+const HERO_SLOTS = {
+  1: [[256, 120]],
+  2: [
+    [240, 106],
+    [282, 136],
+  ],
+  3: [
+    [236, 94],
+    [282, 118],
+    [246, 142],
+  ],
+}
+// Stands a unit on its slot: feet on the ground line (flying enemies a little above it), nearer units
+// in front, all below the attack effects
+const placeUnit = (unit, [x, feetY]) => {
+  unit.x = x
+  unit.y = Math.round(feetY - (unit.hovering ? 9 : 0) - unit.displayHeight / 2)
+  unit.groundY = feetY - 1
+  unit.setDepth(1 + feetY / 1000)
+}
 
 // Battle scene where the player fights enemies
 export var BattleScene = new Phaser.Class({
@@ -66,8 +90,8 @@ export var BattleScene = new Phaser.Class({
 
     // populate hero array with save data
     for (let i = 0; i < partyData.length; i++) {
-      let pos = formation(HERO_X, STAGGER, i, partyData.length)
-      let hero = new heroesIndex[partyData[i].type](this, pos.x, pos.y)
+      let hero = new heroesIndex[partyData[i].type](this, 0, 0)
+      placeUnit(hero, HERO_SLOTS[partyData.length][i])
       hero.level = partyData[i].level
       hero.maxHp = partyData[i].maxHp || hero.maxHp
       hero.hp = partyData[i].hp
@@ -103,8 +127,9 @@ export var BattleScene = new Phaser.Class({
         i === 0 && enemiesIndex[encounter]
           ? encounter
           : Progression.pickEnemy(floor)
-      let pos = formation(ENEMY_X, STAGGER, i, enemyAmount)
-      let enemy = new enemiesIndex[type](this, pos.x, pos.y)
+      let enemy = new enemiesIndex[type](this, 0, 0)
+      placeUnit(enemy, ENEMY_SLOTS[enemyAmount][i])
+      enemy.startHover()
       Progression.scaleEnemy(enemy, floor)
       this.add.existing(enemy)
       this.enemies.push(enemy)
@@ -415,6 +440,16 @@ export var BattleScene = new Phaser.Class({
 })
 
 // ----------------------------------- MENUS ---------------------------------------
+// Windows along the bottom: enemy names on the left (the command list opens over them), the party's
+// HP and MP on the right, and the skill list covering both while a skill is picked
+const UI_TOP = 152
+const UI_H = 88
+const LEFT_W = 100
+const TEXT_Y = UI_TOP + 15
+const HERO_ROW = 22
+const HP_RIGHT = 244
+const MP_RIGHT = 308
+
 // Base menu item class
 var MenuItem = new Phaser.Class({
   Extends: Phaser.GameObjects.BitmapText,
@@ -425,16 +460,21 @@ var MenuItem = new Phaser.Class({
     this.setOrigin(0, 0.5)
     this.x = Math.floor(this.x)
     this.y = Math.floor(this.y)
+    // greyed out: a skill the hero can't afford, a fallen hero
+    this.disabled = false
   },
 
   select: function () {
-    this.setTint(0xf8ff38)
     this.setFont('pressstarty')
   },
 
   deselect: function () {
-    this.clearTint()
-    this.setFont('pressstart')
+    this.setFont(this.disabled ? 'pressstartg' : 'pressstart')
+  },
+
+  setDisabled: function (disabled) {
+    this.disabled = disabled
+    if (this.font !== 'pressstarty') this.deselect()
   },
 
   unitKilled: function () {
@@ -447,16 +487,23 @@ var MenuItem = new Phaser.Class({
 var Menu = new Phaser.Class({
   Extends: Phaser.GameObjects.Container,
 
-  initialize: function Menu(x, y, scene, heroes) {
+  initialize: function Menu(x, y, scene, spacing) {
     Phaser.GameObjects.Container.call(this, scene, x, y)
     this.menuItems = []
     this.menuItemIndex = 0
     this.x = x
     this.y = y
+    // pixels between rows
+    this.spacing = spacing || 15
     this.selected = false
   },
   addMenuItem: function (unit) {
-    var menuItem = new MenuItem(0, this.menuItems.length * 15, unit, this.scene)
+    var menuItem = new MenuItem(
+      0,
+      this.menuItems.length * this.spacing,
+      unit,
+      this.scene
+    )
     this.menuItems.push(menuItem)
     this.add(menuItem)
     return menuItem
@@ -511,42 +558,79 @@ var Menu = new Phaser.Class({
     this.menuItemIndex = 0
   },
 
-  // Remap skills for the skills menu based on the selected hero's skills
-  remapSkills: function (skills) {
+  // Remap skills for the skills menu based on the selected hero's skills, the ones the hero can't
+  // afford are greyed out
+  remapSkills: function (skills, mp) {
     this.clear()
     for (let i = 0; i < skills.length; i++) {
       let skill = skills[i]
-      let skillMenuItem = this.addMenuItem(skill.name + ' ' + skill.mpCost)
+      // name and MP cost in two columns, the font is monospaced
+      let skillMenuItem = this.addMenuItem(
+        skill.name.padEnd(12) + ' ' + String(skill.mpCost).padStart(2)
+      )
       skillMenuItem.skillName = skill.name
+      skillMenuItem.setDisabled(mp < skill.mpCost)
     }
   },
 })
-// Menu for selecting skills, inherits from base Menu class
+// Menu for selecting skills, inherits from base Menu class. Its window covers the whole bottom of the
+// screen, with the hero's MP and what the highlighted skill hits on the right
 let SkillsMenu = new Phaser.Class({
   Extends: Menu,
   initialize: function SkillsMenu(x, y, scene) {
-    Menu.call(this, x, y, scene)
+    Menu.call(this, x, y, scene, 12)
+    this.add(Ui.window(scene, -x, UI_TOP - y, 320, UI_H))
+    this.infoLines = [
+      'pressstarty',
+      'pressstartb',
+      'pressstart',
+      'pressstartg',
+    ].map((font, i) => {
+      let line = scene.add
+        .bitmapText(178 - x, 2 + i * 15, font, '', 8)
+        .setOrigin(0, 0.5)
+      this.add(line)
+      return line
+    })
   },
 
   confirm: function () {
     let skillName = this.menuItems[this.menuItemIndex].skillName
     this.scene.events.emit('SkillSelected', skillName)
   },
+
+  showInfo: function (hero, skill) {
+    this.infoLines[0].setText(hero.type)
+    this.infoLines[1].setText(`MP ${hero.mp}/${hero.maxMp}`)
+    this.infoLines[2].setText(skill.target === 'all' ? 'All foes' : 'One foe')
+    this.infoLines[3].setText(skill.type === 'magic' ? 'Magic' : 'Physical')
+  },
 })
-// Menu for selecting heroes, inherits from base Menu class
+// Menu for selecting heroes, inherits from base Menu class. Shows the party in the party window,
+// where a fallen hero stays, greyed out
 var HeroesMenu = new Phaser.Class({
   Extends: Menu,
 
   initialize: function HeroesMenu(x, y, scene) {
-    Menu.call(this, x, y, scene)
+    Menu.call(this, x, y, scene, HERO_ROW)
+  },
+  remap: function (units) {
+    Menu.prototype.remap.call(this, units)
+    this.menuItems.forEach((item) => {
+      item.unitKilled = function () {
+        this.active = false
+        this.setDisabled(true)
+      }
+    })
   },
 })
-// Menu for selecting actions, inherits from base Menu class
+// Menu for selecting actions, inherits from base Menu class. Its window opens over the enemy list
 var ActionsMenu = new Phaser.Class({
   Extends: Menu,
 
   initialize: function ActionsMenu(x, y, scene) {
     Menu.call(this, x, y, scene)
+    this.add(Ui.window(scene, -x, UI_TOP - y, LEFT_W, UI_H))
     this.addMenuItem('Attack')
     this.addMenuItem('Skills')
   },
@@ -570,6 +654,76 @@ var EnemiesMenu = new Phaser.Class({
   },
 })
 
+// HP and MP of each hero beside their name in the party window, with gauges under the numbers.
+// Low HP turns yellow and a fallen hero's red
+var PartyStatus = new Phaser.Class({
+  Extends: Phaser.GameObjects.Container,
+
+  initialize: function PartyStatus(scene) {
+    Phaser.GameObjects.Container.call(this, scene, 0, 0)
+    this.gauges = scene.add.graphics()
+    this.add(this.gauges)
+    this.rows = []
+  },
+  remap: function (heroes) {
+    this.rows.forEach((row) => {
+      row.hp.destroy()
+      row.mp.destroy()
+    })
+    this.rows = heroes.map((hero, i) => {
+      let y = TEXT_Y + i * HERO_ROW
+      let hp = this.scene.add
+        .bitmapText(HP_RIGHT, y, 'pressstart', '', 8)
+        .setOrigin(1, 0.5)
+      let mp = this.scene.add
+        .bitmapText(MP_RIGHT, y, 'pressstartb', '', 8)
+        .setOrigin(1, 0.5)
+      this.add([hp, mp])
+      return { hero, hp, mp, y }
+    })
+    this.refresh(true)
+  },
+  // Called every frame, only redraws when a number has changed
+  refresh: function (force) {
+    let state = this.rows.map((row) => `${row.hero.hp}/${row.hero.mp}`).join()
+    if (!force && state === this.state) return
+    this.state = state
+    this.gauges.clear()
+    this.rows.forEach((row) => {
+      let hero = row.hero
+      row.hp.setText(`${hero.hp}/${hero.maxHp}`)
+      row.hp.setFont(
+        hero.hp <= 0
+          ? 'pressstartr'
+          : hero.hp < hero.maxHp / 4
+            ? 'pressstarty'
+            : 'pressstart'
+      )
+      row.mp.setText(`${hero.mp}/${hero.maxMp}`)
+      this.gauge(
+        HP_RIGHT - 56,
+        row.y + 6,
+        56,
+        hero.hp / hero.maxHp,
+        [0xc8f878, 0x40b038]
+      )
+      this.gauge(
+        MP_RIGHT - 48,
+        row.y + 6,
+        48,
+        hero.mp / hero.maxMp,
+        [0xb8e8ff, 0x3a84e8]
+      )
+    })
+  },
+  gauge: function (x, y, width, ratio, [light, base]) {
+    let fill = Math.round(width * Math.max(0, Math.min(1, ratio)))
+    this.gauges.fillStyle(0x080a2c, 1).fillRect(x, y, width, 2)
+    this.gauges.fillStyle(base, 1).fillRect(x, y, fill, 2)
+    this.gauges.fillStyle(light, 1).fillRect(x, y, fill, 1)
+  },
+})
+
 // ------------------------------ UI SCENE ----------------------------
 // UI scene to handle menus and player input during battle
 export var UIScene = new Phaser.Class({
@@ -580,31 +734,32 @@ export var UIScene = new Phaser.Class({
   },
 
   create: function () {
-    this.graphics = this.add.graphics()
-    this.graphics.lineStyle(1, 0xffffff)
-    this.graphics.fillStyle(0x031f4c, 1)
-
-    // Box dimensions layout remain exact
-    this.graphics.strokeRect(2, 150, 90, 100)
-    this.graphics.fillRect(2, 150, 90, 100)
-    this.graphics.strokeRect(95, 150, 120, 100)
-    this.graphics.fillRect(95, 150, 120, 100)
-    this.graphics.strokeRect(218, 150, 130, 100)
-    this.graphics.fillRect(218, 150, 130, 100)
+    // the enemy and party windows are always open, the others open over them
+    Ui.window(this, 0, UI_TOP, LEFT_W, UI_H)
+    Ui.window(this, LEFT_W, UI_TOP, 320 - LEFT_W, UI_H)
 
     this.menus = this.add.container()
 
-    // Position modifications shifted slightly right to account for origin 0
-    this.heroesMenu = new HeroesMenu(224, 158, this)
-    this.actionsMenu = new ActionsMenu(101, 158, this)
-    this.enemiesMenu = new EnemiesMenu(8, 158, this)
-    this.skillsMenu = new SkillsMenu(101, 158, this)
+    this.enemiesMenu = new EnemiesMenu(18, TEXT_Y, this)
+    this.heroesMenu = new HeroesMenu(LEFT_W + 16, TEXT_Y, this)
+    this.partyStatus = new PartyStatus(this)
+    this.actionsMenu = new ActionsMenu(18, TEXT_Y, this)
+    this.skillsMenu = new SkillsMenu(18, UI_TOP + 14, this)
+    // the command list opens when a hero's turn comes
+    this.actionsMenu.visible = false
+    this.skillsMenu.visible = false
 
     this.currentMenu = this.actionsMenu
 
-    this.menus.add(this.heroesMenu)
-    this.menus.add(this.actionsMenu)
-    this.menus.add(this.enemiesMenu)
+    this.menus.add([
+      this.enemiesMenu,
+      this.heroesMenu,
+      this.partyStatus,
+      this.actionsMenu,
+      this.skillsMenu,
+    ])
+    // hand cursor beside the highlighted entry of the menu in use
+    this.pointer = Ui.pointer(this).setVisible(false)
 
     this.battleScene = this.scene.get('BattleScene')
 
@@ -613,10 +768,6 @@ export var UIScene = new Phaser.Class({
 
     this.battleScene.events.off('PlayerSelect')
     this.battleScene.events.on('PlayerSelect', this.onPlayerSelect, this)
-
-    this.skillsMenu = new SkillsMenu(101, 158, this)
-    this.menus.add(this.skillsMenu)
-    this.skillsMenu.visible = false
 
     this.events.off('SelectedAction')
     this.events.on('SelectedAction', this.onSelectedAction, this)
@@ -642,6 +793,18 @@ export var UIScene = new Phaser.Class({
     this.remapHeroes()
     this.remapEnemies()
   },
+  // Keeps the party window's numbers current and moves the hand cursor to the highlighted entry
+  update: function () {
+    this.partyStatus.refresh()
+    let menu = this.currentMenu
+    let item =
+      menu &&
+      menu.selected &&
+      menu.visible &&
+      menu.menuItems[menu.menuItemIndex]
+    this.pointer.setVisible(!!item)
+    if (item) this.pointer.pointAt(menu.x + item.x, menu.y + item.y)
+  },
   // Handle enemy selection and emit the selected action and target to the battle scene, then reset menus if not using a skill that targets all enemies
   onEnemy: function (index) {
     this.clearPreview()
@@ -663,8 +826,11 @@ export var UIScene = new Phaser.Class({
     this.skillsMenu.visible = false
     this.currentMenu = this.actionsMenu
   },
-  // Handle action selection, show enemy menu if attack selected, show skills menu if skills selected
+  // Handle action selection: the command window closes so the enemy list can be used to pick a target
   onSelectedAction: function () {
+    // a basic attack, even after backing out of a skill's targeting
+    this.selectedAction = null
+    this.actionsMenu.visible = false
     this.enemiesMenu.previousMenu = this.actionsMenu
     this.currentMenu = this.enemiesMenu
     this.enemiesMenu.select(0)
@@ -673,7 +839,7 @@ export var UIScene = new Phaser.Class({
   // Handle skills selection, show skills menu
   onSelectedSkills: function () {
     let currentHero = this.battleScene.heroes[this.heroesMenu.menuItemIndex]
-    this.skillsMenu.remapSkills(currentHero.skills)
+    this.skillsMenu.remapSkills(currentHero.skills, currentHero.mp)
     this.actionsMenu.visible = false
     this.skillsMenu.visible = true
     this.skillsMenu.previousMenu = this.actionsMenu
@@ -689,11 +855,12 @@ export var UIScene = new Phaser.Class({
       hero && item && hero.skills.find((s) => s.name === item.skillName)
     if (skill) {
       this.message.showInfo(skill.description || skill.name)
+      this.skillsMenu.showInfo(hero, skill)
       // what this skill would do to each enemy
       this.battleScene.showDamagePreview(hero, skill, this.battleScene.enemies)
     }
   },
-  // While picking a target: the damage the chosen attack or skill would deal to the highlighted enemy
+  // While picking a target: the target's HP and the damage the chosen attack or skill would deal to it
   showTargetPreview: function () {
     let battle = this.battleScene
     let attacker = battle.units[battle.index]
@@ -706,7 +873,7 @@ export var UIScene = new Phaser.Class({
     battle.setTargetBlink(target)
     let name = skill ? skill.name : 'Attack'
     this.message.showInfo(
-      `${name}: ${attacker.previewDamage(target, skill)} damage`
+      `${target.type}  HP ${target.hp}/${target.maxHp}\n${name}: ${attacker.previewDamage(target, skill)} damage`
     )
   },
   // Removes damage numbers and the info text when the player leaves target or skill selection
@@ -749,6 +916,7 @@ export var UIScene = new Phaser.Class({
   remapHeroes: function () {
     var heroes = this.battleScene.heroes
     this.heroesMenu.remap(heroes)
+    this.partyStatus.remap(heroes)
   },
   remapEnemies: function () {
     var enemies = this.battleScene.enemies
@@ -784,39 +952,29 @@ export var UIScene = new Phaser.Class({
   menuBack: function () {
     if (this.currentMenu && this.currentMenu.previousMenu) {
       this.currentMenu.deselect()
-
-      if (this.currentMenu === this.skillsMenu) {
-        this.skillsMenu.visible = false
-        this.actionsMenu.visible = true
-      }
       this.clearPreview()
       this.currentMenu = this.currentMenu.previousMenu
       this.currentMenu.select(0)
-      // back from picking a target: show the skill list (and its description) again
-      if (this.currentMenu === this.skillsMenu) {
-        this.skillsMenu.visible = true
-        this.actionsMenu.visible = false
-        this.showSkillInfo()
-      }
+      // only the window of the menu in use is open
+      this.actionsMenu.visible = this.currentMenu === this.actionsMenu
+      this.skillsMenu.visible = this.currentMenu === this.skillsMenu
+      // back from picking a target: show the skill's description again
+      if (this.currentMenu === this.skillsMenu) this.showSkillInfo()
     }
   },
 })
 
-// Message box
+// Message window across the top of the screen
 var Message = new Phaser.Class({
   Extends: Phaser.GameObjects.Container,
 
   initialize: function Message(scene, events) {
-    Phaser.GameObjects.Container.call(this, scene, 160, 30)
-    var graphics = this.scene.add.graphics()
-    this.add(graphics)
-    graphics.lineStyle(1, 0xffffff, 0.8)
-    graphics.fillStyle(0x031f4c, 0.3)
-    graphics.strokeRect(-90, -15, 180, 30)
-    graphics.fillRect(-90, -15, 180, 30)
+    Phaser.GameObjects.Container.call(this, scene, 160, 20)
+    this.add(Ui.window(scene, -152, -15, 304, 30))
 
     this.text = this.scene.add.pixelText(0, 0, '')
-    this.text.setMaxWidth(170)
+    this.text.setMaxWidth(288)
+    this.text.setCenterAlign()
 
     this.add(this.text)
 

@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { Settings } from '../audio/settings'
 import { AudioEngine } from '../audio/audioEngine'
 import { Sfx } from '../audio/sfx'
+import { Ui } from '../ui'
 
 // Options menu with volume controls, opened from the title screen and the world menu.
 // The scene that opens it pauses itself and passes its key as returnTo
@@ -19,13 +20,9 @@ export let OptionsScene = new Phaser.Class({
 
   create: function () {
     // Menu box
-    this.graphics = this.add.graphics()
-    this.graphics.fillStyle(0x031f4c, 1)
-    this.graphics.fillRect(50, 50, 220, 130)
-    this.graphics.lineStyle(2, 0xffffff, 1)
-    this.graphics.strokeRect(50, 50, 220, 130)
+    this.graphics = Ui.window(this, 50, 50, 220, 130)
 
-    this.add.pixelText(160, 65, '--- OPTIONS ---')
+    this.add.pixelText(160, 65, 'OPTIONS').setFont('pressstarty')
 
     // rows with a setting key get a volume bar
     this.rows = [

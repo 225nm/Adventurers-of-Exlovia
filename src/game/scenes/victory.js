@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { Sfx } from '../audio/sfx'
+import { Ui } from '../ui'
 // Victory screen class
 export var VictoryScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -7,12 +8,24 @@ export var VictoryScene = new Phaser.Class({
   initialize: function VictoryScene() {
     Phaser.Scene.call(this, { key: 'VictoryScene' })
   },
-  // Create method to set up the victory screen, including background, loot display, and input handling
+  // Create method to set up the victory screen, including background, loot display, and input handling.
+  // Its windows open over the paused battlefield
   create: function (lootData) {
-    this.cameras.main.setBackgroundColor('#23d2de')
+    // banner that pops in with the fanfare
+    let banner = this.add.container(160, 30, [
+      Ui.window(this, -60, -13, 120, 26),
+      this.add.pixelText(0, 0, 'VICTORY!').setFont('pressstarty'),
+    ])
+    banner.setScale(0.2)
+    this.tweens.add({
+      targets: banner,
+      scale: 1,
+      duration: 260,
+      ease: 'Back.easeOut',
+    })
 
-    // Victory header text
-    this.add.pixelText(160, 30, 'Victory!')
+    // results: experience, loot and level ups
+    Ui.window(this, 24, 52, 272, 116)
 
     // Experience award text
     this.add.pixelText(160, 70, `Your heroes gained ${lootData.xp} XP!`)
@@ -21,10 +34,11 @@ export var VictoryScene = new Phaser.Class({
     if (lootData.loot && lootData.loot.length > 0) {
       let lootString = `Your party found: ${lootData.loot.join(', ')}`
 
-      let lootText = this.add.pixelText(160, 110, lootString)
+      let lootText = this.add.pixelText(160, 96, lootString)
 
       // Handles wrapping cleanly across lines using bitmap font metrics
-      lootText.setMaxWidth(220)
+      lootText.setMaxWidth(248)
+      lootText.setCenterAlign()
     }
 
     // Level ups pop in one by one after the fanfare has started
@@ -33,7 +47,7 @@ export var VictoryScene = new Phaser.Class({
       let text = this.add
         .colorText(
           160,
-          150 + i * 14,
+          126 + i * 14,
           `${hero.type} reached LV ${hero.level}!`,
           '#f8ff38'
         )
@@ -49,12 +63,8 @@ export var VictoryScene = new Phaser.Class({
     })
 
     // Return to map control prompt
-    let returnPrompt = this.add.pixelText(
-      160,
-      200,
-      'Press Z to return to the world map'
-    )
-    returnPrompt.setTint(0xf5d400)
+    Ui.window(this, 34, 186, 252, 26)
+    this.add.pixelText(160, 199, 'Press Z to return to the map')
 
     // Input configuration
     this.input.keyboard.once('keydown-Z', this.returnWorld, this)

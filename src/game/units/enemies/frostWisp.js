@@ -13,6 +13,7 @@ frostWisp.sprite = {
   world: 'wisp-ice-mini',
   scale: 1,
   worldScale: 1,
+  hover: true,
 }
 frostWisp.stats = {
   name: 'Frost Wisp',

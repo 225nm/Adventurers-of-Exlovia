@@ -34,81 +34,76 @@ export var Unit = new Phaser.Class({
     this.living = true
     this.menuItem = null
 
-    // hp bar text
-    this.statusText = scene.add
-      .text(this.x, this.y + 20, '', {
-        fontFamily: '"Press Start 2P", cursive',
-        fontSize: '16px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 0,
-      })
-      .setOrigin(0.5)
-      .setScale(0.5)
-
-    this.manaText = scene.add
-      .text(this.x, this.y + 29, '', {
-        fontFamily: '"Press Start 2P", cursive',
-        fontSize: '16px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 0,
-      })
-      .setOrigin(0.5)
-      .setScale(0.5)
-      // text above bar
-      .setDepth(99)
-      // hide mana text by default
-      .setAlpha(0)
-
-    // text above bar
-    this.statusText.setDepth(99)
-
-    // Status bars
-    this.statusBar = scene.add.graphics()
+    // HP gauge under enemies, heroes show their HP and MP in the battle's party window
+    this.statusBar = scene.add.graphics().setDepth(50)
+    // soft shadow on the ground, kept under the unit by preUpdate
+    this.shadow = scene.add.ellipse(x, y, 20, 5, 0x0a1a08, 0.4).setDepth(0.5)
+    // flying enemies float above their shadow
+    this.hovering = false
     this.updateStatusBar()
   },
 
-  // Updates status bars
+  // Keeps the shadow under the unit while it moves, blinks and fades. groundY is where its feet
+  // stand, set when the battle places it
+  preUpdate: function (time, delta) {
+    Phaser.GameObjects.Sprite.prototype.preUpdate.call(this, time, delta)
+    if (!this.shadow) return
+    const width = Math.round(this.displayWidth * (this.hovering ? 0.5 : 0.7))
+    if (this.shadow.width !== width) {
+      this.shadow.setSize(width, Math.max(4, Math.round(width / 5)))
+    }
+    this.shadow.setPosition(
+      this.x,
+      this.groundY !== undefined
+        ? this.groundY
+        : this.y + this.displayHeight / 2
+    )
+    this.shadow.setVisible(this.visible)
+    this.shadow.setAlpha(this.alpha)
+  },
+
+  // Flying enemies bob gently up and down
+  startHover: function () {
+    if (!this.hovering) return
+    this.scene.tweens.add({
+      targets: this,
+      y: this.y - 3,
+      duration: 700 + Math.random() * 300,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    })
+  },
+
+  // Redraws the slim HP gauge under an enemy: green, yellow below half, red below a quarter
   updateStatusBar: function () {
-    // crash fix
-    if (!this.statusText || !this.statusText.texture) {
+    if (!this.statusBar || !this.statusBar.scene) {
       return
     }
     this.statusBar.clear()
-
-    // bars sit just below the sprite, whatever its size (y + 18 for a 32px sprite)
-    let barY = Math.round(this.y + this.displayHeight / 2 + 2)
-
-    // background
-    this.statusBar.fillStyle(0x000000)
-    // posx, posy, width, height
-    this.statusBar.fillRect(this.x - 28, barY, 56, 8)
-
-    // health bar
-    this.statusBar.fillStyle(0xff0000)
-    this.statusBar.fillRect(this.x - 28, barY, (this.hp / this.maxHp) * 56, 8)
-    this.statusText.setText(this.hp + '/' + this.maxHp)
-
-    // AI suggested fix for blurry text
-    let roundedX = Math.round(this.x)
-    this.statusText.setPosition(roundedX, barY + 4)
-
-    // mana bar
     if (this.mp !== undefined) {
-      this.manaText.setAlpha(1)
-      this.statusBar.fillStyle(0x000000)
-      this.statusBar.fillRect(this.x - 28, barY + 9, 56, 8)
-      this.statusBar.fillStyle(0x0000ff)
-      this.statusBar.fillRect(
-        this.x - 28,
-        barY + 9,
-        (this.mp / this.maxMp) * 56,
-        8
-      )
-      this.manaText.setText(this.mp + '/' + this.maxMp)
-      this.manaText.setPosition(roundedX, barY + 13)
+      return
     }
+    const width = 30
+    const x = Math.round(this.x - width / 2)
+    // just below the unit's feet (or its shadow), whatever its size
+    const y = Math.round(
+      this.groundY !== undefined
+        ? this.groundY + 3
+        : this.y + this.displayHeight / 2 + 3
+    )
+    const ratio = Math.max(0, Math.min(1, this.hp / this.maxHp))
+    const [light, base] =
+      ratio > 0.5
+        ? [0xc8f878, 0x40b038]
+        : ratio > 0.25
+          ? [0xfff090, 0xe0a820]
+          : [0xffb090, 0xd83828]
+    this.statusBar.fillStyle(0x0c0a1c, 1).fillRect(x - 1, y - 1, width + 2, 5)
+    this.statusBar.fillStyle(0x3a1828, 1).fillRect(x, y, width, 3)
+    const fill = Math.round(width * ratio)
+    this.statusBar.fillStyle(base, 1).fillRect(x, y, fill, 3)
+    this.statusBar.fillStyle(light, 1).fillRect(x, y, fill, 1)
   },
   // we will use this to notify the menu item when the unit is dead
   setMenuItem: function (item) {
@@ -150,31 +145,29 @@ export var Unit = new Phaser.Class({
       this.menuItem.unitKilled()
       this.living = false
       this.statusBar.visible = false
-      this.statusText.visible = false
-      this.manaText.visible = false
       this.visible = false
       this.menuItem = null
     }
     this.updateStatusBar()
     return damage
   },
-  // removes unit and text from screen
+  // removes unit, its gauge and shadow from screen
   destroy: function () {
+    if (this.scene) {
+      this.scene.tweens.killTweensOf(this)
+    }
     if (this.statusBar) {
       this.statusBar.destroy()
     }
-    if (this.statusText) {
-      this.statusText.destroy()
-    }
-    if (this.manaText) {
-      this.manaText.destroy()
+    if (this.shadow) {
+      this.shadow.destroy()
     }
     Phaser.GameObjects.Sprite.prototype.destroy.call(this)
   },
 })
 
 // Base enemy class, built from an enemy file's sprite and stats data
-// sprite: { texture, frame, scale, flipX }
+// sprite: { texture, frame, scale, flipX, hover }, hover for flying enemies
 // stats: { name, hp, damage, magic, speed, defense, magicDefense, xp, loot, skills }
 // Stats are the floor 1 values, the battle scene scales them for deeper floors
 export var Enemy = new Phaser.Class({
@@ -194,6 +187,7 @@ export var Enemy = new Phaser.Class({
     )
     this.setScale(sprite.scale || 1)
     this.flipX = !!sprite.flipX
+    this.hovering = !!sprite.hover
     this.magic = stats.magic || 0
     this.speed = stats.speed || 10
     this.defense = stats.defense || 0

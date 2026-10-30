@@ -156,9 +156,9 @@ const ENEMIES = {
   slime: {
     art: SLIME,
     palette: {
-      o: '#1d4d1d',
-      g: '#5bd65b',
-      l: '#aaf5aa',
+      o: '#0e3a3a',
+      g: '#34b890',
+      l: '#a8f4dc',
       w: '#ffffff',
       k: '#111111',
     },

@@ -3,6 +3,7 @@ import { Equipment } from '../equipment'
 import { Sfx } from '../audio/sfx'
 import { Progression } from '../progression'
 import { skillsIndex } from '../skills/skillsIndex'
+import { Ui } from '../ui'
 
 // readable names for skill types and elements on the skills page
 const ELEMENT_NAMES = {
@@ -31,11 +32,7 @@ export let StatsScene = new Phaser.Class({
     this.input.keyboard.off('keydown', this.handleInput, this)
 
     // Layout
-    this.graphics = this.add.graphics()
-    this.graphics.fillStyle(0x031f4c, 0.95)
-    this.graphics.fillRect(40, 20, 240, 200)
-    this.graphics.lineStyle(2, 0xffffff, 1)
-    this.graphics.strokeRect(40, 20, 240, 200)
+    this.graphics = Ui.window(this, 40, 20, 240, 200)
 
     this.header = this.add.pixelText(160, 35, '')
     this.statsPage = this.createStatsPage()
@@ -99,9 +96,7 @@ export let StatsScene = new Phaser.Class({
     page.add(this.skillMarker)
 
     // details box for the highlighted skill
-    let box = this.add.graphics()
-    box.lineStyle(1, 0x5a6f99, 1)
-    box.strokeRect(50, 136, 220, 58)
+    let box = Ui.window(this, 50, 136, 220, 58, { fill: 'dusk' })
     this.skillInfo = this.add.colorText(160, 146, '', '#9fd0ff')
     this.skillDescription = this.add
       .pixelText(160, 164, '')

@@ -1,21 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 84">
-  <!-- Dark Mage, JRPG style: deep hooded robe with gold trim, sharp glowing eyes in the shadow, an orb of dark magic. Cel shaded -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184 240">
+  <!-- Dark mage: a hooded sorcerer in gold-trimmed indigo robes, eyes glowing in the dark of the hood,
+       a bony hand conjuring a violet orb, a gnarled staff with a crystal behind. Faces right, lit from the upper left -->
   <defs>
-    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="0.7"><stop offset="0.5" stop-color="#6a3cb8"/><stop offset="0.5" stop-color="#341a66"/></linearGradient>
-    <linearGradient id="orb" x1="0" y1="0" x2="1" y2="1"><stop offset="0.45" stop-color="#f4d0ff"/><stop offset="0.45" stop-color="#a040e8"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#ffe070"/><stop offset="0.5" stop-color="#cc9228"/></linearGradient>
-    <linearGradient id="hand" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#e4d8f0"/><stop offset="0.5" stop-color="#a898c0"/></linearGradient>
+    <radialGradient id="robe" cx="0.3" cy="0.18" r="0.95">
+      <stop offset="0" stop-color="#7a5aa8"/>
+      <stop offset="0.3" stop-color="#4a3478"/>
+      <stop offset="0.7" stop-color="#281a48"/>
+      <stop offset="1" stop-color="#120a22"/>
+    </radialGradient>
+    <radialGradient id="hood" cx="0.3" cy="0.25" r="0.8">
+      <stop offset="0" stop-color="#8a6ab8"/>
+      <stop offset="0.45" stop-color="#4a3478"/>
+      <stop offset="1" stop-color="#1a1032"/>
+    </radialGradient>
+    <linearGradient id="sleeve" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a4c98"/>
+      <stop offset="1" stop-color="#1e1438"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0a0"/>
+      <stop offset="0.5" stop-color="#d8a840"/>
+      <stop offset="1" stop-color="#7a5418"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9a7a5a"/>
+      <stop offset="1" stop-color="#3a2a1c"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="0.4" cy="0.38" r="0.6">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.3" stop-color="#f0b8ff"/>
+      <stop offset="0.7" stop-color="#a040e0"/>
+      <stop offset="1" stop-color="#4a0a8a"/>
+    </radialGradient>
+    <radialGradient id="aura" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#c060ff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#c060ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="eye" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#9affd0"/>
+      <stop offset="1" stop-color="#20c080"/>
+    </radialGradient>
   </defs>
-  <g stroke="#0e0620" stroke-width="1.5" stroke-linejoin="round">
-    <path d="M32 2 C20 4 14 16 14 28 C10 44 6 64 4 82 L60 82 C58 64 54 44 50 28 C50 16 44 4 32 2 Z" fill="url(#robe)"/>
-    <path d="M32 40 L32 81 M5 80 L59 80" stroke="url(#gold)" stroke-width="2.6"/>
-    <path d="M18 34 L32 44 L46 34" fill="none" stroke="url(#gold)" stroke-width="2.2"/>
-    <path d="M20 26 C20 12 44 12 44 26 C44 32 38 36 32 36 C26 36 20 32 20 26 Z" fill="#100820"/>
-    <path d="M23 24 L29 26.5 L28 28 L24 27 Z M41 24 L35 26.5 L36 28 L40 27 Z" fill="#ffe040" stroke="none"/>
-    <path d="M18 44 C22 46 26 50 26 54 M46 44 C42 46 38 50 38 54" fill="none" stroke-width="1.2"/>
-    <ellipse cx="26" cy="55" rx="3" ry="2.4" fill="url(#hand)"/>
-    <ellipse cx="38" cy="55" rx="3" ry="2.4" fill="url(#hand)"/>
-    <circle cx="32" cy="50" r="6.5" fill="url(#orb)" stroke="#4a1080"/>
-    <circle cx="30" cy="48" r="1.4" fill="#ffffff" stroke="none"/>
+  <g stroke="#0c0618" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <!-- gnarled staff behind, crowned with a crystal -->
+    <path d="M38 236 C40 180 44 120 46 60 C46 48 42 40 44 32 L54 32 C54 42 56 50 54 62 C52 122 48 182 48 236 Z" fill="url(#wood)"/>
+    <path d="M40 34 C34 24 38 14 46 10 C42 20 46 26 50 30 C54 24 60 20 64 22 C58 28 58 36 54 40 Z" fill="url(#wood)"/>
+    <path d="M49 2 L58 18 L49 34 L40 18 Z" fill="url(#orb)"/>
+    <!-- robe flowing down to a tattered hem -->
+    <path d="M70 64 C58 92 52 132 48 170 C44 198 42 216 46 230 L60 222 L70 234 L84 222 L98 236 L112 222 L126 234 L138 222 L150 228 C150 200 146 168 140 138 C136 110 134 84 128 66 Z" fill="url(#robe)"/>
+    <path d="M118 72 C124 110 128 160 132 226" fill="none" stroke="url(#gold)" stroke-width="6"/>
+    <path d="M118 72 C124 110 128 160 132 226" fill="none" stroke-width="1.4"/>
+    <path d="M82 112 C80 140 78 180 78 222 M100 120 C100 160 102 196 104 228" fill="none" stroke="#120a22" stroke-width="2.4" opacity="0.8"/>
+    <path d="M70 100 C66 130 62 170 60 210" fill="none" stroke="#8a6ab8" stroke-width="2.4" opacity="0.7"/>
+    <!-- sash with a gem -->
+    <path d="M70 138 C90 144 116 144 138 136 L140 148 C116 156 90 156 68 150 Z" fill="url(#gold)"/>
+    <circle cx="112" cy="148" r="5" fill="url(#orb)"/>
+    <!-- hood -->
+    <path d="M64 70 C58 44 70 18 94 10 C118 4 136 20 138 42 C140 56 136 66 128 74 C110 82 82 82 64 70 Z" fill="url(#hood)"/>
+    <path d="M96 14 C80 22 70 40 70 60" fill="none" stroke="#a88ad0" stroke-width="2.6" opacity="0.8"/>
+    <!-- the dark inside the hood, two glowing eyes -->
+    <path d="M100 30 C116 26 132 34 134 50 C134 62 126 72 112 72 C102 70 96 58 96 46 C96 38 98 34 100 30 Z" fill="#06030c"/>
+    <path d="M100 30 C116 26 132 34 134 50" fill="none" stroke="url(#gold)" stroke-width="5"/>
+    <ellipse cx="111" cy="50" rx="5" ry="3.2" fill="url(#eye)" stroke="none"/>
+    <ellipse cx="127" cy="49" rx="4" ry="2.8" fill="url(#eye)" stroke="none"/>
+    <!-- sleeve reaching toward the heroes, a bony hand under a floating orb -->
+    <path d="M110 84 C128 86 146 94 158 106 L150 124 C140 116 126 112 112 112 Z" fill="url(#sleeve)"/>
+    <path d="M150 104 C158 102 166 108 166 116 L150 124 Z" fill="#120a22"/>
+    <path d="M156 112 C160 108 168 108 172 112 L178 110 M162 116 L176 118 M160 120 L172 124" fill="none" stroke="#0c0618" stroke-width="4.4"/>
+    <path d="M156 112 C160 108 168 108 172 112 L178 110 M162 116 L176 118 M160 120 L172 124" fill="none" stroke="#e8e0d0" stroke-width="2.2"/>
   </g>
+  <circle cx="168" cy="88" r="16" fill="url(#aura)"/>
+  <circle cx="168" cy="88" r="9" fill="url(#orb)" stroke="#2a0650" stroke-width="2"/>
+  <path d="M168 74 L168 70 M180 82 L184 80 M156 80 L152 78" stroke="#e0a0ff" stroke-width="2.4" stroke-linecap="round"/>
 </svg>

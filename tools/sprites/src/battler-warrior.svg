@@ -1,66 +1,88 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 45">
-  <!-- Warrior, anime JRPG style, 3/4 view facing right: spiky hair, big eyes, plate armor, red cape, round shield, sword raised forward.
-       Cel shaded: every material is a light and a shadow tone split by a hard edge -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 50">
+  <!-- Warrior, 3/4 view facing right (flipped in game to face the enemies): spiky auburn hair, plate armor
+       over a blue tabard, red cape, round shield on the far arm, sword raised forward.
+       Every material has four tones (highlight, light, shadow, deep) in hard-edged bands lit from the
+       upper left, with interior lines in a dark shade of the material. Drawn at 4 units per pixel,
+       the eyes and mouth are placed pixel by pixel at the end -->
   <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0.62" stop-color="#ffe4cc"/><stop offset="0.62" stop-color="#f2b394"/></linearGradient>
-    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#d47a3a"/><stop offset="0.5" stop-color="#8a4420"/></linearGradient>
-    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#f0f4fc"/><stop offset="0.5" stop-color="#a4b2cc"/></linearGradient>
-    <linearGradient id="steelDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#b4c0d8"/><stop offset="0.5" stop-color="#6a7894"/></linearGradient>
-    <linearGradient id="cape" x1="1" y1="0" x2="0" y2="1"><stop offset="0.45" stop-color="#e8404a"/><stop offset="0.45" stop-color="#9a1a2e"/></linearGradient>
-    <linearGradient id="tunic" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#4a7ae0"/><stop offset="0.5" stop-color="#2a46a0"/></linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#ffe070"/><stop offset="0.5" stop-color="#cc9228"/></linearGradient>
-    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#a86e3c"/><stop offset="0.5" stop-color="#6a4020"/></linearGradient>
-    <linearGradient id="pants" x1="0" y1="0" x2="1" y2="0"><stop offset="0.5" stop-color="#4c4c6c"/><stop offset="0.5" stop-color="#2e2e48"/></linearGradient>
-    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#4a82ea"/><stop offset="0.5" stop-color="#2446a8"/></linearGradient>
-    <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0.5" stop-color="#1a2a6a"/><stop offset="0.5" stop-color="#4a90f0"/></linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0.45" stop-color="#ffe8d4"/><stop offset="0.45" stop-color="#f8c8a8"/><stop offset="0.8" stop-color="#f8c8a8"/><stop offset="0.8" stop-color="#e09a80"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0.3" stop-color="#ffa868"/><stop offset="0.3" stop-color="#e07a3a"/><stop offset="0.62" stop-color="#e07a3a"/><stop offset="0.62" stop-color="#b05424"/><stop offset="0.85" stop-color="#b05424"/><stop offset="0.85" stop-color="#7a3414"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0.25" stop-color="#ffffff"/><stop offset="0.25" stop-color="#dce4f4"/><stop offset="0.55" stop-color="#dce4f4"/><stop offset="0.55" stop-color="#a8b4cc"/><stop offset="0.82" stop-color="#a8b4cc"/><stop offset="0.82" stop-color="#6c7896"/></linearGradient>
+    <linearGradient id="steelDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0.4" stop-color="#a8b4cc"/><stop offset="0.4" stop-color="#6c7896"/><stop offset="0.8" stop-color="#6c7896"/><stop offset="0.8" stop-color="#424a66"/></linearGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="0"><stop offset="0.5" stop-color="#ffffff"/><stop offset="0.5" stop-color="#a8b4cc"/></linearGradient>
+    <linearGradient id="tabard" x1="0" y1="0" x2="1" y2="1"><stop offset="0.35" stop-color="#6a9af0"/><stop offset="0.35" stop-color="#3a64d0"/><stop offset="0.75" stop-color="#3a64d0"/><stop offset="0.75" stop-color="#24409a"/></linearGradient>
+    <linearGradient id="cape" x1="0" y1="0" x2="1" y2="0.5"><stop offset="0.3" stop-color="#f05a5a"/><stop offset="0.3" stop-color="#c82a3a"/><stop offset="0.65" stop-color="#c82a3a"/><stop offset="0.65" stop-color="#8a1428"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0.4" stop-color="#fff0a0"/><stop offset="0.4" stop-color="#f0c040"/><stop offset="0.75" stop-color="#f0c040"/><stop offset="0.75" stop-color="#b07a18"/></linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0.4" stop-color="#c88a50"/><stop offset="0.4" stop-color="#9a6030"/><stop offset="0.75" stop-color="#9a6030"/><stop offset="0.75" stop-color="#643a18"/></linearGradient>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop offset="0.35" stop-color="#6a9af0"/><stop offset="0.35" stop-color="#3a64d0"/><stop offset="0.7" stop-color="#3a64d0"/><stop offset="0.7" stop-color="#24409a"/></linearGradient>
   </defs>
-  <g transform="scale(0.5625)">
-  <g stroke="#1e1224" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round">
-    <!-- cape flowing behind -->
-    <path d="M30 32 C20 40 15 58 12 76 L34 76 L36 34 Z" fill="url(#cape)"/>
-    <!-- legs and boots -->
-    <path d="M29 58 L35 58 L35 69 L29 69 Z" fill="url(#pants)"/>
-    <path d="M27 68 L36 68 L36 76 L25 76 C25 72 26 70 27 68 Z" fill="url(#leather)"/>
-    <path d="M37 58 L43 58 L43 69 L37 69 Z" fill="url(#pants)"/>
-    <path d="M36 68 L44 68 C46 70 48 73 48 76 L36 76 Z" fill="url(#leather)"/>
-    <!-- tunic skirt, breastplate, belt -->
-    <path d="M27 50 L45 50 L47 61 L25 61 Z" fill="url(#tunic)"/>
-    <path d="M27 34 C28 31 44 31 45 34 L45 51 L27 51 Z" fill="url(#steel)"/>
-    <path d="M36 37 L39 41 L36 45 L33 41 Z" fill="url(#gold)" stroke-width="0.9"/>
-    <path d="M26 49 L46 49 L46 53 L26 53 Z" fill="url(#leather)"/>
-    <path d="M34 49 L38 49 L38 53 L34 53 Z" fill="url(#gold)" stroke-width="0.8"/>
+  <g transform="scale(0.25) translate(0 8)">
+  <g stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- cape behind, with folds -->
+    <path d="M70 76 C52 92 38 128 30 178 C42 184 66 186 86 182 L88 80 Z" fill="url(#cape)" stroke="#520a1a"/>
+    <path d="M60 104 C54 130 50 154 48 178 M74 108 C72 134 72 156 72 180" fill="none" stroke="#8a1428" stroke-width="2.6"/>
+    <!-- far leg -->
+    <path d="M64 142 L80 142 L80 172 L64 172 Z" fill="url(#steelDark)" stroke="#2a2e44"/>
+    <path d="M60 170 L82 170 L82 190 L56 190 C56 180 58 174 60 170 Z" fill="url(#leather)" stroke="#3a200c"/>
     <!-- round shield on the far arm -->
-    <circle cx="20" cy="46" r="10.5" fill="url(#shield)"/>
-    <circle cx="20" cy="46" r="7.8" fill="none" stroke="#ffd860" stroke-width="1.8"/>
-    <circle cx="20" cy="46" r="10.5" fill="none"/>
-    <circle cx="20" cy="46" r="2.4" fill="url(#gold)"/>
-    <!-- sword raised forward -->
-    <path d="M46 46 L58 27 L60.5 28.5 L49 48 Z" fill="url(#steel)" stroke-width="1.1"/>
-    <path d="M41.5 44.5 L50.5 50 L51.5 48 L42.5 42.5 Z" fill="url(#gold)" stroke-width="1"/>
-    <!-- near arm, gauntlet, pauldron -->
-    <path d="M39 34 C46 36 48 42 47 48 L42 48 C42 43 41 39 37 37 Z" fill="url(#steelDark)"/>
-    <path d="M41 46 L48 46 L48 52 L41 52 Z" fill="url(#steel)"/>
-    <path d="M35 33 C35 27 47 27 49 33 C49 37 44 39 39 38 C36 37 35 35 35 33 Z" fill="url(#steel)"/>
-    <!-- neck, spiky hair behind, face -->
-    <path d="M34 27 L40 27 L40 33 L34 33 Z" fill="url(#skin)"/>
-    <path d="M20 24 C14 18 15 9 21 6 L17 2 L27 3 C31 0 39 0 44 2 L48 0 L48 5 C52 7 54 11 53 15 L57 16 L51 19 L49 13 L29 15 L30 26 C26 27 22 26 20 24 Z" fill="url(#hair)"/>
-    <path d="M24 16 C24 7 33 3 40 3 C47 4 50 10 49 17 C48 23 45 28 40 30 C35 30 28 27 25 22 Z" fill="url(#skin)"/>
-    <!-- spiky bangs over the forehead -->
-    <path d="M27 14 C28 6 36 3 43 4 C48 5 51 9 51 13 L49 16 L47 11 L45 14.5 L43 10 L40.5 14 L39 10 L36.5 14 L36 10 C33 12 31 16 31 21 L28 22 Z" fill="url(#hair)"/>
+    <circle cx="48" cy="112" r="30" fill="url(#shield)" stroke="#142466"/>
+    <circle cx="48" cy="112" r="22" fill="none" stroke="#f0c040" stroke-width="4.4"/>
+    <circle cx="48" cy="112" r="22" fill="none" stroke="#6a4008" stroke-width="1.2"/>
+    <circle cx="48" cy="112" r="7" fill="url(#gold)" stroke="#6a4008"/>
+    <path d="M30 98 C34 90 42 86 50 86" fill="none" stroke="#a8c8ff" stroke-width="3"/>
+    <!-- near leg -->
+    <path d="M88 142 L104 142 L106 172 L90 172 Z" fill="url(#steel)" stroke="#2a2e44"/>
+    <path d="M90 158 C94 155 100 155 104 158" fill="none" stroke="#6c7896" stroke-width="2.4"/>
+    <path d="M88 170 L108 170 C114 176 120 182 122 190 L88 190 Z" fill="url(#leather)" stroke="#3a200c"/>
+    <!-- tabard skirt with a gold hem -->
+    <path d="M62 126 L114 126 L120 156 L104 151 L88 160 L72 151 L56 156 Z" fill="url(#tabard)" stroke="#142466"/>
+    <path d="M58 150 L72 146 L88 154 L104 146 L118 150" fill="none" stroke="#f0c040" stroke-width="3"/>
+    <!-- breastplate with a center ridge and an emblem -->
+    <path d="M64 86 C64 76 112 76 114 86 L116 130 L62 130 Z" fill="url(#steel)" stroke="#2a2e44"/>
+    <path d="M89 82 L89 128" fill="none" stroke="#6c7896" stroke-width="2.4"/>
+    <path d="M89 92 L97 102 L89 112 L81 102 Z" fill="url(#gold)" stroke="#6a4008" stroke-width="2.4"/>
+    <!-- belt -->
+    <path d="M60 122 L118 122 L118 132 L60 132 Z" fill="url(#leather)" stroke="#3a200c"/>
+    <path d="M82 120 L96 120 L96 134 L82 134 Z" fill="url(#gold)" stroke="#6a4008" stroke-width="2.4"/>
+    <!-- sword raised forward: blade, fuller, crossguard, grip -->
+    <path d="M116 110 L146 44 L158 34 L156 50 L128 116 Z" fill="url(#blade)" stroke="#2a2e44"/>
+    <path d="M123 106 L151 46" fill="none" stroke="#dce4f4" stroke-width="2"/>
+    <path d="M108 104 L134 120 L137 114 L111 98 Z" fill="url(#gold)" stroke="#6a4008"/>
+    <path d="M114 120 L120 108 L126 111 L120 123 Z" fill="url(#leather)" stroke="#3a200c" stroke-width="2.4"/>
+    <!-- near arm: pauldron, upper arm, gauntlet on the grip -->
+    <path d="M98 88 C112 92 118 104 116 116 L104 116 C104 106 100 98 92 94 Z" fill="url(#steelDark)" stroke="#2a2e44"/>
+    <path d="M104 106 L124 106 L124 122 L104 122 Z" fill="url(#steel)" stroke="#2a2e44"/>
+    <path d="M108 114 L120 114" fill="none" stroke="#6c7896" stroke-width="2"/>
+    <path d="M86 84 C86 70 114 68 120 82 C122 92 112 98 100 96 C92 94 86 90 86 84 Z" fill="url(#steel)" stroke="#2a2e44"/>
+    <path d="M92 78 C98 74 106 74 112 76" fill="none" stroke="#ffffff" stroke-width="2.6"/>
+    <!-- neck -->
+    <path d="M82 66 L98 66 L98 80 L82 80 Z" fill="#e09a80" stroke="#9a4a3a"/>
+    <!-- spiky hair at the back -->
+    <path d="M72 60 L52 58 L62 50 L36 44 L58 38 L40 22 L64 26 L56 8 L78 18 L84 -4 L96 12 L110 -6 L114 12 L136 4 L126 20 L144 28 L128 34 L124 30 L72 34 Z" fill="url(#hair)" stroke="#4a1a08"/>
+    <!-- ear and face -->
+    <ellipse cx="70" cy="46" rx="6" ry="9" fill="url(#skin)" stroke="#9a4a3a"/>
+    <path d="M70 46 C68 20 84 10 98 10 C114 10 126 22 126 40 C126 54 120 64 106 70 C94 74 80 70 74 60 C72 56 70 52 70 46 Z" fill="url(#skin)" stroke="#9a4a3a"/>
+    <!-- spiky bangs -->
+    <path d="M72 30 C74 14 88 6 104 6 C118 8 128 16 128 28 L123 34 L120 22 L113 32 L108 18 L101 30 L96 18 L90 31 L86 20 C81 26 78 34 78 46 L72 46 Z" fill="url(#hair)" stroke="#4a1a08"/>
+    <path d="M90 12 C98 9 108 10 114 14" fill="none" stroke="#ffd0a0" stroke-width="2.6"/>
   </g>
   </g>
-  <!-- eyes and mouth placed pixel by pixel on the 36x45 sprite grid so they stay crisp -->
+  <!-- face on the 40x50 pixel grid: brows, eyes with a shine, a small mouth -->
   <g>
-    <rect x="23" y="8" width="3" height="1" fill="#1e1224"/>
-    <rect x="19" y="8" width="2" height="1" fill="#1e1224"/>
-    <rect x="23" y="9" width="1" height="2" fill="#ffffff"/>
-    <rect x="24" y="9" width="2" height="1" fill="#1a2a6a"/>
-    <rect x="24" y="10" width="1" height="1" fill="#3a6ad0"/>
-    <rect x="25" y="10" width="1" height="1" fill="#ffffff"/>
-    <rect x="24" y="11" width="2" height="1" fill="#6ab4ff"/>
-    <rect x="20" y="9" width="1" height="1" fill="#1a2a6a"/>
-    <rect x="20" y="10" width="1" height="1" fill="#3a6ad0"/>
-    <rect x="20" y="11" width="1" height="1" fill="#6ab4ff"/>
-    <rect x="23" y="14" width="2" height="1" fill="#b86a58"/>
+    <rect x="20" y="10" width="4" height="1" fill="#7a3414"/>
+    <rect x="27" y="10" width="2" height="1" fill="#7a3414"/>
+    <rect x="20" y="12" width="4" height="1" fill="#1e1224"/>
+    <rect x="27" y="12" width="2" height="1" fill="#1e1224"/>
+    <rect x="21" y="13" width="2" height="1" fill="#1a2a6a"/>
+    <rect x="23" y="13" width="1" height="2" fill="#ffffff"/>
+    <rect x="21" y="14" width="1" height="1" fill="#3a6ad0"/>
+    <rect x="22" y="14" width="1" height="1" fill="#ffffff"/>
+    <rect x="21" y="15" width="2" height="1" fill="#4a80e0"/>
+    <rect x="27" y="13" width="1" height="1" fill="#1a2a6a"/>
+    <rect x="28" y="13" width="1" height="2" fill="#ffffff"/>
+    <rect x="27" y="14" width="1" height="1" fill="#3a6ad0"/>
+    <rect x="27" y="15" width="1" height="1" fill="#4a80e0"/>
+    <rect x="29" y="15" width="1" height="1" fill="#e09a80"/>
+    <rect x="25" y="17" width="2" height="1" fill="#c06a5a"/>
   </g>
 </svg>

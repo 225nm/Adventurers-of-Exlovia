@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { itemIndex } from '../items/itemIndex'
 import { Equipment } from '../equipment'
 import { Sfx } from '../audio/sfx'
+import { Ui } from '../ui'
 
 // Party menu scene for world menu
 export let PartyScene = new Phaser.Class({
@@ -23,14 +24,10 @@ export let PartyScene = new Phaser.Class({
     this.input.keyboard.off('keydown', this.handleInput, this)
 
     // Menu graphic box
-    this.graphics = this.add.graphics()
-    this.graphics.fillStyle(0x031f4c, 0.9)
-    this.graphics.fillRect(50, 20, 250, 200)
-    this.graphics.lineStyle(2, 0xffffff, 1)
-    this.graphics.strokeRect(50, 20, 250, 200)
+    this.graphics = Ui.window(this, 50, 20, 250, 200)
 
     // Title - centered neatly at X: 175
-    this.add.pixelText(175, 33, '--- PARTY ---')
+    this.add.pixelText(175, 33, 'PARTY').setFont('pressstarty')
 
     let partyData = this.registry.get('partyData')
     this.partyData = this.registry.get('partyData')
@@ -64,6 +61,16 @@ export let PartyScene = new Phaser.Class({
     // Input Setup
     this.input.keyboard.on('keydown', this.handleInput, this)
     this.updateSelection()
+
+    // hand cursor beside the highlighted entry
+    this.pointer = Ui.pointer(this)
+  },
+  // Keeps the hand cursor beside the highlighted entry
+  update: function () {
+    let item = this.menuItems[this.menuIndex]
+    let show = !!item
+    this.pointer.setVisible(show)
+    if (show) this.pointer.pointAt(item.x - item.width * item.originX, item.y)
   },
 
   // Handles input for navigating the party menu

@@ -3,6 +3,7 @@ import { heroesIndex } from '../units/heroes/heroesIndex'
 import { Party } from '../party'
 import { Progression } from '../progression'
 import { Sfx } from '../audio/sfx'
+import { Ui } from '../ui'
 
 // Number of heroes picked at the start, the rest join later (see Progression.recruitFloor)
 const PARTY_SIZE = 2
@@ -26,17 +27,19 @@ export let PartySelectScene = new Phaser.Class({
     this.picks = []
     this.confirmBox = null
 
-    this.cameras.main.setBackgroundColor('#031f4c')
-    this.add.pixelText(160, 14, 'CHOOSE YOUR PARTY')
-    this.add.colorText(
-      160,
-      28,
-      `Pick ${PARTY_SIZE}, the other joins on floor ${Progression.recruitFloor}`,
-      '#9fb3d9'
-    )
+    // the title's moonlit castle, dimmed behind the cards
+    this.add.image(0, 0, 'title-bg').setOrigin(0, 0)
+    this.add.rectangle(0, 0, 320, 240, 0x05041a, 0.55).setOrigin(0, 0)
+    this.add.pixelText(160, 14, 'CHOOSE YOUR PARTY').setFont('pressstarty')
+    this.add
+      .pixelText(
+        160,
+        28,
+        `Pick ${PARTY_SIZE}, the other joins on floor ${Progression.recruitFloor}`
+      )
+      .setFont('pressstartg')
 
     this.cards = this.classes.map((type, i) => this.createCard(type, CARD_X[i]))
-    this.frames = this.add.graphics()
 
     this.add.pixelText(160, 215, 'Z: PICK   X: BACK')
 
@@ -45,15 +48,21 @@ export let PartySelectScene = new Phaser.Class({
     this.input.keyboard.on('keydown', this.handleInput, this)
   },
 
-  // A card with the hero's sprite, role and level 1 stats
+  // A card with the hero's battle sprite, role and level 1 stats. The card is a window with a silver
+  // frame, swapped for a gold one while the cursor is on it
   createCard: function (type, x) {
     const HeroClass = heroesIndex[type]
     const stats = HeroClass.baseStats
-    const sprite = HeroClass.sprite
+    const left = x - CARD_W / 2
+    const frames = {
+      silver: Ui.window(this, left, CARD_TOP, CARD_W, CARD_H),
+      gold: Ui.window(this, left, CARD_TOP, CARD_W, CARD_H, { frame: 'gold' }),
+    }
 
-    this.add.sprite(x, 80, sprite.texture, sprite.frame).setScale(2)
-    this.add.pixelText(x, 106, type.toUpperCase())
-    this.add.colorText(x, 120, HeroClass.description, '#9fb3d9')
+    this.add.ellipse(x, 104, 30, 6, 0x05041a, 0.5)
+    this.add.image(x, 80, `battler-${type.toLowerCase()}`)
+    this.add.pixelText(x, 116, type.toUpperCase())
+    this.add.pixelText(x, 128, HeroClass.description).setFont('pressstartb')
     ;[
       `HP  ${stats.maxHp}`,
       `MP  ${stats.maxMp}`,
@@ -61,10 +70,15 @@ export let PartySelectScene = new Phaser.Class({
       `MAG ${stats.magic}`,
       `SPD ${stats.speed}`,
     ].forEach((line, row) => {
-      this.add.pixelText(x - 30, 136 + row * 12, line).setOrigin(0, 0.5)
+      this.add.pixelText(x - 30, 144 + row * 11, line).setOrigin(0, 0.5)
     })
     // shows the pick order, [1] or [2]
-    return { badge: this.add.pixelText(x, 49, '').setFont('pressstarty') }
+    return {
+      frames,
+      badge: this.add
+        .pixelText(left + 18, CARD_TOP + 12, '')
+        .setFont('pressstarty'),
+    }
   },
 
   handleInput: function (event) {
@@ -120,33 +134,21 @@ export let PartySelectScene = new Phaser.Class({
     }
   },
 
-  // Cursor is a yellow frame, picked heroes get a white frame and their pick number
+  // The card under the cursor gets a gold frame, picked heroes show their pick number
   updateVisuals: function () {
-    this.frames.clear()
     this.classes.forEach((type, i) => {
-      const left = CARD_X[i] - CARD_W / 2
       const pickIndex = this.picks.indexOf(type)
-      if (pickIndex >= 0) {
-        this.frames.fillStyle(0x0b3a7a, 1)
-        this.frames.fillRect(left, CARD_TOP, CARD_W, CARD_H)
-      }
-      this.frames.lineStyle(2, i === this.cursor ? 0xf8ff38 : 0x5a6f99, 1)
-      this.frames.strokeRect(left, CARD_TOP, CARD_W, CARD_H)
-      this.cards[i].badge.setText(pickIndex >= 0 ? `[${pickIndex + 1}]` : '')
+      this.cards[i].frames.gold.setVisible(i === this.cursor)
+      this.cards[i].frames.silver.setVisible(i !== this.cursor)
+      this.cards[i].badge.setText(pickIndex >= 0 ? `${pickIndex + 1}` : '')
     })
-    // the card backgrounds go behind the card contents
-    this.frames.setDepth(-1)
   },
 
   showConfirm: function () {
     let overlay = this.add.graphics()
     overlay.fillStyle(0x000000, 0.7)
     overlay.fillRect(0, 0, 320, 240)
-    let box = this.add.graphics()
-    box.fillStyle(0x031f4c, 1)
-    box.lineStyle(2, 0xffffff, 1)
-    box.fillRect(50, 80, 220, 70)
-    box.strokeRect(50, 80, 220, 70)
+    let box = Ui.window(this, 50, 80, 220, 70)
     let text = this.add
       .pixelText(
         160,

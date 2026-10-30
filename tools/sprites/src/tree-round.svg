@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 112">
+  <!-- Map tree: a leafy crown of billows over a short trunk, red fruit. Lit from the upper left.
+       The dark tree reuses this file with its greens and fruit swapped (see render.mjs) -->
+  <defs>
+    <radialGradient id="leaf" cx="0.32" cy="0.28" r="0.8">
+      <stop offset="0" stop-color="#8ad058"/>
+      <stop offset="0.3" stop-color="#4c9c40"/>
+      <stop offset="0.7" stop-color="#2c7034"/>
+      <stop offset="1" stop-color="#1a4a28"/>
+    </radialGradient>
+    <linearGradient id="bark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b08050"/>
+      <stop offset="0.45" stop-color="#7a5230"/>
+      <stop offset="1" stop-color="#46301a"/>
+    </linearGradient>
+  </defs>
+  <!-- trunk with flared roots -->
+  <path d="M36 112 C38 104 38 92 38 78 L50 78 C50 92 50 104 54 112 Z" fill="url(#bark)"/>
+  <path d="M40 84 L40 106" stroke="#d0a070" stroke-width="2.4" opacity="0.8"/>
+  <!-- crown: billows from the back to the front, each lit on its upper left -->
+  <circle cx="22" cy="60" r="20" fill="url(#leaf)"/>
+  <circle cx="66" cy="60" r="20" fill="url(#leaf)"/>
+  <circle cx="44" cy="70" r="22" fill="url(#leaf)"/>
+  <circle cx="30" cy="34" r="20" fill="url(#leaf)"/>
+  <circle cx="58" cy="30" r="21" fill="url(#leaf)"/>
+  <circle cx="44" cy="48" r="24" fill="url(#leaf)"/>
+  <!-- deeper shade under the crown -->
+  <path d="M6 66 C14 84 30 92 44 92 C60 92 74 84 82 66 C74 78 60 84 44 84 C28 84 14 78 6 66 Z" fill="#1a4a28" opacity="0.8"/>
+  <!-- leaf clusters catching the light -->
+  <path d="M22 26 C28 18 38 16 44 20 C36 22 30 26 26 32 Z M50 18 C56 12 66 12 70 18 C62 18 58 20 54 24 Z M30 44 C34 38 42 36 48 40 C40 40 36 42 32 48 Z M8 52 C12 46 18 44 24 46 C18 48 14 52 12 56 Z" fill="#b4e870"/>
+  <!-- fruit -->
+  <circle cx="34" cy="58" r="3.4" fill="#e03a30"/>
+  <circle cx="60" cy="48" r="3.4" fill="#e03a30"/>
+  <circle cx="52" cy="72" r="3.4" fill="#e03a30"/>
+  <circle cx="20" cy="70" r="3" fill="#e03a30"/>
+  <circle cx="33" cy="57" r="1.2" fill="#ffd0b0"/>
+  <circle cx="59" cy="47" r="1.2" fill="#ffd0b0"/>
+  <circle cx="51" cy="71" r="1.2" fill="#ffd0b0"/>
+</svg>

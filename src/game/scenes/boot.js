@@ -3,6 +3,7 @@ import { saveSystem } from '../save'
 import { Inventory } from '../inventory'
 import { AudioEngine } from '../audio/audioEngine'
 import { Art } from '../art'
+import { Ui } from '../ui'
 
 const SPRITES = [
   'battler-warrior',
@@ -19,6 +20,11 @@ const SPRITES = [
   'dragon-blue',
   'title-knight',
   'title-mage',
+  'battle-bg',
+  'title-bg',
+  'tree-round',
+  'tree-dark',
+  'tree-pine',
 ]
 // Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
@@ -70,8 +76,10 @@ export var BootScene = new Phaser.Class({
       g.destroy()
     })
 
-    // fonts, heroes, enemies, map tiles and backgrounds
+    // map heroes and enemies, tiles and the title logo
     Art.createAll(this)
+    // menu windows' cursor and the recolored fonts
+    Ui.createTextures(this)
 
     // audio can only start after the player's first key press
     AudioEngine.installUnlock()

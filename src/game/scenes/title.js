@@ -3,6 +3,7 @@ import { saveSystem } from '../save.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
 import { Music } from '../audio/music.js'
 import { Sfx } from '../audio/sfx.js'
+import { Ui } from '../ui.js'
 
 // Title screen class
 export var TitleScene = new Phaser.Class({
@@ -13,12 +14,18 @@ export var TitleScene = new Phaser.Class({
   },
   // Create method to set up the title screen, including background, menu options, and input handling
   create: function () {
-    let bg = this.add.image(160, 120, 'title')
-    bg.setDisplaySize(320, 240)
-
-    // logo in the game's own pixel font, scaled up
-    this.add.colorText(160, 32, 'ADVENTURERS OF', '#f0c860', 16)
-    this.add.colorText(160, 60, 'EXLOVIA', '#f0c860', 24)
+    this.add.image(0, 0, 'title-bg').setOrigin(0, 0)
+    // the knight and the mage standing on the rocks in front
+    this.add.image(2, 238, 'title-knight').setOrigin(0, 1)
+    this.add.image(318, 238, 'title-mage').setOrigin(1, 1)
+    // gold logo made from the game's own pixel font (see art/logo.js), with twinkles on its letters
+    this.logo = this.add.image(160, 42, 'title-logo')
+    this.time.addEvent({
+      delay: 700,
+      loop: true,
+      callback: this.twinkle,
+      callbackScope: this,
+    })
 
     // check if save data is found
     const saveCheck = localStorage.getItem('party_data') !== null
@@ -26,8 +33,10 @@ export var TitleScene = new Phaser.Class({
     this.menus = []
     this.selectedIndex = 0
 
-    // starts higher to make room for Options above the controls text
-    let menuY = 140
+    // menu window below the castle
+    let menuY = saveCheck ? 178 : 185
+    let rows = saveCheck ? 3 : 2
+    Ui.window(this, 108, menuY - 12, 104, rows * 15 + 9)
 
     // if save file exists add continue option
     if (saveCheck) {
@@ -36,7 +45,7 @@ export var TitleScene = new Phaser.Class({
         textObject: this.continueText,
         action: this.continueGame,
       })
-      menuY += 20
+      menuY += 15
     }
 
     this.newGameText = this.add.pixelText(160, menuY, 'New Game')
@@ -45,7 +54,7 @@ export var TitleScene = new Phaser.Class({
       textObject: this.newGameText,
       action: this.startNewGame,
     })
-    menuY += 20
+    menuY += 15
 
     this.optionsText = this.add.pixelText(160, menuY, 'Options')
     this.menus.push({
@@ -56,7 +65,7 @@ export var TitleScene = new Phaser.Class({
     Music.play('title')
 
     // short enough to fit between the knight and the mage
-    this.add.pixelText(160, 218, 'Arrows move  Z confirm\n  X back  C menu')
+    this.add.pixelText(160, 231, 'Z confirm  X back  C menu')
 
     // Key listeners
     this.cursors = this.input.keyboard.createCursorKeys()
@@ -64,22 +73,19 @@ export var TitleScene = new Phaser.Class({
       Phaser.Input.Keyboard.KeyCodes.Z
     )
 
-    this.cursor = this.add.bitmapText(0, 0, 'pressstarty', '>', 8)
-    this.cursor.setOrigin(0, 0.5)
-
-    // Set up the movement tween loop once here so it doesn't infinitely multiply on keypress
-    this.tweens.add({
-      targets: this.cursor,
-      x: '-=2',
-      duration: 300,
-      yoyo: true,
-      repeat: -1,
-    })
+    // hand cursor, it nudges back and forth on its own
+    this.cursor = Ui.pointer(this)
 
     this.updateMenuVisuals()
   },
   // Update loop to handle menu navigation and selection
   update: function () {
+    if (this.cursorTarget) {
+      this.cursor.pointAt(
+        this.cursorTarget.x - this.cursorTarget.width / 2,
+        this.cursorTarget.y
+      )
+    }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
       this.moveSelection(-1)
     } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
@@ -88,6 +94,22 @@ export var TitleScene = new Phaser.Class({
     if (Phaser.Input.Keyboard.JustDown(this.confirmKey)) {
       this.confirmSelection()
     }
+  },
+
+  // A twinkle pops up on a random letter of the logo
+  twinkle: function () {
+    let logo = this.logo
+    let x = logo.x + (Math.random() - 0.5) * (logo.width - 20)
+    let y = logo.y + (Math.random() - 0.5) * (logo.height - 12)
+    let star = this.add.image(Math.round(x), Math.round(y), 'ui-sparkle')
+    star.setScale(0.2)
+    this.tweens.add({
+      targets: star,
+      scale: 1,
+      duration: 250,
+      yoyo: true,
+      onComplete: () => star.destroy(),
+    })
   },
 
   // Moves the menu selection up or down based on the direction parameter
@@ -110,11 +132,7 @@ export var TitleScene = new Phaser.Class({
       if (idx === this.selectedIndex) {
         option.textObject.setFont('pressstarty')
 
-        this.cursor.x = Math.floor(
-          option.textObject.x - option.textObject.width / 2 - 12
-        )
-
-        this.cursor.y = Math.floor(option.textObject.y)
+        this.cursorTarget = option.textObject
       } else {
         option.textObject.setFont('pressstart')
       }
