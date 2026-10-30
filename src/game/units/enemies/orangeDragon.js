@@ -8,8 +8,12 @@ export let orangeDragon = new Phaser.Class({
   },
 })
 orangeDragon.minFloor = 3
-// leave orrange typo in i guess
-orangeDragon.sprite = { texture: 'dragonorrange', scale: 1, worldScale: 0.8 }
+orangeDragon.sprite = {
+  texture: 'dragon-orange',
+  world: 'dragon-orange-mini',
+  scale: 1,
+  worldScale: 0.8,
+}
 orangeDragon.stats = {
   name: 'O. Dragon',
   hp: 70,

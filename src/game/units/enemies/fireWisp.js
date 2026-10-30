@@ -9,10 +9,10 @@ export let fireWisp = new Phaser.Class({
 })
 fireWisp.minFloor = 2
 fireWisp.sprite = {
-  texture: 'monsters',
-  frame: 'wispFire',
-  scale: 1.3,
-  worldScale: 0.8,
+  texture: 'wisp-fire',
+  world: 'wisp-fire-mini',
+  scale: 1,
+  worldScale: 1,
 }
 fireWisp.stats = {
   name: 'Fire Wisp',

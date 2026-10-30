@@ -51,10 +51,7 @@ export let PartySelectScene = new Phaser.Class({
     const stats = HeroClass.baseStats
     const sprite = HeroClass.sprite
 
-    this.add
-      .sprite(x, 78, sprite.texture, sprite.frame)
-      .setScale(2)
-      .setFlipX(true)
+    this.add.sprite(x, 78, sprite.texture, sprite.frame).setScale(2)
     this.add.pixelText(x, 106, type.toUpperCase())
     this.add.colorText(x, 120, HeroClass.description, '#9fb3d9')
     ;[

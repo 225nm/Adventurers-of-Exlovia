@@ -8,7 +8,7 @@ export let bat = new Phaser.Class({
   },
 })
 bat.minFloor = 1
-bat.sprite = { texture: 'bat', scale: 2, worldScale: 1 }
+bat.sprite = { texture: 'bat', world: 'bat-mini', scale: 1, worldScale: 1 }
 bat.stats = {
   name: 'Bat',
   hp: 14,

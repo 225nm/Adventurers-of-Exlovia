@@ -25,8 +25,8 @@ export let Warrior = new Phaser.Class({
       scene,
       x,
       y,
-      'player',
-      1,
+      'battler-warrior',
+      null,
       'Warrior',
       hp || 100, //hp
       damage || 20, //dmg
@@ -39,7 +39,6 @@ export let Warrior = new Phaser.Class({
     //this.skills = [...warriorSkills]
     this.checkSkills()
     this.flipX = true
-    this.setScale(2)
     this.magic = Warrior.baseStats.magic
   },
   levelUp: function () {
@@ -55,7 +54,7 @@ export let Warrior = new Phaser.Class({
 Warrior.growth = { hp: 10, mp: 5, damage: 4, magic: 1 }
 // shown on the party selection screen
 Warrior.description = 'Melee tank'
-Warrior.sprite = { texture: 'player', frame: 1 }
+Warrior.sprite = { texture: 'hero-warrior', frame: 'down0' }
 Warrior.baseStats = {
   type: 'Warrior',
   hp: 100,

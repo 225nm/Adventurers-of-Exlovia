@@ -25,8 +25,8 @@ export let Ranger = new Phaser.Class({
       scene,
       x,
       y,
-      'ranger',
-      18,
+      'battler-ranger',
+      null,
       'Ranger',
       hp || 70,
       damage || 12,
@@ -40,7 +40,6 @@ export let Ranger = new Phaser.Class({
     // shoots arrows instead of running up to the target
     this.ranged = true
     this.flipX = true
-    this.setScale(2)
     this.magic = Ranger.baseStats.magic
   },
   levelUp: function () {
@@ -55,7 +54,7 @@ export let Ranger = new Phaser.Class({
 Ranger.growth = { hp: 7, mp: 6, damage: 3, magic: 1 }
 // shown on the party selection screen
 Ranger.description = 'Fast archer'
-Ranger.sprite = { texture: 'ranger', frame: 18 }
+Ranger.sprite = { texture: 'hero-ranger', frame: 'down0' }
 Ranger.baseStats = {
   type: 'Ranger',
   hp: 70,

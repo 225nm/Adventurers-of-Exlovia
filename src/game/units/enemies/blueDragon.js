@@ -8,7 +8,12 @@ export let blueDragon = new Phaser.Class({
   },
 })
 blueDragon.minFloor = 5
-blueDragon.sprite = { texture: 'dragonblue', scale: 1, worldScale: 0.8 }
+blueDragon.sprite = {
+  texture: 'dragon-blue',
+  world: 'dragon-blue-mini',
+  scale: 1,
+  worldScale: 0.8,
+}
 blueDragon.stats = {
   name: 'B. Dragon',
   hp: 110,

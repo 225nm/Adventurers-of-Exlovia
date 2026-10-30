@@ -16,6 +16,10 @@ export var TitleScene = new Phaser.Class({
     let bg = this.add.image(160, 120, 'title')
     bg.setDisplaySize(320, 240)
 
+    // logo in the game's own pixel font, scaled up
+    this.add.colorText(160, 32, 'ADVENTURERS OF', '#f0c860', 16)
+    this.add.colorText(160, 60, 'EXLOVIA', '#f0c860', 24)
+
     // check if save data is found
     const saveCheck = localStorage.getItem('party_data') !== null
 

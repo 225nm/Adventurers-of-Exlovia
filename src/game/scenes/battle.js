@@ -34,7 +34,9 @@ export var BattleScene = new Phaser.Class({
   create: function () {
     this.cameras.main.roundPixels = true
     // change the background to green
-    this.cameras.main.setBackgroundColor('rgba(0, 200, 0, 0.5)')
+    this.cameras.main.setBackgroundColor('#1a2a1a')
+    // field backdrop above the menus, created once and kept between battles
+    this.add.image(0, 0, 'battle-bg').setOrigin(0, 0).setDepth(-10)
 
     // on wake event we call startBattle too
     this.sys.events.off('wake')

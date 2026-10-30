@@ -8,7 +8,12 @@ export let ogre = new Phaser.Class({
   },
 })
 ogre.minFloor = 2
-ogre.sprite = { texture: 'ogre', scale: 1, worldScale: 0.75 }
+ogre.sprite = {
+  texture: 'ogre',
+  world: 'ogre-mini',
+  scale: 1,
+  worldScale: 0.75,
+}
 ogre.stats = {
   name: 'Ogre',
   hp: 40,

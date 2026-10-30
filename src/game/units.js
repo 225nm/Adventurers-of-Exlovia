@@ -77,37 +77,34 @@ export var Unit = new Phaser.Class({
     // background
     this.statusBar.fillStyle(0x000000)
     // posx, posy, width, height
-    this.statusBar.fillRect(this.x - 28, this.y + 18, 56, 8)
+    // bars sit just below the sprite, whatever its size (y + 18 for a 32px sprite)
+    let barY = Math.round(this.y + this.displayHeight / 2 + 2)
+
+    this.statusBar.fillRect(this.x - 28, barY, 56, 8)
 
     // health bar
     this.statusBar.fillStyle(0xff0000)
-    this.statusBar.fillRect(
-      this.x - 28,
-      this.y + 18,
-      (this.hp / this.maxHp) * 56,
-      8
-    )
+    this.statusBar.fillRect(this.x - 28, barY, (this.hp / this.maxHp) * 56, 8)
     this.statusText.setText(this.hp + '/' + this.maxHp)
 
     // AI suggested fix for blurry text
     let roundedX = Math.round(this.x)
-    let roundedY = Math.round(this.y)
-    this.statusText.setPosition(roundedX, roundedY + 22)
+    this.statusText.setPosition(roundedX, barY + 4)
 
     // mana bar
     if (this.mp !== undefined) {
       this.manaText.setAlpha(1)
       this.statusBar.fillStyle(0x000000)
-      this.statusBar.fillRect(this.x - 28, this.y + 27, 56, 8)
+      this.statusBar.fillRect(this.x - 28, barY + 9, 56, 8)
       this.statusBar.fillStyle(0x0000ff)
       this.statusBar.fillRect(
         this.x - 28,
-        this.y + 27,
+        barY + 9,
         (this.mp / this.maxMp) * 56,
         8
       )
       this.manaText.setText(this.mp + '/' + this.maxMp)
-      this.manaText.setPosition(this.x, this.y + 31)
+      this.manaText.setPosition(roundedX, barY + 13)
     }
   },
   // we will use this to notify the menu item when the unit is dead

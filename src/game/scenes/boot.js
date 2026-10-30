@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 import { saveSystem } from '../save'
 import { Inventory } from '../inventory'
 import { AudioEngine } from '../audio/audioEngine'
-import { Sprites } from '../sprites'
+import { Art } from '../art'
 // Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -10,13 +10,8 @@ export var BootScene = new Phaser.Class({
   initialize: function BootScene() {
     Phaser.Scene.call(this, { key: 'BootScene' })
   },
-  // Preload method to load all necessary assets for the game, including tiles, fonts, characters, and enemies
+  // Only the font and the map layout are loaded from files, all art is generated in create (see src/game/art)
   preload: function () {
-    // map tiles
-    this.load.image('tiles', 'assets/map/spritesheet.png')
-    this.load.image('stairs', 'assets/map/stairs.png')
-    this.load.image('chest', 'assets/map/chest.png')
-
     // Load bitmap font
     this.load.bitmapFont(
       'pressstart',
@@ -29,27 +24,8 @@ export var BootScene = new Phaser.Class({
       'assets/pressstarty.fnt'
     )
 
-    // Title image
-    this.load.image('title', 'assets/titleScreen.png')
-
-    // map in json format
+    // map in json format, its tiles come from the generated 'tiles' texture
     this.load.tilemapTiledJSON('map', 'assets/map/map.json')
-
-    // enemies
-    this.load.image('dragonblue', 'assets/dragonblue.png')
-    this.load.image('dragonorrange', 'assets/dragonorrange.png')
-    this.load.image('ogre', 'assets/ogre.png')
-    // goblin, dark mage and wisps, cut into frames in Sprites.createAll
-    this.load.image('monsterSheet', 'assets/ogrewizardwisp.png')
-
-    // Ranger
-    this.load.image('ranger', 'assets/ranger.png')
-
-    // our two characters, mage and warrior
-    this.load.spritesheet('player', 'assets/RPG_assets.png', {
-      frameWidth: 16,
-      frameHeight: 16,
-    })
   },
   // Create method to initialize the inventory and start the title scene
   create: function () {
@@ -74,8 +50,8 @@ export var BootScene = new Phaser.Class({
       g.destroy()
     })
 
-    // pixel art enemies and frames from the monster sprite sheet
-    Sprites.createAll(this)
+    // fonts, heroes, enemies, map tiles and backgrounds
+    Art.createAll(this)
 
     // audio can only start after the player's first key press
     AudioEngine.installUnlock()

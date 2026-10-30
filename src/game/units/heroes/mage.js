@@ -25,8 +25,8 @@ export let Mage = new Phaser.Class({
       scene,
       x,
       y,
-      'player',
-      4,
+      'battler-mage',
+      null,
       'Mage',
       hp || 80,
       damage || 8,
@@ -38,7 +38,6 @@ export let Mage = new Phaser.Class({
     )
     this.checkSkills()
     this.flipX = true
-    this.setScale(2)
     this.magic = Mage.baseStats.magic
   },
   levelUp: function () {
@@ -54,7 +53,7 @@ export let Mage = new Phaser.Class({
 Mage.growth = { hp: 6, mp: 8, damage: 2, magic: 3 }
 // shown on the party selection screen
 Mage.description = 'Spellcaster'
-Mage.sprite = { texture: 'player', frame: 4 }
+Mage.sprite = { texture: 'hero-mage', frame: 'down0' }
 Mage.baseStats = {
   type: 'Mage',
   hp: 80,

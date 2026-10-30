@@ -63,44 +63,26 @@ export var WorldScene = new Phaser.Class({
       this.scene.launch('WorldMenuScene')
     })
 
-    //  animation with key 'left', we don't need left and right as we will use one and flip the sprite
-    this.anims.create({
-      key: 'left',
-      frames: this.anims.generateFrameNumbers('player', {
-        frames: [1, 7, 1, 13],
-      }),
-      frameRate: 10,
-      repeat: -1,
-    })
-
-    // animation with key 'right'
-    this.anims.create({
-      key: 'right',
-      frames: this.anims.generateFrameNumbers('player', {
-        frames: [1, 7, 1, 13],
-      }),
-      frameRate: 10,
-      repeat: -1,
-    })
-    this.anims.create({
-      key: 'up',
-      frames: this.anims.generateFrameNumbers('player', {
-        frames: [2, 8, 2, 14],
-      }),
-      frameRate: 10,
-      repeat: -1,
-    })
-    this.anims.create({
-      key: 'down',
-      frames: this.anims.generateFrameNumbers('player', {
-        frames: [0, 6, 0, 12],
-      }),
-      frameRate: 10,
-      repeat: -1,
+    // the party leader walks the map, using their hero's walking frames
+    // (side frames face right, left uses the same animation flipped)
+    let leader = this.registry.get('partyData')[0].type
+    this.heroTexture = `hero-${leader.toLowerCase()}`
+    ;['down', 'up', 'side'].forEach((direction) => {
+      let key = `${this.heroTexture}-${direction}`
+      if (this.anims.exists(key)) return
+      this.anims.create({
+        key: key,
+        frames: [0, 1, 0, 2].map((i) => ({
+          key: this.heroTexture,
+          frame: `${direction}${i}`,
+        })),
+        frameRate: 8,
+        repeat: -1,
+      })
     })
 
     // our player sprite created through the phycis system
-    this.player = this.physics.add.sprite(50, 100, 'player', 6)
+    this.player = this.physics.add.sprite(50, 100, this.heroTexture, 'down0')
 
     // Spawn radius where enemies will not spawn. In pixels.
     const spawnRadius = 120
@@ -223,7 +205,7 @@ export var WorldScene = new Phaser.Class({
       // each roaming enemy shows the enemy type that leads the battle when touched
       let enemyType = Progression.pickEnemy(this.floor)
       let sprite = enemiesIndex[enemyType].sprite
-      let enemy = this.spawns.create(x, y, sprite.texture, sprite.frame)
+      let enemy = this.spawns.create(x, y, sprite.world || sprite.texture)
       enemy.enemyType = enemyType
       enemy.setScale(sprite.worldScale || 1)
       enemy.flipX = !!sprite.flipX
@@ -472,17 +454,24 @@ export var WorldScene = new Phaser.Class({
 
     // Update the animation last and give left/right animations precedence over up/down animations
     if (this.cursors.left.isDown) {
-      this.player.anims.play('left', true)
+      this.walk('side')
       this.player.flipX = true
     } else if (this.cursors.right.isDown) {
-      this.player.anims.play('right', true)
+      this.walk('side')
       this.player.flipX = false
     } else if (this.cursors.up.isDown) {
-      this.player.anims.play('up', true)
+      this.walk('up')
     } else if (this.cursors.down.isDown) {
-      this.player.anims.play('down', true)
-    } else {
+      this.walk('down')
+    } else if (this.player.anims.isPlaying) {
+      // stand still facing the last walking direction
       this.player.anims.stop()
+      this.player.setFrame(`${this.facing}0`)
     }
+  },
+  // Plays the leader's walking animation for a direction: down, up or side
+  walk: function (direction) {
+    this.facing = direction
+    this.player.anims.play(`${this.heroTexture}-${direction}`, true)
   },
 })

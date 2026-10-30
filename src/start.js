@@ -74,17 +74,18 @@ Phaser.GameObjects.GameObjectFactory.register(
 )
 
 // Colored text factory. The game uses the Canvas renderer where setTint does nothing,
-// so colored text uses a regular text object with the same pixel font instead
+// so colored text uses a regular text object with the same pixel font instead.
+// Drawn at double size and scaled down for crisp pixels, size is the on-screen height
 Phaser.GameObjects.GameObjectFactory.register(
   'colorText',
-  function (x, y, text, color = '#ffffff') {
+  function (x, y, text, color = '#ffffff', size = 8) {
     return this.scene.add
       .text(x, y, text, {
         fontFamily: '"Press Start 2P", cursive',
-        fontSize: '16px',
+        fontSize: `${size * 2}px`,
         color: color,
         stroke: '#000000',
-        strokeThickness: 4,
+        strokeThickness: size / 2,
       })
       .setOrigin(0.5)
       .setScale(0.5)

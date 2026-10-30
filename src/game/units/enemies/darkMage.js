@@ -9,10 +9,10 @@ export let darkMage = new Phaser.Class({
 })
 darkMage.minFloor = 4
 darkMage.sprite = {
-  texture: 'monsters',
-  frame: 'wizard',
-  scale: 1.4,
-  worldScale: 0.8,
+  texture: 'dark-mage',
+  world: 'dark-mage-mini',
+  scale: 1,
+  worldScale: 1,
 }
 darkMage.stats = {
   name: 'Dark Mage',

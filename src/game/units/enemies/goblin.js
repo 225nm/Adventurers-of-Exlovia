@@ -8,13 +8,11 @@ export let goblin = new Phaser.Class({
   },
 })
 goblin.minFloor = 2
-// the sprite faces left, flipped to face the heroes
 goblin.sprite = {
-  texture: 'monsters',
-  frame: 'goblin',
-  scale: 1.2,
-  worldScale: 0.7,
-  flipX: true,
+  texture: 'goblin',
+  world: 'goblin-mini',
+  scale: 1,
+  worldScale: 1,
 }
 goblin.stats = {
   name: 'Goblin',

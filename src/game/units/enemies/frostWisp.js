@@ -9,10 +9,10 @@ export let frostWisp = new Phaser.Class({
 })
 frostWisp.minFloor = 3
 frostWisp.sprite = {
-  texture: 'monsters',
-  frame: 'wispIce',
-  scale: 1.3,
-  worldScale: 0.8,
+  texture: 'wisp-ice',
+  world: 'wisp-ice-mini',
+  scale: 1,
+  worldScale: 1,
 }
 frostWisp.stats = {
   name: 'Frost Wisp',

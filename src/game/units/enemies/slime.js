@@ -8,7 +8,12 @@ export let slime = new Phaser.Class({
   },
 })
 slime.minFloor = 1
-slime.sprite = { texture: 'slime', scale: 2, worldScale: 1 }
+slime.sprite = {
+  texture: 'slime',
+  world: 'slime-mini',
+  scale: 1,
+  worldScale: 1,
+}
 slime.stats = {
   name: 'Slime',
   hp: 18,
