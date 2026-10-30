@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 84">
+  <!-- Dark Mage, JRPG style: deep hooded robe with gold trim, sharp glowing eyes in the shadow, an orb of dark magic. Cel shaded -->
+  <defs>
+    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="0.7"><stop offset="0.5" stop-color="#6a3cb8"/><stop offset="0.5" stop-color="#341a66"/></linearGradient>
+    <linearGradient id="orb" x1="0" y1="0" x2="1" y2="1"><stop offset="0.45" stop-color="#f4d0ff"/><stop offset="0.45" stop-color="#a040e8"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#ffe070"/><stop offset="0.5" stop-color="#cc9228"/></linearGradient>
+    <linearGradient id="hand" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#e4d8f0"/><stop offset="0.5" stop-color="#a898c0"/></linearGradient>
+  </defs>
+  <g stroke="#0e0620" stroke-width="1.5" stroke-linejoin="round">
+    <path d="M32 2 C20 4 14 16 14 28 C10 44 6 64 4 82 L60 82 C58 64 54 44 50 28 C50 16 44 4 32 2 Z" fill="url(#robe)"/>
+    <path d="M32 40 L32 81 M5 80 L59 80" stroke="url(#gold)" stroke-width="2.6"/>
+    <path d="M18 34 L32 44 L46 34" fill="none" stroke="url(#gold)" stroke-width="2.2"/>
+    <path d="M20 26 C20 12 44 12 44 26 C44 32 38 36 32 36 C26 36 20 32 20 26 Z" fill="#100820"/>
+    <path d="M23 24 L29 26.5 L28 28 L24 27 Z M41 24 L35 26.5 L36 28 L40 27 Z" fill="#ffe040" stroke="none"/>
+    <path d="M18 44 C22 46 26 50 26 54 M46 44 C42 46 38 50 38 54" fill="none" stroke-width="1.2"/>
+    <ellipse cx="26" cy="55" rx="3" ry="2.4" fill="url(#hand)"/>
+    <ellipse cx="38" cy="55" rx="3" ry="2.4" fill="url(#hand)"/>
+    <circle cx="32" cy="50" r="6.5" fill="url(#orb)" stroke="#4a1080"/>
+    <circle cx="30" cy="48" r="1.4" fill="#ffffff" stroke="none"/>
+  </g>
+</svg>

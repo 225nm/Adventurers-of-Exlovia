@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 104">
+  <!-- Title mage, anime JRPG style, facing the viewer: long golden hair, big eyes, wide witch hat, blue robe, orb staff.
+       Drawn at 2 units per pixel and cel shaded, the eyes are placed pixel by pixel at the end -->
+  <defs>
+    <linearGradient id="robe" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.5" stop-color="#5a6af0"/><stop offset="0.5" stop-color="#3236a8"/></linearGradient>
+    <linearGradient id="white" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.5" stop-color="#ffffff"/><stop offset="0.5" stop-color="#c4cce8"/></linearGradient>
+    <linearGradient id="hat" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.5" stop-color="#7a52d8"/><stop offset="0.5" stop-color="#422690"/></linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.62" stop-color="#ffe8d4"/><stop offset="0.62" stop-color="#f4b89c"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.5" stop-color="#ffe27a"/><stop offset="0.5" stop-color="#d89a2a"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#ffe070"/><stop offset="0.5" stop-color="#cc9228"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0.5" stop-color="#c88c54"/><stop offset="0.5" stop-color="#7a4a24"/></linearGradient>
+    <linearGradient id="orb" x1="0" y1="0" x2="1" y2="1"><stop offset="0.45" stop-color="#c8f8ff"/><stop offset="0.45" stop-color="#3ab0ec"/></linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#a86e3c"/><stop offset="0.5" stop-color="#6a4020"/></linearGradient>
+  </defs>
+  <g transform="scale(0.5)">
+  <g stroke="#1e1430" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- long hair falling behind the body -->
+    <path d="M28 30 C18 62 18 100 24 122 L40 114 L54 120 L68 114 L84 122 C90 100 90 62 80 30 Z" fill="url(#hair)"/>
+    <!-- staff -->
+    <path d="M90 30 L88 204" stroke="url(#wood)" stroke-width="5"/>
+    <circle cx="90" cy="22" r="9" fill="none" stroke="url(#gold)" stroke-width="3.4"/>
+    <circle cx="90" cy="22" r="6" fill="url(#orb)"/>
+    <!-- boots, robe, white hem, collar, sash -->
+    <path d="M38 196 L50 196 L50 204 L36 204 Z M58 196 L70 196 L72 204 L58 204 Z" fill="url(#leather)"/>
+    <path d="M38 58 C38 52 70 52 70 58 L74 100 C80 140 86 174 90 198 L18 198 C22 174 28 140 34 100 Z" fill="url(#robe)"/>
+    <path d="M20.5 188 C40 192 68 192 87.5 188 L90 198 L18 198 Z" fill="url(#white)"/>
+    <path d="M42 54 L54 72 L66 54 L62 52 L54 62 L46 52 Z" fill="url(#white)"/>
+    <path d="M35 92 C44 96 64 96 73 92 L73.5 100 C64 104 44 104 34.5 100 Z" fill="url(#gold)"/>
+    <!-- sleeves: one hand at the chest, one on the staff -->
+    <path d="M38 60 C28 66 24 80 26 96 L36 98 C36 84 40 76 46 72 Z" fill="url(#robe)"/>
+    <path d="M70 60 C80 64 86 72 86 84 L86 92 L76 94 C76 84 74 76 66 72 Z" fill="url(#robe)"/>
+    <ellipse cx="31" cy="99" rx="5" ry="4" fill="url(#skin)"/>
+    <ellipse cx="87" cy="92" rx="4.6" ry="4.2" fill="url(#skin)"/>
+    <!-- neck, big face, locks of hair framing it -->
+    <path d="M47 46 L61 46 L61 56 L47 56 Z" fill="url(#skin)"/>
+    <path d="M32 26 C32 8 76 8 76 26 C76 40 66 50 54 52 C42 50 32 40 32 26 Z" fill="url(#skin)"/>
+    <path d="M32 24 C27 40 27 58 30 74 L37 70 C35 56 35 42 37 30 Z" fill="url(#hair)"/>
+    <path d="M76 24 C81 40 81 58 78 74 L71 70 C73 56 73 42 71 30 Z" fill="url(#hair)"/>
+    <path d="M31 31 C29 18 42 14 54 14 C66 14 79 18 77 31 L73 24 C69 29 62 29 58 23 C56 29 50 29 48 23 C44 29 38 29 35 24 Z" fill="url(#hair)"/>
+    <!-- witch hat: brim, bent cone, gold band -->
+    <path d="M10 17 C22 8 86 8 98 17 C86 24 22 24 10 17 Z" fill="url(#hat)"/>
+    <path d="M34 15 C36 6 44 2 54 0 C50 4 60 4 64 1 C66 6 70 11 74 15 Z" fill="url(#hat)"/>
+    <path d="M34.5 11.5 C44 14.5 64 14.5 73.5 11.5 L74 15.5 C64 18.5 44 18.5 34 15.5 Z" fill="url(#gold)"/>
+  </g>
+  </g>
+  <!-- eyes with lashes, blush and mouth placed pixel by pixel -->
+  <g>
+    <rect x="18" y="15" width="6" height="1" fill="#1e1430"/>
+    <rect x="30" y="15" width="6" height="1" fill="#1e1430"/>
+    <rect x="18" y="14" width="1" height="1" fill="#1e1430"/>
+    <rect x="35" y="14" width="1" height="1" fill="#1e1430"/>
+    <rect x="19" y="16" width="1" height="3" fill="#ffffff"/>
+    <rect x="23" y="16" width="1" height="3" fill="#ffffff"/>
+    <rect x="30" y="16" width="1" height="3" fill="#ffffff"/>
+    <rect x="34" y="16" width="1" height="3" fill="#ffffff"/>
+    <rect x="20" y="16" width="3" height="1" fill="#14503a"/>
+    <rect x="31" y="16" width="3" height="1" fill="#14503a"/>
+    <rect x="20" y="17" width="3" height="2" fill="#2a9a6a"/>
+    <rect x="31" y="17" width="3" height="2" fill="#2a9a6a"/>
+    <rect x="22" y="17" width="1" height="1" fill="#ffffff"/>
+    <rect x="33" y="17" width="1" height="1" fill="#ffffff"/>
+    <rect x="20" y="19" width="3" height="1" fill="#5ad8a0"/>
+    <rect x="31" y="19" width="3" height="1" fill="#5ad8a0"/>
+    <rect x="19" y="21" width="2" height="1" fill="#ff98a8"/>
+    <rect x="33" y="21" width="2" height="1" fill="#ff98a8"/>
+    <rect x="26" y="23" width="2" height="1" fill="#c0505a"/>
+  </g>
+</svg>

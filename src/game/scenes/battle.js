@@ -12,7 +12,7 @@ import { Progression } from '../progression.js'
 import { Loot } from '../loot.js'
 
 // y positions for 1-3 units on each side, kept above the menu boxes at y 150
-const ROWS = { 1: [79], 2: [55, 100], 3: [44, 79, 114] }
+const ROWS = { 1: [78], 2: [56, 100], 3: [40, 74, 108] }
 // every other row is shifted sideways (a staggered formation),
 // so a unit's sprite doesn't cover the HP/MP bars of the unit above it
 const STAGGER = 48

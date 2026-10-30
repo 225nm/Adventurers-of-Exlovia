@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 72">
+  <!-- Goblin, chibi JRPG style: big head with long ears, big yellow eyes, fanged grin, ragged tunic and a spear. Cel shaded -->
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0.55" stop-color="#a8de62"/><stop offset="0.55" stop-color="#5a9a2e"/></linearGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#b47a42"/><stop offset="0.5" stop-color="#6e4220"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0.5" stop-color="#b88450"/><stop offset="0.5" stop-color="#6a4220"/></linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#eef2f8"/><stop offset="0.5" stop-color="#8a94a8"/></linearGradient>
+  </defs>
+  <g stroke="#14240a" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M51 6 L52 70" stroke="url(#wood)" stroke-width="3"/>
+    <path d="M51.5 0 L56 9 L51.5 13 L47 9 Z" fill="url(#iron)"/>
+    <path d="M23 54 L23 65 L28 65 L28 54 Z M32 54 L32 65 L37 65 L37 54 Z" fill="url(#skin)"/>
+    <path d="M19 65 L29 65 L29 70 L18 70 Z M31 65 L41 65 L42 70 L31 70 Z" fill="url(#cloth)"/>
+    <path d="M19 38 C19 34 41 34 41 38 L43 56 L37 54 L33 58 L30 54 L26 58 L23 54 L17 56 Z" fill="url(#cloth)"/>
+    <path d="M18 47 L42 47" stroke="#e8b840" stroke-width="2"/>
+    <path d="M19 39 C13 42 12 48 13 53 L17 53 C17 48 18 45 21 43 Z" fill="url(#skin)"/>
+    <path d="M41 39 C46 41 49 44 50 48 L46 50 C45 46 43 44 39 43 Z" fill="url(#skin)"/>
+    <path d="M14 18 L1 8 L6 22 Z M46 18 L59 8 L54 22 Z" fill="url(#skin)"/>
+    <ellipse cx="30" cy="22" rx="17" ry="15" fill="url(#skin)"/>
+    <ellipse cx="23" cy="21" rx="4.4" ry="5" fill="#fff6a8"/>
+    <ellipse cx="37" cy="21" rx="4.4" ry="5" fill="#fff6a8"/>
+    <ellipse cx="24" cy="22" rx="2.2" ry="3.2" fill="#1a1006" stroke="none"/>
+    <ellipse cx="36" cy="22" rx="2.2" ry="3.2" fill="#1a1006" stroke="none"/>
+    <circle cx="25" cy="20.4" r="1" fill="#ffffff" stroke="none"/>
+    <circle cx="37" cy="20.4" r="1" fill="#ffffff" stroke="none"/>
+    <path d="M18 14.5 L26 16 M42 14.5 L34 16" stroke-width="1.8"/>
+    <path d="M22 29 C26 34 34 34 38 29 Z" fill="#5a1a14"/>
+    <path d="M24.4 29.6 L25.6 32 L26.8 29.9 M33.2 29.9 L34.4 32 L35.6 29.6" fill="#ffffff" stroke-width="0.8"/>
+  </g>
+</svg>

@@ -3,6 +3,23 @@ import { saveSystem } from '../save'
 import { Inventory } from '../inventory'
 import { AudioEngine } from '../audio/audioEngine'
 import { Art } from '../art'
+
+const SPRITES = [
+  'battler-warrior',
+  'battler-mage',
+  'battler-ranger',
+  'slime',
+  'bat',
+  'goblin',
+  'wisp-fire',
+  'wisp-ice',
+  'dark-mage',
+  'ogre',
+  'dragon-orange',
+  'dragon-blue',
+  'title-knight',
+  'title-mage',
+]
 // Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -10,7 +27,7 @@ export var BootScene = new Phaser.Class({
   initialize: function BootScene() {
     Phaser.Scene.call(this, { key: 'BootScene' })
   },
-  // Only the font and the map layout are loaded from files, all art is generated in create (see src/game/art)
+  // Loads the font, the map layout and the battle and title sprites, the rest of the art is generated in create (see src/game/art)
   preload: function () {
     // Load bitmap font
     this.load.bitmapFont(
@@ -26,6 +43,9 @@ export var BootScene = new Phaser.Class({
 
     // map in json format, its tiles come from the generated 'tiles' texture
     this.load.tilemapTiledJSON('map', 'assets/map/map.json')
+
+    // pixel art rendered from the SVGs in tools/sprites (node tools/sprites/render.mjs)
+    SPRITES.forEach((key) => this.load.image(key, `assets/sprites/${key}.png`))
   },
   // Create method to initialize the inventory and start the title scene
   create: function () {

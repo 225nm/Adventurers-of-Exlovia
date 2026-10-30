@@ -55,11 +55,8 @@ export var TitleScene = new Phaser.Class({
 
     Music.play('title')
 
-    this.add.pixelText(
-      160,
-      215,
-      'Use the arrow keys to move \n Z to confirm \n X to cancel \n C to open the menu'
-    )
+    // short enough to fit between the knight and the mage
+    this.add.pixelText(160, 218, 'Arrows move  Z confirm\n  X back  C menu')
 
     // Key listeners
     this.cursors = this.input.keyboard.createCursorKeys()

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 92">
+  <!-- Ogre, chibi JRPG style: big horned head, angry brows, tusked grin, stocky body, leather loincloth and a huge club. Cel shaded -->
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="0.8"><stop offset="0.55" stop-color="#f0a070"/><stop offset="0.55" stop-color="#b8603a"/></linearGradient>
+    <linearGradient id="horn" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#fff8e8"/><stop offset="0.5" stop-color="#c8b898"/></linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#9a6438"/><stop offset="0.5" stop-color="#5a3418"/></linearGradient>
+    <linearGradient id="club" x1="0" y1="0" x2="1" y2="0"><stop offset="0.5" stop-color="#b07840"/><stop offset="0.5" stop-color="#6a3e18"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="#4a3060"/><stop offset="0.5" stop-color="#2a1838"/></linearGradient>
+  </defs>
+  <g stroke="#1e0e04" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M60 46 C62 30 70 16 78 20 C80 30 74 46 66 58 Z" fill="url(#club)"/>
+    <path d="M70 26 L73 24 M73 34 L76 33 M66 40 L69 41" stroke-width="1.4"/>
+    <path d="M28 74 L28 86 L36 86 L36 74 Z M44 74 L44 86 L52 86 L52 74 Z" fill="url(#skin)"/>
+    <path d="M24 86 L37 86 L37 90 L22 90 Z M43 86 L56 86 L58 90 L43 90 Z" fill="url(#leather)"/>
+    <path d="M20 46 C20 38 60 38 60 46 L62 72 L18 72 Z" fill="url(#skin)"/>
+    <path d="M30 54 C35 56 45 56 50 54" fill="none" stroke-width="1.1"/>
+    <path d="M18 66 L62 66 L64 78 L54 76 L47 80 L40 76 L33 80 L26 76 L16 78 Z" fill="url(#leather)"/>
+    <path d="M18 66 L62 66" stroke="#ffd860" stroke-width="2.4"/>
+    <path d="M20 46 C8 48 4 58 6 68 C6 72 10 74 14 72 C14 62 16 56 22 52 Z" fill="url(#skin)"/>
+    <path d="M60 46 C68 48 70 54 68 62 C66 66 62 66 60 62 C60 56 58 52 56 50 Z" fill="url(#skin)"/>
+    <circle cx="10" cy="70" r="5" fill="url(#skin)"/>
+    <circle cx="64" cy="58" r="5.5" fill="url(#skin)"/>
+    <path d="M20 14 C12 8 12 2 16 0 C17 6 22 10 26 12 Z M60 14 C68 8 68 2 64 0 C63 6 58 10 54 12 Z" fill="url(#horn)"/>
+    <path d="M18 26 C18 8 62 8 62 26 C62 40 52 46 40 46 C28 46 18 40 18 26 Z" fill="url(#skin)"/>
+    <path d="M24 14 C28 6 52 6 56 14 L52 12 L48 16 L44 10 L40 15 L36 10 L32 16 L28 12 Z" fill="url(#hair)"/>
+    <ellipse cx="31" cy="25" rx="4" ry="4.4" fill="#ffffff"/>
+    <ellipse cx="49" cy="25" rx="4" ry="4.4" fill="#ffffff"/>
+    <ellipse cx="32" cy="26" rx="2" ry="2.8" fill="#c81a1a" stroke="none"/>
+    <ellipse cx="48" cy="26" rx="2" ry="2.8" fill="#c81a1a" stroke="none"/>
+    <circle cx="32.8" cy="24.6" r="0.9" fill="#ffffff" stroke="none"/>
+    <circle cx="48.8" cy="24.6" r="0.9" fill="#ffffff" stroke="none"/>
+    <path d="M25 18 L36 21.5 M55 18 L44 21.5" stroke-width="2.4"/>
+    <path d="M29 35 C34 40 46 40 51 35 C48 42 32 42 29 35 Z" fill="#5a1a14"/>
+    <path d="M31 36.4 L30 31 L34 37.6 M49 36.4 L50 31 L46 37.6" fill="url(#horn)" stroke-width="1"/>
+  </g>
+</svg>

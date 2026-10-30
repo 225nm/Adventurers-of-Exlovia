@@ -21,7 +21,7 @@ const ridge = (ctx, random, baseY, roughness, color) => {
   }
 }
 
-const paintTitle = (ctx) => {
+const paintTitle = (ctx, scene) => {
   const random = seededRandom(1987)
   const w = ctx.canvas.width
   const h = ctx.canvas.height
@@ -123,6 +123,12 @@ const paintTitle = (ctx) => {
     }
   }
   ctx.fillRect(0, 214, w, h - 214)
+
+  // the knight and the mage standing in the foreground
+  const knight = scene.textures.get('title-knight').getSourceImage()
+  const mage = scene.textures.get('title-mage').getSourceImage()
+  ctx.drawImage(knight, 2, 240 - knight.height - 2)
+  ctx.drawImage(mage, 320 - mage.width - 2, 240 - mage.height - 2)
 }
 
 const paintBattle = (ctx) => {
@@ -162,7 +168,7 @@ export const createBackdrops = (scene) => {
     ['battle-bg', 320, 150, paintBattle],
   ].forEach(([key, w, h, painter]) => {
     const texture = scene.textures.createCanvas(key, w, h)
-    painter(texture.getContext())
+    painter(texture.getContext(), scene)
     texture.refresh()
   })
 }
