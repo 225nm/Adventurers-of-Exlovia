@@ -37,31 +37,38 @@
     <!-- gauntlets on the grip -->
     <path d="M41 95 C41 91 54 91 54 95 L54 106 C54 109 41 109 41 106 Z" fill="url(#steel)"/>
     <path d="M67 95 C67 91 54 91 54 95 L54 106 C54 109 67 109 67 106 Z" fill="url(#steel)"/>
-    <!-- spiky hair behind, neck, big face -->
-    <path d="M24 50 L13 43 L20 37 L8 28 L19 23 L11 11 L27 13 L26 1 L40 8 L50 0 L58 7 L70 0 L74 10 L89 4 L85 16 L98 18 L89 27 L100 35 L88 38 L94 48 L82 46 L76 30 L32 30 L28 48 Z" fill="url(#hair)"/>
-    <path d="M46 48 L62 48 L62 58 L46 58 Z" fill="url(#skin)"/>
-    <path d="M32 26 C32 8 76 8 76 26 C76 40 66 50 54 52 C42 50 32 40 32 26 Z" fill="url(#skin)"/>
+    <!-- short spiky hair swept up and back, trimmed above the ears -->
+    <path d="M31 34 L23 29 L28 23 L18 15 L31 14 L29 2 L42 9 L50 0 L58 8 L68 1 L72 11 L87 9 L81 19 L90 25 L80 29 L77 34 L76 26 L32 26 Z" fill="url(#hair)"/>
+    <!-- thick neck, ears, square-jawed face -->
+    <path d="M44 46 L64 46 L65 58 L43 58 Z" fill="url(#skin)"/>
+    <ellipse cx="33" cy="31" rx="3.4" ry="5" fill="url(#skin)"/>
+    <ellipse cx="75" cy="31" rx="3.4" ry="5" fill="url(#skin)"/>
+    <path d="M34 24 C34 10 74 10 74 24 L73.5 37 L65 46.5 L54 50 L43 46.5 L34.5 37 Z" fill="url(#skin)"/>
     <!-- spiky bangs -->
-    <path d="M30 31 L28 18 C34 8 44 6 54 6 C66 6 76 10 80 20 L80 31 L74 21 L71 30 L65 17 L61 29 L56 15 L51 29 L46 16 L42 30 L37 20 L34 32 Z" fill="url(#hair)"/>
+    <path d="M31 29 L30 18 C34 9 44 6 54 6 C66 6 75 10 79 18 L78 29 L74 21 L71 27 L66 16 L62 25 L56 14 L51 25 L46 15 L42 25 L37 18 L34 29 Z" fill="url(#hair)"/>
   </g>
   </g>
-  <!-- eyes, nose and mouth placed pixel by pixel -->
+  <!-- strong brows over narrower eyes, nose and a firm mouth, placed pixel by pixel -->
   <g>
+    <rect x="19" y="13" width="3" height="1" fill="#6a3418"/>
+    <rect x="22" y="14" width="2" height="1" fill="#6a3418"/>
+    <rect x="33" y="13" width="3" height="1" fill="#6a3418"/>
+    <rect x="31" y="14" width="2" height="1" fill="#6a3418"/>
     <rect x="19" y="15" width="5" height="1" fill="#1e1224"/>
-    <rect x="30" y="15" width="5" height="1" fill="#1e1224"/>
-    <rect x="19" y="16" width="1" height="3" fill="#ffffff"/>
-    <rect x="23" y="16" width="1" height="3" fill="#ffffff"/>
-    <rect x="30" y="16" width="1" height="3" fill="#ffffff"/>
+    <rect x="31" y="15" width="5" height="1" fill="#1e1224"/>
+    <rect x="20" y="16" width="1" height="3" fill="#ffffff"/>
+    <rect x="23" y="16" width="1" height="2" fill="#ffffff"/>
+    <rect x="31" y="16" width="1" height="2" fill="#ffffff"/>
     <rect x="34" y="16" width="1" height="3" fill="#ffffff"/>
-    <rect x="20" y="16" width="3" height="1" fill="#1a2a6a"/>
-    <rect x="31" y="16" width="3" height="1" fill="#1a2a6a"/>
-    <rect x="20" y="17" width="3" height="2" fill="#3a6ad0"/>
-    <rect x="31" y="17" width="3" height="2" fill="#3a6ad0"/>
+    <rect x="21" y="16" width="2" height="1" fill="#1a2a6a"/>
+    <rect x="32" y="16" width="2" height="1" fill="#1a2a6a"/>
+    <rect x="21" y="17" width="2" height="1" fill="#3a6ad0"/>
+    <rect x="32" y="17" width="2" height="1" fill="#3a6ad0"/>
     <rect x="22" y="17" width="1" height="1" fill="#ffffff"/>
     <rect x="33" y="17" width="1" height="1" fill="#ffffff"/>
-    <rect x="20" y="19" width="3" height="1" fill="#6ab4ff"/>
-    <rect x="31" y="19" width="3" height="1" fill="#6ab4ff"/>
-    <rect x="27" y="21" width="1" height="1" fill="#f2b394"/>
-    <rect x="26" y="23" width="3" height="1" fill="#b86a58"/>
+    <rect x="21" y="18" width="2" height="1" fill="#6ab4ff"/>
+    <rect x="32" y="18" width="2" height="1" fill="#6ab4ff"/>
+    <rect x="27" y="20" width="1" height="2" fill="#f2b394"/>
+    <rect x="25" y="23" width="4" height="1" fill="#a85a48"/>
   </g>
 </svg>
