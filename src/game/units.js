@@ -120,18 +120,30 @@ export var Unit = new Phaser.Class({
       return 0
     }
     let type = (skill && skill.type) || 'physical'
+    return target.takeDamage(this.rawDamage(skill), type)
+  },
+  // Damage before the target's defenses: physical uses attack plus weapon bonus, magic uses magic plus staff bonus
+  rawDamage: function (skill) {
     let power = skill ? skill.power : 1
-    // physical uses attack plus weapon bonus, magic uses magic plus staff bonus
     let stat =
-      type === 'magic'
+      skill && skill.type === 'magic'
         ? (this.magic || 0) + this.magicBonus
         : this.damage + this.attackBonus
-    return target.takeDamage(Math.round(stat * power), type)
+    return Math.round(stat * power)
+  },
+  // Damage this unit would deal to the target with a skill (or a basic attack), without dealing it.
+  // Uses the same formula as attack and takeDamage, so the preview always matches the real hit
+  previewDamage: function (target, skill) {
+    let type = (skill && skill.type) || 'physical'
+    return target.reduceDamage(this.rawDamage(skill), type)
   },
   // armor reduces physical damage and robes reduce magic damage, but a hit always deals at least 1
-  takeDamage: function (damage, type = 'physical') {
+  reduceDamage: function (damage, type) {
     let reduction = type === 'magic' ? this.magicDefense : this.defense
-    damage = Math.max(1, damage - reduction)
+    return Math.max(1, damage - reduction)
+  },
+  takeDamage: function (damage, type = 'physical') {
+    damage = this.reduceDamage(damage, type)
     this.hp -= damage
     if (this.hp <= 0) {
       this.hp = 0

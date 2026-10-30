@@ -2,6 +2,7 @@
 export const mageSkills = [
   {
     name: 'Fireball',
+    description: 'Hurl a ball of fire at one foe',
     power: 2.5,
     mpCost: 5,
     levelReq: 1,
@@ -10,6 +11,7 @@ export const mageSkills = [
   },
   {
     name: 'Icebolt',
+    description: 'A piercing shard of ice',
     power: 3.0,
     mpCost: 8,
     levelReq: 2,
@@ -18,6 +20,7 @@ export const mageSkills = [
   },
   {
     name: 'Firestorm',
+    description: 'Rain fire down on every foe',
     power: 1.7,
     mpCost: 12,
     levelReq: 3,
@@ -27,6 +30,7 @@ export const mageSkills = [
   },
   {
     name: 'Thunder',
+    description: 'Call lightning down on one foe',
     power: 4.0,
     mpCost: 14,
     levelReq: 5,
@@ -35,6 +39,7 @@ export const mageSkills = [
   },
   {
     name: 'Blizzard',
+    description: 'Freeze every foe in a storm',
     power: 2.6,
     mpCost: 22,
     levelReq: 7,
@@ -44,6 +49,7 @@ export const mageSkills = [
   },
   {
     name: 'Meteor',
+    description: 'Bring a falling star down on all',
     power: 4.0,
     mpCost: 35,
     levelReq: 10,

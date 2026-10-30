@@ -248,8 +248,51 @@ export var BattleScene = new Phaser.Class({
       callbackScope: this,
     })
   },
+  // Yellow numbers above the targets showing the damage the attacker's skill (null = basic attack) would deal
+  showDamagePreview: function (attacker, skill, targets) {
+    this.clearDamagePreview()
+    this.previewLabels = targets
+      .filter((target) => target.living)
+      .map((target) =>
+        this.add
+          .colorText(
+            target.x,
+            target.y - target.displayHeight / 2 - 6,
+            `${attacker.previewDamage(target, skill)}`,
+            '#f8ff38'
+          )
+          .setDepth(100)
+      )
+  },
+  clearDamagePreview: function () {
+    ;(this.previewLabels || []).forEach((label) => label.destroy())
+    this.previewLabels = []
+    this.setTargetBlink(null)
+  },
+  // The enemy being targeted pulses gently so it's clear who will be hit, null stops it
+  setTargetBlink: function (target) {
+    if (this.targetBlink) {
+      this.targetBlink.tween.stop()
+      this.targetBlink.target.alpha = 1
+      this.targetBlink = null
+    }
+    if (target && target.living) {
+      this.targetBlink = {
+        target,
+        tween: this.tweens.add({
+          targets: target,
+          alpha: 0.45,
+          duration: 220,
+          ease: 'Sine.easeInOut',
+          yoyo: true,
+          repeat: -1,
+        }),
+      }
+    }
+  },
   // Plays the attack animation and deals damage to each target when the hit lands, skill is null for basic attacks
   performAction: function (attacker, targets, skill) {
+    this.clearDamagePreview()
     let color = BattleAnimations.colorFor(skill)
     let results = []
 
@@ -284,6 +327,7 @@ export var BattleScene = new Phaser.Class({
   endBattle: function () {
     // clear state, remove sprites
     this.time.removeAllEvents()
+    this.clearDamagePreview()
     this.heroes.length = 0
     this.enemies.length = 0
     for (var i = 0; i < this.units.length; i++) {
@@ -360,6 +404,7 @@ export var BattleScene = new Phaser.Class({
       partyData[i].level = hero.level
       partyData[i].damage = hero.damage
       partyData[i].magic = hero.magic
+      partyData[i].speed = hero.speed
       partyData[i].xp = hero.xp
       partyData[i].skills = hero.skills
     }
@@ -404,7 +449,6 @@ var Menu = new Phaser.Class({
 
   initialize: function Menu(x, y, scene, heroes) {
     Phaser.GameObjects.Container.call(this, scene, x, y)
-      partyData[i].speed = hero.speed
     this.menuItems = []
     this.menuItemIndex = 0
     this.x = x
@@ -600,6 +644,7 @@ export var UIScene = new Phaser.Class({
   },
   // Handle enemy selection and emit the selected action and target to the battle scene, then reset menus if not using a skill that targets all enemies
   onEnemy: function (index) {
+    this.clearPreview()
     let action = this.selectedAction || 'attack'
     this.battleScene.receivePlayerSelection(action, index)
     if (this.currentMenu !== this.skillsMenu) {
@@ -623,6 +668,7 @@ export var UIScene = new Phaser.Class({
     this.enemiesMenu.previousMenu = this.actionsMenu
     this.currentMenu = this.enemiesMenu
     this.enemiesMenu.select(0)
+    this.showTargetPreview()
   },
   // Handle skills selection, show skills menu
   onSelectedSkills: function () {
@@ -633,9 +679,44 @@ export var UIScene = new Phaser.Class({
     this.skillsMenu.previousMenu = this.actionsMenu
     this.currentMenu = this.skillsMenu
     this.skillsMenu.select(0)
+    this.showSkillInfo()
+  },
+  // Shows the highlighted skill's description in the message box at the top
+  showSkillInfo: function () {
+    let hero = this.battleScene.heroes[this.heroesMenu.menuItemIndex]
+    let item = this.skillsMenu.menuItems[this.skillsMenu.menuItemIndex]
+    let skill =
+      hero && item && hero.skills.find((s) => s.name === item.skillName)
+    if (skill) {
+      this.message.showInfo(skill.description || skill.name)
+      // what this skill would do to each enemy
+      this.battleScene.showDamagePreview(hero, skill, this.battleScene.enemies)
+    }
+  },
+  // While picking a target: the damage the chosen attack or skill would deal to the highlighted enemy
+  showTargetPreview: function () {
+    let battle = this.battleScene
+    let attacker = battle.units[battle.index]
+    let target = battle.enemies[this.enemiesMenu.menuItemIndex]
+    if (!attacker || !target) return
+    let skill = this.selectedAction
+      ? attacker.skills.find((s) => s.name === this.selectedAction)
+      : null
+    battle.showDamagePreview(attacker, skill, [target])
+    battle.setTargetBlink(target)
+    let name = skill ? skill.name : 'Attack'
+    this.message.showInfo(
+      `${name}: ${attacker.previewDamage(target, skill)} damage`
+    )
+  },
+  // Removes damage numbers and the info text when the player leaves target or skill selection
+  clearPreview: function () {
+    this.battleScene.clearDamagePreview()
+    this.message.hideMessage()
   },
   // Handle skill targetting
   onSkillSelected: function (skillName) {
+    this.clearPreview()
     let currentHero = this.battleScene.heroes[this.heroesMenu.menuItemIndex]
     let skill = currentHero.skills.find((s) => s.name === skillName)
 
@@ -651,6 +732,7 @@ export var UIScene = new Phaser.Class({
       this.enemiesMenu.previousMenu = this.skillsMenu
       this.currentMenu = this.enemiesMenu
       this.enemiesMenu.select(0)
+      this.showTargetPreview()
     }
   },
   // Handle case when player tries to use a skill without enough mana
@@ -675,12 +757,12 @@ export var UIScene = new Phaser.Class({
   // Handle key input for menu navigation and selection
   onKeyInput: function (event) {
     if (this.currentMenu && this.currentMenu.selected) {
-      if (event.code === 'ArrowUp') {
+      if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
         Sfx.cursor()
-        this.currentMenu.moveSelectionUp()
-      } else if (event.code === 'ArrowDown') {
-        Sfx.cursor()
-        this.currentMenu.moveSelectionDown()
+        if (event.code === 'ArrowUp') this.currentMenu.moveSelectionUp()
+        else this.currentMenu.moveSelectionDown()
+        if (this.currentMenu === this.skillsMenu) this.showSkillInfo()
+        if (this.currentMenu === this.enemiesMenu) this.showTargetPreview()
       } else if (
         event.code === 'ArrowRight' ||
         event.code === 'KeyX' ||
@@ -707,8 +789,15 @@ export var UIScene = new Phaser.Class({
         this.skillsMenu.visible = false
         this.actionsMenu.visible = true
       }
+      this.clearPreview()
       this.currentMenu = this.currentMenu.previousMenu
       this.currentMenu.select(0)
+      // back from picking a target: show the skill list (and its description) again
+      if (this.currentMenu === this.skillsMenu) {
+        this.skillsMenu.visible = true
+        this.actionsMenu.visible = false
+        this.showSkillInfo()
+      }
     }
   },
 })
@@ -744,6 +833,13 @@ var Message = new Phaser.Class({
       callback: this.hideMessage,
       callbackScope: this,
     })
+  },
+  // Text that stays until hidden, used for skill descriptions while browsing the skill list
+  showInfo: function (text) {
+    if (this.hideEvent) this.hideEvent.remove(false)
+    this.hideEvent = null
+    this.text.setText(text)
+    this.visible = true
   },
   hideMessage: function () {
     this.hideEvent = null
