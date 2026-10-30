@@ -51,7 +51,7 @@ export let PartySelectScene = new Phaser.Class({
     const stats = HeroClass.baseStats
     const sprite = HeroClass.sprite
 
-    this.add.sprite(x, 78, sprite.texture, sprite.frame).setScale(2)
+    this.add.sprite(x, 80, sprite.texture, sprite.frame).setScale(2)
     this.add.pixelText(x, 106, type.toUpperCase())
     this.add.colorText(x, 120, HeroClass.description, '#9fb3d9')
     ;[
@@ -64,7 +64,7 @@ export let PartySelectScene = new Phaser.Class({
       this.add.pixelText(x - 30, 136 + row * 12, line).setOrigin(0, 0.5)
     })
     // shows the pick order, [1] or [2]
-    return { badge: this.add.pixelText(x, 54, '').setFont('pressstarty') }
+    return { badge: this.add.pixelText(x, 49, '').setFont('pressstarty') }
   },
 
   handleInput: function (event) {

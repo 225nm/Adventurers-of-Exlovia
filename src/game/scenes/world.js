@@ -83,6 +83,8 @@ export var WorldScene = new Phaser.Class({
 
     // our player sprite created through the phycis system
     this.player = this.physics.add.sprite(50, 100, this.heroTexture, 'down0')
+    // the sprite is 16x24, collide with the feet only so the head can overlap trees above
+    this.player.body.setSize(10, 8).setOffset(3, 16)
 
     // Spawn radius where enemies will not spawn. In pixels.
     const spawnRadius = 120

@@ -39,10 +39,16 @@ const mix = (hex, towards, amount) => {
   const b = toRgb(towards)
   return toHex(a.map((v, i) => v + (b[i] - v) * amount))
 }
-// highlights shift warm, shadows and outlines shift cool, a classic pixel art technique
-const light = (hex) => mix(hex, '#fff4d0', 0.3)
-const dark = (hex) => mix(hex, '#1e1240', 0.32)
-const outline = (hex) => mix(hex, '#0c0618', 0.65)
+// Four-tone ramp per material, highlights shift warm and shadows cool (hue shifting, a classic pixel art technique)
+const ramp = (hex) => ({
+  highlight: mix(hex, '#fff6dc', 0.38),
+  base: hex,
+  shadow: mix(hex, '#2a1850', 0.3),
+  deep: mix(hex, '#160c30', 0.52),
+})
+// outlines: dark on the outer silhouette, softer where two materials meet inside the sprite
+const outerLine = (hex) => mix(hex, '#0c0618', 0.72)
+const innerLine = (hex) => mix(hex, '#1a0e34', 0.5)
 
 const entry = (palette, char) => {
   const value = palette[char]
@@ -50,22 +56,78 @@ const entry = (palette, char) => {
   return typeof value === 'string' ? { color: value } : value
 }
 
-// Works out every pixel's final color, see the notes at the top of the file
+// light from the upper left and slightly in front, normalised
+const LIGHT = (() => {
+  const v = [-0.55, -0.72, 0.62]
+  const len = Math.hypot(...v)
+  return v.map((c) => c / len)
+})()
+// how far into a shape (in pixels) it keeps rounding before it is treated as flat on top
+const ROUNDING = 4
+
+// Volume shading: every region of one material is treated as a rounded blob. The distance from a pixel
+// to the region's edge gives its height, the slope of that height gives a surface normal, and the angle
+// to the light picks one of four tones. Thin parts stay mostly mid tone, wide parts get a full
+// highlight-to-shadow ramp, which reads as form instead of flat cut-outs
 const shadeRows = (rows, palette) => {
-  const at = (x, y) => (rows[y] && rows[y][x]) || '.'
+  const h = rows.length
+  const w = rows[0].length
+  const at = (x, y) => (y >= 0 && y < h && x >= 0 && x < w ? rows[y][x] : '.')
+  const near4 = (x, y) => [
+    [x, y - 1],
+    [x - 1, y],
+    [x + 1, y],
+    [x, y + 1],
+  ]
+
+  // distance from each material pixel to the nearest pixel that isn't the same material
+  const dist = rows.map((row) => [...row].map(() => 0))
+  let frontier = []
+  rows.forEach((row, y) =>
+    [...row].forEach((char, x) => {
+      if (char === '.' || char === 'o') return
+      if (near4(x, y).some(([nx, ny]) => at(nx, ny) !== char)) {
+        dist[y][x] = 1
+        frontier.push([x, y])
+      }
+    })
+  )
+  for (let d = 2; d <= ROUNDING && frontier.length; d++) {
+    const next = []
+    frontier.forEach(([x, y]) =>
+      near4(x, y).forEach(([nx, ny]) => {
+        const char = at(nx, ny)
+        if (
+          char !== '.' &&
+          char !== 'o' &&
+          char === rows[y][x] &&
+          dist[ny][nx] === 0
+        ) {
+          dist[ny][nx] = d
+          next.push([nx, ny])
+        }
+      })
+    )
+    frontier = next
+  }
+  // pixels deeper than ROUNDING were never reached, they're on the flat top
+  const height = (x, y, char) => {
+    if (at(x, y) !== char) return 0
+    const d = dist[y][x] || ROUNDING
+    const t = 1 - Math.min(d, ROUNDING) / ROUNDING
+    return Math.sqrt(1 - t * t)
+  }
+
   return rows.map((row, y) =>
     [...row].map((char, x) => {
       if (char === '.') return null
       if (char === 'o') {
         // outline takes the color of the material it borders the most
         const counts = {}
-        ;[
-          [x, y - 1],
-          [x - 1, y],
-          [x + 1, y],
-          [x, y + 1],
-        ].forEach(([nx, ny]) => {
+        let outer = false
+        near4(x, y).forEach(([nx, ny]) => {
           const n = at(nx, ny)
+          if (n === '.') outer = true
           if (n !== '.' && n !== 'o' && entry(palette, n)) {
             counts[n] = (counts[n] || 0) + 1
           }
@@ -73,16 +135,28 @@ const shadeRows = (rows, palette) => {
         const best = Object.keys(counts).sort(
           (a, b) => counts[b] - counts[a]
         )[0]
-        return best ? outline(entry(palette, best).color) : '#0e0a18'
+        if (!best) return '#0e0a18'
+        const color = entry(palette, best).color
+        return outer ? outerLine(color) : innerLine(color)
       }
       const material = entry(palette, char)
       if (!material) return null
       if (material.flat) return material.color
-      const facesLight = at(x, y - 1) !== char || at(x - 1, y) !== char
-      const facesShadow = at(x, y + 1) !== char || at(x + 1, y) !== char
-      if (facesLight && !facesShadow) return light(material.color)
-      if (facesShadow && !facesLight) return dark(material.color)
-      return material.color
+
+      const nx = height(x - 1, y, char) - height(x + 1, y, char)
+      const ny = height(x, y - 1, char) - height(x, y + 1, char)
+      const nz = 0.9
+      const len = Math.hypot(nx, ny, nz)
+      // normals point away from lower neighbors, so a left or top edge faces the upper-left light
+      const light = (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / len
+      const tones = ramp(material.color)
+      // shiny materials (metal, gems) get a bright specular glint on the most lit pixels
+      if (material.shiny && light > 0.93)
+        return mix(material.color, '#ffffff', 0.7)
+      if (light > 0.86) return tones.highlight
+      if (light > 0.6) return tones.base
+      if (light > 0.36) return tones.shadow
+      return tones.deep
     })
   )
 }
