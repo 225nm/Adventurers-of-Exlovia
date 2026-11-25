@@ -2,10 +2,13 @@
 
 ## Art
 
-All sprites, tiles and backgrounds are original AI generated pixel art made for this game. Map sprites, tiles and the title logo are drawn in code at startup (see `src/game/art/`). The battle and title sprites, backdrops and map trees in `sprites/` are rendered from the SVG sources in `tools/sprites/src/`.
+All art is original and AI generated for this game. The heroes, monsters, backdrops and map scenery are paintings written as SVG in code (`src/game/art/paintings/`), the map's ground is painted on a canvas when a floor loads (`src/game/art/ground.js`), and the menus, logo and effects are drawn in code at startup. The game ships no image files of its own art.
 
-`map/spritesheet.png` and `../favicon.png` are exports of that generated art. The spritesheet exists so the map can still be edited in Tiled.
+`map/spritesheet.png` and `../favicon.png` are exports of the earlier pixel art. The spritesheet only exists so the map can still be edited in Tiled.
 
-## Font
+## Fonts
 
-Press Start 2P by CodeMan38, licensed under the SIL Open Font License 1.1 (`PressStart2P-Regular.ttf`, and the `pressstart` / `pressstarty` bitmap fonts made from it).
+Both fonts are licensed under the SIL Open Font License 1.1 and were downloaded from Google Fonts:
+
+- `fonts/Cinzel.woff2`: Cinzel by Natanael Gama, used for titles and the logo.
+- `fonts/Nunito.woff2`: Nunito by Vernon Adams, Cyreal and Jacques Le Bailly, used for menus and messages.
