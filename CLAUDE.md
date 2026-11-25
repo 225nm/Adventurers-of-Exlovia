@@ -20,6 +20,13 @@ In-game controls: arrow keys move, Z confirms, X goes back, C opens the world me
 
 Prettier style: no semicolons, single quotes, 2-space indent, `trailingComma: 'es5'`.
 
+## Working style
+
+- Work end to end without check-ins: make design decisions yourself and report them at the end.
+- When you suggest an improvement that fits the current task, implement it instead of asking.
+- Commit to the `claude` branch when a change is verified (game runs, lint passes). Never push.
+- Only stop to ask when a choice would be hard to undo or changes the game's design direction.
+
 ## Architecture
 
 **Entry**: `src/start.js` creates the `Phaser.Game` (320×240 canvas, pixel art, arcade physics), registers every scene, and registers two text factories: `this.add.pixelText(x, y, text, size)` (bitmap font) and `this.add.colorText(x, y, text, cssColor)` (colored text).
