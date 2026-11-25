@@ -44,7 +44,8 @@ float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
 
 vec3 bright(vec2 uv) {
   vec3 c = texture2D(uMainSampler, uv).rgb;
-  float l = max(c.r, max(c.g, c.b));
+  // by brightness, with the strongest color channel counting a little so saturated glows bloom too
+  float l = mix(dot(c, vec3(0.299, 0.587, 0.114)), max(c.r, max(c.g, c.b)), 0.35);
   return c * max(l - uThreshold, 0.0) / max(1.0 - uThreshold, 0.001);
 }
 
@@ -104,9 +105,12 @@ void main() {
         glow += bright(uv + vec2(cos(a), sin(a)) * r * px) * w;
       }
     }
-    // the light falling on a pixel also lights its glow, so spells glow brighter at night
+    // only the glow brighter than the pixel itself spills onto it, so light bleeds from bright
+    // pixels into darker neighbors while the detail inside bright sprites stays intact. Screen
+    // blended, so it brightens without burning out to white
+    glow = max(glow / 14.7 - bright(uv), 0.0) * uBloom;
     glow *= max(light, vec3(0.6));
-    color += glow * uBloom / 14.7;
+    color = 1.0 - (1.0 - color) * (1.0 - clamp(glow, 0.0, 1.0));
   }
 
   color *= uExposure;

@@ -291,6 +291,26 @@ export const Fx = {
     return true
   },
 
+  // Gives a scene's menus or HUD a camera of their own, drawn on top, so the lighting, bloom, tilt
+  // shift and vignette on the main camera leave them alone. The main camera skips the given
+  // objects, the new camera everything else, including objects added later. Returns the camera
+  uiCamera: function (scene, uiObjects) {
+    const cam = scene.cameras.add(0, 0, scene.scale.width, scene.scale.height)
+    cam.roundPixels = true
+    scene.children.list.forEach((child) => {
+      if (!uiObjects.includes(child)) cam.ignore(child)
+    })
+    scene.cameras.main.ignore(uiObjects)
+    const hide = (child) => {
+      if (!uiObjects.includes(child)) cam.ignore(child)
+    }
+    scene.events.on(Phaser.Scenes.Events.ADDED_TO_SCENE, hide)
+    scene.events.once('shutdown', () =>
+      scene.events.off(Phaser.Scenes.Events.ADDED_TO_SCENE, hide)
+    )
+    return cam
+  },
+
   // A soft colored outline that pulses, for the targeted enemy. Returns a function that removes it
   pulseGlow: function (scene, sprite, color = 0xfff27a) {
     if (!this.enabled(scene) || !sprite.preFX) return null

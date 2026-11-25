@@ -351,25 +351,6 @@ export var WorldScene = new Phaser.Class({
     }
   },
 
-  // The floor's HUD gets a camera of its own, so the lighting, tilt shift and vignette on the map's
-  // camera leave it alone. The map camera skips the HUD objects, the HUD camera everything else
-  createHudCamera: function (hudObjects) {
-    this.hudCam = this.cameras.add(0, 0, this.scale.width, this.scale.height)
-    this.hudCam.roundPixels = true
-    this.children.list.forEach((child) => {
-      if (!hudObjects.includes(child)) this.hudCam.ignore(child)
-    })
-    this.cameras.main.ignore(hudObjects)
-    // objects added later (chest messages, effects) belong to the map
-    const hide = (child) => {
-      if (!hudObjects.includes(child)) this.hudCam.ignore(child)
-    }
-    this.events.on(Phaser.Scenes.Events.ADDED_TO_SCENE, hide)
-    this.events.once('shutdown', () =>
-      this.events.off(Phaser.Scenes.Events.ADDED_TO_SCENE, hide)
-    )
-  },
-
   // Floor number in the corner, and a banner announcing the floor when it starts
   createFloorHud: function () {
     const hud = [
@@ -404,7 +385,8 @@ export var WorldScene = new Phaser.Class({
       duration: 600,
       onComplete: () => parts.forEach((part) => part.destroy()),
     })
-    this.createHudCamera(hud.concat(parts))
+    // the HUD gets a camera of its own, so the map's lighting and effects leave it alone
+    this.hudCam = Fx.uiCamera(this, hud.concat(parts))
   },
 
   // Fades the HUD along with the map during transitions, it has a camera of its own

@@ -85,6 +85,27 @@ export const createFxTextures = (scene) => {
     ]
   })
 
+  // wisps of mist, white on clear, tiling sideways. Fades out at the top and bottom edges so a band
+  // of it has no hard border
+  const mistNoise = tileNoise(23)
+  paint(scene, 'fx-mist', 256, 48, (x, y) => {
+    let v = 0
+    let weight = 0.6
+    for (const [px, py] of [
+      [4, 1.5],
+      [8, 3],
+      [16, 6],
+    ]) {
+      v += mistNoise((x / 256) * px, (y / 48) * py, px) * weight
+      weight *= 0.5
+    }
+    v /= 1.05
+    const band = Math.sin((y / 47) * Math.PI)
+    const a = clamp01((v - 0.35) * 2.2) * band
+    const stepped = Math.floor(a * 6 + bayer(x, y)) / 6
+    return [255, 255, 255, Math.round(clamp01(stepped) * 255)]
+  })
+
   // a shaft of light: soft across, fading out toward its far end
   paint(scene, 'fx-ray', 40, 300, (x, y) => {
     const across = Math.sin((x / 39) * Math.PI)
