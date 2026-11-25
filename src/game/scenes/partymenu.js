@@ -47,12 +47,11 @@ export let PartyScene = new Phaser.Class({
       this.menuItems.push(nameText)
 
       // Hero statistics display layout
-      let statsText = this.add.pixelText(
+      this.add.pixelText(
         175,
         yPos + 15,
         `HP: ${hero.hp}/${hero.maxHp} MP: ${hero.mp}/${hero.maxMp}`
       )
-      statsText.setTint(0x00ff00)
     })
 
     // Footer closing prompt
@@ -96,10 +95,8 @@ export let PartyScene = new Phaser.Class({
   updateSelection: function () {
     this.menuItems.forEach((text, index) => {
       if (index === this.menuIndex) {
-        text.setTint(0xf8ff38)
         text.setFont('pressstarty')
       } else {
-        text.clearTint()
         text.setFont('pressstart')
       }
     })

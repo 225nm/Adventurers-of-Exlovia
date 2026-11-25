@@ -16,7 +16,8 @@ import { PartySelectScene } from './game/scenes/partyselect'
 // TODO make resolution/zoom level more uniform and fit on multiple units
 // Phaser container and physics settings.
 var config = {
-  type: Phaser.CANVAS,
+  // WebGL for shaders and effects, Canvas only where WebGL is missing (effects are skipped there)
+  type: Phaser.AUTO,
   parent: 'content',
   width: 320,
   height: 240,
@@ -54,6 +55,8 @@ var config = {
   ],
 }
 var game = new Phaser.Game(config)
+// lets browser automation (screenshots, smoke tests) reach the game in the dev server
+if (import.meta.env && import.meta.env.DEV) window.__game = game
 
 // Text factory
 Phaser.GameObjects.GameObjectFactory.register(

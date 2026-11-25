@@ -61,10 +61,8 @@ export let WorldMenuScene = new Phaser.Class({
   updateMenuVisuals: function () {
     this.menuItems.forEach((item, i) => {
       if (i === this.menuIndex) {
-        item.setTint(0xf8ff38)
         item.setFont('pressstarty')
       } else {
-        item.clearTint()
         item.setFont('pressstart')
       }
     })
@@ -159,7 +157,7 @@ export let WorldMenuScene = new Phaser.Class({
   // Logic for showing feedback messages in the world menu, such as confirming a save action or invalid input
   showFeedback: function (text) {
     let feed = this.add.pixelText(100, 175, text)
-    feed.setTint(0xf8ff38)
+    feed.setFont('pressstarty')
     this.time.delayedCall(1500, () => feed.destroy())
   },
 })

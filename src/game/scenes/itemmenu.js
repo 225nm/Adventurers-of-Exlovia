@@ -101,7 +101,7 @@ export let ItemScene = new Phaser.Class({
 
     let box = Ui.window(this, 60, 55, 230, 140)
 
-    // yellow font for the title, setTint does nothing with the Canvas renderer
+    // yellow font for the title
     let title = this.add.pixelText(175, 70, itemName).setFont('pressstarty')
     let description = this.add.pixelText(175, 88, itemData.description)
     this.detailBox = this.add.container(0, 0, [box, title, description])
@@ -197,10 +197,8 @@ export let ItemScene = new Phaser.Class({
   updateSelection: function () {
     this.menuItems.forEach((item, index) => {
       if (index === this.menuIndex) {
-        item.setTint(0xf8ff38)
         item.setFont('pressstarty')
       } else {
-        item.clearTint()
         item.setFont('pressstart')
       }
     })
