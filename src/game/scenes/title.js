@@ -21,8 +21,8 @@ export var TitleScene = new Phaser.Class({
     // moonlit night: the moon and the castle's windows bloom, mist drifts past the castle's foot
     Scenery.moonlitNight(this)
     // the knight and the mage standing on the rocks in front
-    this.add.image(2, 238, 'title-knight').setOrigin(0, 1)
-    this.add.image(318, 238, 'title-mage').setOrigin(1, 1)
+    this.add.image(-24, 238, 'title-knight').setOrigin(0, 1)
+    this.add.image(344, 238, 'title-mage').setOrigin(1, 1).setFlipX(true)
     // a thinner veil of mist in front of them, and fireflies around the rocks
     Scenery.mist(this, 196, 0.1, 0.012)
     Fx.fireflies(this, 7, 5, 0xe8ff9a, {

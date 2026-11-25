@@ -91,28 +91,18 @@ export var WorldScene = new Phaser.Class({
       this.scene.launch('WorldMenuScene')
     })
 
-    // the party leader walks the map, using their hero's walking frames
-    // (side frames face right, left uses the same animation flipped)
+    // the party leader walks the map: a small copy of their battle painting, facing right, flipped
+    // to walk left, waddling as it goes (see walk)
     let leader = this.registry.get('partyData')[0].type
-    this.heroTexture = `hero-${leader.toLowerCase()}`
-    ;['down', 'up', 'side'].forEach((direction) => {
-      let key = `${this.heroTexture}-${direction}`
-      if (this.anims.exists(key)) return
-      this.anims.create({
-        key: key,
-        frames: [0, 1, 0, 2].map((i) => ({
-          key: this.heroTexture,
-          frame: `${direction}${i}`,
-        })),
-        frameRate: 8,
-        repeat: -1,
-      })
-    })
-
-    // our player sprite created through the phycis system
-    this.player = this.physics.add.sprite(50, 100, this.heroTexture, 'down0')
-    // the sprite is 16x24, collide with the feet only so the head can overlap trees above
-    this.player.body.setSize(10, 8).setOffset(3, 16)
+    this.player = this.physics.add.sprite(
+      50,
+      100,
+      `map-${leader.toLowerCase()}`
+    )
+    // collide with the feet only, so the head can overlap trees above
+    const { width, height } = this.player
+    this.player.body.setSize(10, 6).setOffset((width - 10) / 2, height - 7)
+    this.walkTime = 0
 
     // Spawn radius where enemies will not spawn. In pixels.
     const spawnRadius = 120
@@ -536,7 +526,7 @@ export var WorldScene = new Phaser.Class({
     Music.stop()
     Sfx.encounter()
     this.player.body.setVelocity(0)
-    this.player.anims.stop()
+    this.walk(0)
 
     const cam = this.cameras.main
     Fx.flash(this, 0xffffff, 0.9, 180)
@@ -687,22 +677,10 @@ export var WorldScene = new Phaser.Class({
     const velocity = this.player.body.velocity
     if (velocity.x || velocity.y) this.kickDust(delta)
 
-    // Update the animation last and give left/right animations precedence over up/down animations
-    if (this.cursors.left.isDown) {
-      this.walk('side')
-      this.player.flipX = true
-    } else if (this.cursors.right.isDown) {
-      this.walk('side')
-      this.player.flipX = false
-    } else if (this.cursors.up.isDown) {
-      this.walk('up')
-    } else if (this.cursors.down.isDown) {
-      this.walk('down')
-    } else if (this.player.anims.isPlaying) {
-      // stand still facing the last walking direction
-      this.player.anims.stop()
-      this.player.setFrame(`${this.facing}0`)
-    }
+    // face the way they walk, and waddle while moving
+    if (this.cursors.left.isDown) this.player.flipX = true
+    else if (this.cursors.right.isDown) this.player.flipX = false
+    this.walk(velocity.x || velocity.y ? delta : 0)
   },
   // Gives every grass tile one of the grass variants, the same mix each time a floor is visited
   scatterGrass: function (layer) {
@@ -776,9 +754,19 @@ export var WorldScene = new Phaser.Class({
     }
   },
 
-  // Plays the leader's walking animation for a direction: down, up or side
-  walk: function (direction) {
-    this.facing = direction
-    this.player.anims.play(`${this.heroTexture}-${direction}`, true)
+  // The leader's walk: a sway from foot to foot with a little bounce in each step. delta is the time
+  // since the last frame while walking, 0 to settle back to standing
+  walk: function (delta) {
+    const player = this.player
+    if (delta) {
+      this.walkTime += delta
+      const step = Math.sin(this.walkTime / 75)
+      player.setAngle(step * 6)
+      player.setScale(1 + Math.abs(step) * 0.04, 1 - Math.abs(step) * 0.05)
+    } else {
+      this.walkTime = 0
+      player.setAngle(player.angle * 0.7)
+      player.setScale(1)
+    }
   },
 })

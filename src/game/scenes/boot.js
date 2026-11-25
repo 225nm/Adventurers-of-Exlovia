@@ -6,22 +6,10 @@ import { Art } from '../art'
 import { Ui } from '../ui'
 import { Fx } from '../fx'
 import { hdCanvas } from '../hd'
+import { Paintings } from '../art/paintings'
 
+// still the pixel art versions, until they are painted
 const SPRITES = [
-  'battler-warrior',
-  'battler-mage',
-  'battler-ranger',
-  'slime',
-  'bat',
-  'goblin',
-  'wisp-fire',
-  'wisp-ice',
-  'dark-mage',
-  'ogre',
-  'dragon-orange',
-  'dragon-blue',
-  'title-knight',
-  'title-mage',
   'battle-bg',
   'title-bg',
   'tree-round',
@@ -42,6 +30,8 @@ export var BootScene = new Phaser.Class({
 
     // pixel art rendered from the SVGs in tools/sprites (node tools/sprites/render.mjs)
     SPRITES.forEach((key) => this.load.image(key, `assets/sprites/${key}.png`))
+    // heroes and monsters, painted in code and rasterized at screen resolution (see art/paintings)
+    Paintings.load(this)
   },
   // Create method to initialize the inventory and start the title scene
   create: function () {
@@ -49,6 +39,7 @@ export var BootScene = new Phaser.Class({
       this.registry.set('inventory', [])
     }
     this.game.inventory = new Inventory(this.registry)
+    Paintings.register(this)
 
     // glowing sparks for spell and hit particles: a white hot core fading into the color
     const sparks = {
