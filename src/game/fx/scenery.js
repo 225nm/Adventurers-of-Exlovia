@@ -1,5 +1,9 @@
 import Phaser from 'phaser'
 import { Fx } from './index.js'
+import { HD } from '../hd.js'
+
+// the title and battle cameras are centered on the 320 wide layout, the screen's left edge is here
+const LEFT = -HD.OFFSET_X
 
 const ADD = Phaser.BlendModes.ADD
 
@@ -50,7 +54,7 @@ export const Scenery = {
   mist: function (scene, y, alpha, speed, color = 0xc8c0ff) {
     if (!Fx.enabled(scene)) return null
     const band = scene.add
-      .tileSprite(0, y, 320, 48, 'fx-mist')
+      .tileSprite(LEFT, y, HD.VIEW_W, 48, 'fx-mist')
       .setOrigin(0, 0.5)
       .setAlpha(alpha)
       .setTint(color)
@@ -116,7 +120,7 @@ export const Scenery = {
       sky.alpha * 0.55,
       sky.alpha * 0.55
     )
-    g.fillRect(0, 0, 320, Math.round(horizonY * 0.55))
+    g.fillRect(LEFT, 0, HD.VIEW_W, Math.round(horizonY * 0.55))
     g.fillGradientStyle(
       sky.horizon,
       sky.horizon,
@@ -128,9 +132,9 @@ export const Scenery = {
       0
     )
     g.fillRect(
-      0,
+      LEFT,
       Math.round(horizonY * 0.55),
-      320,
+      HD.VIEW_W,
       horizonY - Math.round(horizonY * 0.55)
     )
     made.push(g)
@@ -156,7 +160,7 @@ export const Scenery = {
       for (let i = 0; i < sky.stars; i++) {
         const star = scene.add
           .rectangle(
-            Phaser.Math.Between(2, 318),
+            LEFT + Math.random() * HD.VIEW_W,
             Phaser.Math.Between(2, Math.round(horizonY * 0.45)),
             1,
             1,

@@ -6,6 +6,7 @@ import { Sfx } from '../audio/sfx.js'
 import { Ui } from '../ui.js'
 import { Fx } from '../fx'
 import { Scenery } from '../fx/scenery'
+import { HD } from '../hd'
 
 // Title screen class
 export var TitleScene = new Phaser.Class({
@@ -24,7 +25,12 @@ export var TitleScene = new Phaser.Class({
     this.add.image(318, 238, 'title-mage').setOrigin(1, 1)
     // a thinner veil of mist in front of them, and fireflies around the rocks
     Scenery.mist(this, 196, 0.1, 0.012)
-    Fx.fireflies(this, 7, 5, 0xe8ff9a, { x: 0, y: 150, width: 320, height: 80 })
+    Fx.fireflies(this, 7, 5, 0xe8ff9a, {
+      x: 0,
+      y: 150,
+      width: HD.VIEW_W,
+      height: 80,
+    })
     // gold logo made from the game's own pixel font (see art/logo.js), with twinkles on its letters
     // and a gleam sweeping across it
     this.logo = this.add.image(160, 42, 'title-logo')

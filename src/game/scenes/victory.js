@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { Sfx } from '../audio/sfx'
 import { Ui } from '../ui'
+import { HD } from '../hd'
 
 const ADD = Phaser.BlendModes.ADD
 // Victory screen class
@@ -93,7 +94,7 @@ export var VictoryScene = new Phaser.Class({
   // The battlefield flashes, rays of light turn slowly behind the banner and gold sparkles fall
   celebrate: function () {
     const flash = this.add
-      .rectangle(0, 0, 320, 240, 0xfff4d0, 0.55)
+      .rectangle(-HD.OFFSET_X, 0, HD.VIEW_W, 240, 0xfff4d0, 0.55)
       .setOrigin(0, 0)
       .setBlendMode(ADD)
     this.tweens.add({
@@ -133,7 +134,7 @@ export var VictoryScene = new Phaser.Class({
     this.add.particles(0, 0, 'fx-mote', {
       emitZone: {
         type: 'random',
-        source: new Phaser.Geom.Rectangle(0, -6, 320, 4),
+        source: new Phaser.Geom.Rectangle(-HD.OFFSET_X, -6, HD.VIEW_W, 4),
       },
       speedY: { min: 18, max: 40 },
       speedX: { min: -8, max: 8 },

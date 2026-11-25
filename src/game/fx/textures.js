@@ -1,4 +1,8 @@
-// Textures for the effects, drawn pixel by pixel at boot so no image files are needed
+import { hdCanvas } from '../hd'
+
+// Textures for the effects, painted at boot so no image files are needed. Most are painted at screen
+// resolution (hdCanvas); the tiling cloud and mist layers are painted pixel by pixel at layout size,
+// since they are soft anyway and tiling needs plain textures
 
 const paint = (scene, key, width, height, pixel) => {
   if (scene.textures.exists(key)) return
@@ -23,7 +27,7 @@ const clamp01 = (v) => Math.max(0, Math.min(1, v))
 const smooth = (t) => t * t * (3 - 2 * t)
 
 // Value noise that wraps around every `period` lattice cells, so the texture tiles seamlessly
-const tileNoise = (seed) => {
+export const tileNoise = (seed) => {
   const hash = (x, y) => {
     let h = (x * 374761393 + y * 668265263 + seed * 144665) | 0
     h = Math.imul(h ^ (h >>> 13), 1274126177)
@@ -42,27 +46,33 @@ const tileNoise = (seed) => {
   }
 }
 
-// 4x4 ordered dither, for soft edges that stay pixel crisp
-const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
-const bayer = (x, y) => (BAYER[(y % 4) * 4 + (x % 4)] + 0.5) / 16
-
 export const createFxTextures = (scene) => {
   // soft round glow, white so it can be tinted: spell cores, fireflies, light blooms
-  paint(scene, 'fx-glow', 32, 32, (x, y) => {
-    const d = Math.hypot(x - 15.5, y - 15.5) / 16
-    const a = clamp01(1 - d)
-    return [255, 255, 255, Math.round(a * a * 255)]
+  hdCanvas(scene, 'fx-glow', 32, 32, (ctx) => {
+    const g = ctx.createRadialGradient(16, 16, 0, 16, 16, 16)
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10
+      g.addColorStop(t, `rgba(255, 255, 255, ${(1 - t) * (1 - t)})`)
+    }
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, 32, 32)
   })
 
   // ground shadow, an ellipse that fades out at the rim
-  paint(scene, 'fx-shadow', 32, 12, (x, y) => {
-    const d = Math.hypot((x - 15.5) / 16, (y - 5.5) / 6)
-    const a = clamp01((1 - d) * 2.2)
-    return [8, 14, 30, Math.round(smooth(a) * 255)]
+  hdCanvas(scene, 'fx-shadow', 32, 12, (ctx) => {
+    ctx.save()
+    ctx.translate(16, 6)
+    ctx.scale(1, 6 / 16)
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 16)
+    g.addColorStop(0, 'rgba(8, 14, 30, 1)')
+    g.addColorStop(0.45, 'rgba(8, 14, 30, 0.9)')
+    g.addColorStop(1, 'rgba(8, 14, 30, 0)')
+    ctx.fillStyle = g
+    ctx.fillRect(-16, -16, 32, 32)
+    ctx.restore()
   })
 
-  // cloud shadows for a multiply blend: white is clear sky, the clouds a cool blue grey. Two
-  // levels (shadow, deeper core) with dithered edges, so they look painted in pixels
+  // cloud shadows for a multiply blend: white is clear sky, the clouds a soft cool blue grey
   const noise = tileNoise(7)
   const size = 256
   paint(scene, 'fx-clouds', size, size, (x, y) => {
@@ -75,8 +85,7 @@ export const createFxTextures = (scene) => {
       weight *= 0.5
     }
     v /= total
-    const t = bayer(x, y) * 0.06 - 0.03
-    const shade = v + t > 0.6 ? 0.55 : v + t > 0.52 ? 0.75 : 1
+    const shade = 1 - smooth(clamp01((v - 0.48) / 0.18)) * 0.45
     return [
       Math.round(255 * shade + 255 * (1 - shade) * 0.08),
       Math.round(255 * shade + 255 * (1 - shade) * 0.14),
@@ -101,39 +110,62 @@ export const createFxTextures = (scene) => {
     }
     v /= 1.05
     const band = Math.sin((y / 47) * Math.PI)
-    const a = clamp01((v - 0.35) * 2.2) * band
-    const stepped = Math.floor(a * 6 + bayer(x, y)) / 6
-    return [255, 255, 255, Math.round(clamp01(stepped) * 255)]
+    const a = smooth(clamp01((v - 0.35) * 2.2)) * band
+    return [255, 255, 255, Math.round(a * 255)]
   })
 
   // a shaft of light: soft across, fading out toward its far end
-  paint(scene, 'fx-ray', 40, 300, (x, y) => {
-    const across = Math.sin((x / 39) * Math.PI)
-    const along = clamp01(1 - y / 300) * clamp01(y / 30)
-    return [255, 255, 255, Math.round(across * across * along * 255)]
+  hdCanvas(scene, 'fx-ray', 40, 300, (ctx) => {
+    const across = ctx.createLinearGradient(0, 0, 40, 0)
+    across.addColorStop(0, 'rgba(255, 255, 255, 0)')
+    across.addColorStop(0.5, 'rgba(255, 255, 255, 1)')
+    across.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = across
+    ctx.fillRect(0, 0, 40, 300)
+    ctx.globalCompositeOperation = 'destination-in'
+    const along = ctx.createLinearGradient(0, 0, 0, 300)
+    along.addColorStop(0, 'rgba(0, 0, 0, 0)')
+    along.addColorStop(0.1, 'rgba(0, 0, 0, 1)')
+    along.addColorStop(1, 'rgba(0, 0, 0, 0)')
+    ctx.fillStyle = along
+    ctx.fillRect(0, 0, 40, 300)
   })
 
   // a falling raindrop's streak, brightest at its head
-  paint(scene, 'fx-rain', 1, 7, (x, y) => [
-    220,
-    235,
-    255,
-    Math.round((0.25 + (y / 6) * 0.75) * 255),
-  ])
-
-  // a speck of pollen
-  paint(scene, 'fx-mote', 3, 3, (x, y) => {
-    const center = x === 1 && y === 1
-    const edge = x === 1 || y === 1
-    return [255, 255, 255, center ? 255 : edge ? 110 : 0]
+  hdCanvas(scene, 'fx-rain', 1, 8, (ctx) => {
+    const g = ctx.createLinearGradient(0, 0, 0, 8)
+    g.addColorStop(0, 'rgba(220, 235, 255, 0)')
+    g.addColorStop(1, 'rgba(235, 245, 255, 0.95)')
+    ctx.fillStyle = g
+    ctx.fillRect(0.3, 0, 0.4, 8)
   })
 
-  // a sharp shard of ice, white so the element color tints it
-  paint(scene, 'fx-shard', 5, 11, (x, y) => {
-    const half = Math.abs(x - 2)
-    const width = y < 5 ? y / 2.4 : (10 - y) / 2.4
-    if (half > width) return [0, 0, 0, 0]
-    const lit = x <= 2 ? 255 : 200
-    return [lit, lit, 255, 255]
+  // a speck of pollen or ash: a tiny soft dot
+  hdCanvas(scene, 'fx-mote', 3, 3, (ctx) => {
+    const g = ctx.createRadialGradient(1.5, 1.5, 0, 1.5, 1.5, 1.5)
+    g.addColorStop(0, 'rgba(255, 255, 255, 1)')
+    g.addColorStop(0.4, 'rgba(255, 255, 255, 0.8)')
+    g.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, 3, 3)
+  })
+
+  // a sharp shard of ice, white so the element color tints it: a lit face and a shaded face
+  hdCanvas(scene, 'fx-shard', 5, 11, (ctx) => {
+    ctx.beginPath()
+    ctx.moveTo(2.5, 0)
+    ctx.lineTo(5, 5)
+    ctx.lineTo(2.5, 11)
+    ctx.lineTo(0, 5)
+    ctx.closePath()
+    ctx.fillStyle = '#c8d8ff'
+    ctx.fill()
+    ctx.beginPath()
+    ctx.moveTo(2.5, 0)
+    ctx.lineTo(2.5, 11)
+    ctx.lineTo(0, 5)
+    ctx.closePath()
+    ctx.fillStyle = '#ffffff'
+    ctx.fill()
   })
 }

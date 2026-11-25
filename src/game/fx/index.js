@@ -3,6 +3,7 @@ import { LookPipeline, DEFAULT_LOOK, MAX_LIGHTS } from './lookPipeline.js'
 import { DissolvePipeline } from './dissolvePipeline.js'
 import { WindPipeline } from './windPipeline.js'
 import { createFxTextures } from './textures.js'
+import { HD } from '../hd.js'
 
 export { LookPipeline, DissolvePipeline, WindPipeline }
 
@@ -165,12 +166,12 @@ export const Fx = {
   // of audio). area is the ground the splashes land on, in screen space. Returns what it made
   rain: function (scene, depth, area, thunder) {
     if (!this.enabled(scene)) return []
-    const ground = area || { x: 0, y: 0, width: 320, height: 240 }
+    const ground = area || { x: 0, y: 0, width: HD.VIEW_W, height: HD.VIEW_H }
     const streaks = scene.add
       .particles(0, 0, 'fx-rain', {
         emitZone: {
           type: 'random',
-          source: new Phaser.Geom.Rectangle(-20, -12, 400, 4),
+          source: new Phaser.Geom.Rectangle(-20, -12, HD.VIEW_W + 80, 4),
         },
         speedY: { min: 300, max: 360 },
         speedX: { min: -80, max: -60 },
@@ -478,8 +479,8 @@ export const Fx = {
     const { x, y, width, height } = area || {
       x: 0,
       y: 0,
-      width: 320,
-      height: 240,
+      width: HD.VIEW_W,
+      height: HD.VIEW_H,
     }
     const layer = scene.add
       .tileSprite(x, y, width, height, 'fx-clouds')
@@ -504,7 +505,7 @@ export const Fx = {
     const rays = []
     for (let i = 0; i < count; i++) {
       const ray = scene.add
-        .image(20 + i * 95 + Math.random() * 40, -20, 'fx-ray')
+        .image(20 + i * (HD.VIEW_W / count) + Math.random() * 40, -20, 'fx-ray')
         .setOrigin(0.5, 0)
         .setScrollFactor(0.15, 0)
         .setAngle(-28)
@@ -530,7 +531,12 @@ export const Fx = {
   // Pollen drifting through the air in daylight
   pollen: function (scene, depth, area) {
     if (!this.enabled(scene)) return null
-    const zone = area || { x: -20, y: -20, width: 360, height: 280 }
+    const zone = area || {
+      x: -20,
+      y: -20,
+      width: HD.VIEW_W + 40,
+      height: HD.VIEW_H + 40,
+    }
     return scene.add
       .particles(0, 0, 'fx-mote', {
         emitZone: {
@@ -563,7 +569,7 @@ export const Fx = {
   // the ground around them
   fireflies: function (scene, count, depth, color = 0xd8ff7a, area) {
     if (!this.enabled(scene)) return []
-    const zone = area || { x: 0, y: 0, width: 320, height: 240 }
+    const zone = area || { x: 0, y: 0, width: HD.VIEW_W, height: HD.VIEW_H }
     const cam = scene.cameras.main
     const flies = []
     for (let i = 0; i < count; i++) {

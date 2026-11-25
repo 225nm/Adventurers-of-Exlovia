@@ -1,118 +1,87 @@
-// Title logo built from the game's own bitmap font: gold letters shaded in bands from top to bottom,
-// a bright bevel along their top edges, a dark outline and a drop shadow.
-// The font's glyphs are white with a black outline, drawn at 16px, so 'EXLOVIA' is doubled to 32px
+import { hdCanvas } from '../hd'
+import { FONTS } from '../text'
 
-const LINES = [
-  { text: 'ADVENTURERS OF', scale: 1 },
-  { text: 'EXLOVIA', scale: 2 },
-]
-const GAP = 3
-// gold from top to bottom of each line
-const BANDS = [
-  [0.3, [255, 246, 196]],
-  [0.52, [255, 216, 96]],
-  [0.76, [240, 172, 48]],
-  [1.01, [204, 120, 28]],
-]
-const BEVEL = [255, 255, 236]
-const UNDERSIDE = [150, 72, 16]
-const OUTLINE = [42, 14, 6]
-const SHADOW = [8, 4, 20]
+// The title logo, painted at screen resolution in Cinzel: gold letters graded from pale gold to deep
+// amber, a dark outline, a bright rim along their tops, a soft drop shadow and a thin ornamental rule
+// with a jewel between the two lines. Needs the fonts loaded (BootScene waits for them)
+
+const W = 300
+const H = 74
 
 export const createLogo = (scene) => {
-  const font = scene.cache.bitmapFont.get('pressstart').data
-  const source = scene.textures.get('pressstart').getSourceImage()
-  const widthOf = (line) =>
-    [...line.text].reduce(
-      (w, ch) => w + font.chars[ch.charCodeAt(0)].xAdvance * line.scale,
-      0
-    )
-  const width = Math.max(...LINES.map(widthOf)) + 4
-  const heights = LINES.map((line) => font.lineHeight * line.scale + 2)
-  const height = heights.reduce((a, b) => a + b, 0) + GAP + 4
+  hdCanvas(scene, 'title-logo', W, H, (ctx) => {
+    const lines = [
+      { text: 'ADVENTURERS OF', size: 15, y: 17, spacing: 2.2 },
+      { text: 'EXLOVIA', size: 38, y: 56, spacing: 3 },
+    ]
+    lines.forEach(({ text, size, y, spacing }) => {
+      ctx.font = `900 ${size}px ${FONTS.title}`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.letterSpacing = `${spacing}px`
+      ctx.lineJoin = 'round'
+      const x = W / 2
+      const top = y - size * 0.4
+      const bottom = y + size * 0.4
 
-  // draw the white glyphs
-  const glyphs = document.createElement('canvas')
-  glyphs.width = width
-  glyphs.height = height
-  const g = glyphs.getContext('2d')
-  g.imageSmoothingEnabled = false
-  const lineTops = []
-  let top = 1
-  LINES.forEach((line, i) => {
-    lineTops.push([top, top + heights[i]])
-    let x = Math.round((width - widthOf(line)) / 2)
-    ;[...line.text].forEach((ch) => {
-      const c = font.chars[ch.charCodeAt(0)]
-      if (c.width > 0) {
-        g.drawImage(
-          source,
-          c.x,
-          c.y,
-          c.width,
-          c.height,
-          x + c.xOffset * line.scale,
-          top + c.yOffset * line.scale,
-          c.width * line.scale,
-          c.height * line.scale
-        )
-      }
-      x += c.xAdvance * line.scale
+      // soft shadow beneath
+      ctx.save()
+      ctx.shadowColor = 'rgba(6, 2, 24, 0.85)'
+      ctx.shadowBlur = size * 0.25
+      ctx.shadowOffsetY = size * 0.08
+      ctx.lineWidth = size * 0.16
+      ctx.strokeStyle = '#2a0e04'
+      ctx.strokeText(text, x, y)
+      ctx.restore()
+
+      // dark outline, then a thinner bronze one inside it
+      ctx.lineWidth = size * 0.16
+      ctx.strokeStyle = '#2a0e04'
+      ctx.strokeText(text, x, y)
+      ctx.lineWidth = size * 0.07
+      ctx.strokeStyle = '#a8621c'
+      ctx.strokeText(text, x, y)
+
+      // gold, pale at the top and deep amber at the bottom with a bright band across the middle
+      const gold = ctx.createLinearGradient(0, top, 0, bottom)
+      gold.addColorStop(0, '#fffbe0')
+      gold.addColorStop(0.3, '#ffe27a')
+      gold.addColorStop(0.5, '#fff2b0')
+      gold.addColorStop(0.56, '#f0b440')
+      gold.addColorStop(1, '#b0661a')
+      ctx.fillStyle = gold
+      ctx.fillText(text, x, y)
+
+      // a rim of light on the upper edges
+      ctx.save()
+      ctx.globalCompositeOperation = 'source-atop'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
+      ctx.fillText(text, x, y - size * 0.05)
+      ctx.globalCompositeOperation = 'source-atop'
+      ctx.fillStyle = gold
+      ctx.fillText(text, x, y + size * 0.03)
+      ctx.restore()
     })
-    top += heights[i] + GAP
+
+    // ornamental rule between the lines: tapering gold lines and a red jewel
+    const ruleY = 30
+    const rule = ctx.createLinearGradient(40, 0, W - 40, 0)
+    rule.addColorStop(0, 'rgba(240, 190, 80, 0)')
+    rule.addColorStop(0.5, 'rgba(255, 230, 150, 1)')
+    rule.addColorStop(1, 'rgba(240, 190, 80, 0)')
+    ctx.fillStyle = rule
+    ctx.fillRect(40, ruleY - 0.4, W - 80, 0.8)
+    ctx.save()
+    ctx.translate(W / 2, ruleY)
+    ctx.rotate(Math.PI / 4)
+    ctx.fillStyle = '#2a0e04'
+    ctx.fillRect(-2.6, -2.6, 5.2, 5.2)
+    const jewel = ctx.createLinearGradient(-2, -2, 2, 2)
+    jewel.addColorStop(0, '#ff9a9a')
+    jewel.addColorStop(0.5, '#d8203a')
+    jewel.addColorStop(1, '#6a0818')
+    ctx.fillStyle = jewel
+    ctx.fillRect(-1.9, -1.9, 3.8, 3.8)
+    ctx.restore()
   })
-
-  // recolor: bright pixels are letter, dark ones outline
-  const image = g.getImageData(0, 0, width, height)
-  const d = image.data
-  const isLetter = (x, y) =>
-    x >= 0 &&
-    y >= 0 &&
-    x < width &&
-    y < height &&
-    d[(y * width + x) * 4 + 3] > 0 &&
-    d[(y * width + x) * 4] > 128
-  const letter = []
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) letter.push(isLetter(x, y))
-  }
-  for (let y = 0; y < height; y++) {
-    const [lineTop, lineBottom] =
-      lineTops.find(([t, b]) => y >= t && y < b) ||
-      lineTops[lineTops.length - 1]
-    const t = (y - lineTop) / (lineBottom - lineTop)
-    for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4
-      if (d[i + 3] === 0) continue
-      let color
-      if (!letter[y * width + x]) color = OUTLINE
-      else if (!letter[(y - 1) * width + x]) color = BEVEL
-      else if (!letter[(y + 1) * width + x]) color = UNDERSIDE
-      else color = BANDS.find(([limit]) => t < limit)[1]
-      d[i] = color[0]
-      d[i + 1] = color[1]
-      d[i + 2] = color[2]
-      d[i + 3] = 255
-    }
-  }
-  g.putImageData(image, 0, 0)
-
-  // final texture: the shadow two pixels down and right, the letters on top
-  const texture = scene.textures.createCanvas(
-    'title-logo',
-    width + 2,
-    height + 2
-  )
-  const ctx = texture.getContext()
-  const shadow = document.createElement('canvas')
-  shadow.width = width
-  shadow.height = height
-  const s = shadow.getContext('2d')
-  s.drawImage(glyphs, 0, 0)
-  s.globalCompositeOperation = 'source-in'
-  s.fillStyle = `rgba(${SHADOW.join(',')}, 0.75)`
-  s.fillRect(0, 0, width, height)
-  ctx.drawImage(shadow, 2, 2)
-  ctx.drawImage(glyphs, 0, 0)
-  texture.refresh()
 }

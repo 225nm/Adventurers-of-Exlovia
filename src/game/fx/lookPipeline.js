@@ -17,6 +17,8 @@ precision mediump float;
 
 uniform sampler2D uMainSampler;
 uniform vec2 uResolution;
+// screen pixels per layout unit, so blur and bloom radii keep their size at any resolution
+uniform float uScale;
 uniform float uTime;
 
 uniform float uAmbient;
@@ -63,7 +65,7 @@ void main() {
     float amount = smoothstep(0.62, 1.0, edge) * uTiltShift;
     if (amount > 0.01) {
       vec3 sum = color;
-      float r = 1.0 + amount * 0.6;
+      float r = (1.0 + amount * 0.6) * uScale;
       sum += texture2D(uMainSampler, uv + vec2(r, 0.0) * px).rgb;
       sum += texture2D(uMainSampler, uv - vec2(r, 0.0) * px).rgb;
       sum += texture2D(uMainSampler, uv + vec2(0.0, r) * px).rgb;
@@ -97,11 +99,13 @@ void main() {
   // bloom: a ring of samples around the pixel, only the bright part of each counts
   if (uBloom > 0.0) {
     vec3 glow = vec3(0.0);
+    // the rings turn a little from pixel to pixel, so the sparse samples blend into a smooth glow
+    float spin = fract(sin(dot(pos, vec2(12.9898, 78.233))) * 43758.5453) * 6.2831853;
     for (int ring = 1; ring <= 3; ring++) {
-      float r = float(ring) * 2.0 - 0.5;
+      float r = (float(ring) * 2.0 - 0.5) * uScale;
       float w = 1.0 / float(ring);
       for (int k = 0; k < 8; k++) {
-        float a = float(k) * 0.7853982 + float(ring) * 0.39;
+        float a = float(k) * 0.7853982 + float(ring) * 0.39 + spin;
         glow += bright(uv + vec2(cos(a), sin(a)) * r * px) * w;
       }
     }
@@ -138,7 +142,8 @@ void main() {
 export const DEFAULT_LOOK = {
   ambient: 1,
   ambientColor: [1, 1, 1],
-  lightBands: 5,
+  // 0 for smooth light falloff, or a number of dithered bands (a pixel art look)
+  lightBands: 0,
   bloom: 0.9,
   threshold: 0.72,
   contrast: 1.06,
@@ -166,6 +171,7 @@ export class LookPipeline
   onPreRender() {
     const s = this.settings
     this.set2f('uResolution', this.renderer.width, this.renderer.height)
+    this.set1f('uScale', this.renderer.height / 240)
     this.set1f('uTime', this.game.loop.time / 1000)
     this.set1f('uAmbient', s.ambient)
     this.set3f('uAmbientColor', ...s.ambientColor)

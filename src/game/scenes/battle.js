@@ -11,6 +11,8 @@ import { Sfx } from '../audio/sfx.js'
 import { Progression } from '../progression.js'
 import { Loot } from '../loot.js'
 import { Ui } from '../ui.js'
+import { GameText } from '../text.js'
+import { HD } from '../hd.js'
 import { Fx } from '../fx'
 import { Scenery } from '../fx/scenery'
 
@@ -58,7 +60,6 @@ export var BattleScene = new Phaser.Class({
   },
   // Initialize the battle scene, set up event listeners
   create: function () {
-    this.cameras.main.roundPixels = true
     // change the background to green
     this.cameras.main.setBackgroundColor('#1a2a1a')
     // field backdrop above the menus, created once and kept between battles
@@ -87,7 +88,7 @@ export var BattleScene = new Phaser.Class({
       tiltShift: 0,
     }
     // the backdrop's grass starts below its tree line
-    const ground = { x: 0, y: 60, width: 320, height: 92 }
+    const ground = { x: 0, y: 60, width: HD.VIEW_W, height: 92 }
     const add = (things) => (this.atmosphere = this.atmosphere.concat(things))
     add([Fx.cloudShadows(this, mood.clouds * 0.8, 30, ground)])
     add(Fx.sunRays(this, mood.rays, mood.rayColor, 31, 3))
@@ -495,14 +496,12 @@ const MP_RIGHT = 308
 
 // Base menu item class
 var MenuItem = new Phaser.Class({
-  Extends: Phaser.GameObjects.BitmapText,
+  Extends: GameText,
 
   initialize: function MenuItem(x, y, text, scene) {
-    Phaser.GameObjects.BitmapText.call(this, scene, x, y, 'pressstart', text, 8)
+    GameText.call(this, scene, x, y, text, 8)
 
     this.setOrigin(0, 0.5)
-    this.x = Math.floor(this.x)
-    this.y = Math.floor(this.y)
     // greyed out: a skill the hero can't afford, a fallen hero
     this.disabled = false
   },
@@ -630,7 +629,7 @@ let SkillsMenu = new Phaser.Class({
       'pressstartg',
     ].map((font, i) => {
       let line = scene.add
-        .bitmapText(178 - x, 2 + i * 15, font, '', 8)
+        .gameText(178 - x, 2 + i * 15, font, '', 8)
         .setOrigin(0, 0.5)
       this.add(line)
       return line
@@ -716,10 +715,10 @@ var PartyStatus = new Phaser.Class({
     this.rows = heroes.map((hero, i) => {
       let y = TEXT_Y + i * HERO_ROW
       let hp = this.scene.add
-        .bitmapText(HP_RIGHT, y, 'pressstart', '', 8)
+        .gameText(HP_RIGHT, y, 'pressstart', '', 8)
         .setOrigin(1, 0.5)
       let mp = this.scene.add
-        .bitmapText(MP_RIGHT, y, 'pressstartb', '', 8)
+        .gameText(MP_RIGHT, y, 'pressstartb', '', 8)
         .setOrigin(1, 0.5)
       this.add([hp, mp])
       return { hero, hp, mp, y }

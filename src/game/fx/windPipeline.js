@@ -49,6 +49,11 @@ export class WindPipeline
     this.strength = 1.2
   }
 
+  onBoot() {
+    // the shader works in screen pixels, the strength is in layout units
+    this.strength = 1.2 * (this.renderer.height / 240)
+  }
+
   onPreRender() {
     this.set1f('uTime', this.game.loop.time / 1000)
     this.set1f('uStrength', this.strength)

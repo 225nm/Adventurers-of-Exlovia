@@ -6,6 +6,7 @@ import { Sfx } from '../audio/sfx'
 import { Ui } from '../ui'
 import { Fx } from '../fx'
 import { Scenery } from '../fx/scenery'
+import { HD } from '../hd'
 
 // Number of heroes picked at the start, the rest join later (see Progression.recruitFloor)
 const PARTY_SIZE = 2
@@ -32,8 +33,15 @@ export let PartySelectScene = new Phaser.Class({
     // the title's moonlit castle, dimmed behind the cards, with its mist and fireflies
     this.add.image(0, 0, 'title-bg').setOrigin(0, 0)
     Scenery.moonlitNight(this)
-    this.add.rectangle(0, 0, 320, 240, 0x05041a, 0.55).setOrigin(0, 0)
-    Fx.fireflies(this, 6, 5, 0xe8ff9a, { x: 0, y: 150, width: 320, height: 90 })
+    this.add
+      .rectangle(-HD.OFFSET_X, 0, HD.VIEW_W, 240, 0x05041a, 0.55)
+      .setOrigin(0, 0)
+    Fx.fireflies(this, 6, 5, 0xe8ff9a, {
+      x: 0,
+      y: 150,
+      width: HD.VIEW_W,
+      height: 90,
+    })
 
     // everything from here on is the menu, on a camera of its own (see Fx.uiCamera)
     const firstUi = this.children.list.length
@@ -224,7 +232,7 @@ export let PartySelectScene = new Phaser.Class({
   showConfirm: function () {
     let overlay = this.add.graphics()
     overlay.fillStyle(0x000000, 0.7)
-    overlay.fillRect(0, 0, 320, 240)
+    overlay.fillRect(-HD.OFFSET_X, 0, HD.VIEW_W, 240)
     let box = Ui.window(this, 50, 80, 220, 70)
     let text = this.add
       .pixelText(

@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { saveSystem } from '../save'
 import { Sfx } from '../audio/sfx'
 import { Ui } from '../ui'
+import { HD } from '../hd'
 // World menu class
 export let WorldMenuScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -134,7 +135,7 @@ export let WorldMenuScene = new Phaser.Class({
     this.confirmBox = this.add.container(0, 0)
     let overlay = this.add.graphics()
     overlay.fillStyle(0x000000, 0.7)
-    overlay.fillRect(0, 0, 320, 240)
+    overlay.fillRect(-HD.OFFSET_X, 0, HD.VIEW_W, 240)
 
     let box = Ui.window(this, 80, 70, 160, 50)
 

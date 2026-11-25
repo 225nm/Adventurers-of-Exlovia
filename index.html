@@ -21,8 +21,6 @@
       }
       canvas {
         display: block;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
       }
       #content {
         display: flex;
@@ -31,9 +29,16 @@
         align-items: center;
         justify-content: center;
       }
+      /* the game's fonts, loaded by BootScene before the title (SIL OFL, see assets/CREDITS.md) */
       @font-face {
-        font-family: 'Press Start 2P';
-        src: url('assets/PressStart2P-Regular.ttf') format('truetype');
+        font-family: 'Nunito';
+        src: url('assets/fonts/Nunito.woff2') format('woff2');
+        font-weight: 200 1000;
+      }
+      @font-face {
+        font-family: 'Cinzel';
+        src: url('assets/fonts/Cinzel.woff2') format('woff2');
+        font-weight: 400 900;
       }
     </style>
   </head>
@@ -48,15 +53,5 @@
         justify-content: center;
       "
     ></div>
-    <!-- Hidden div to make the font load before title screen-->
-    <div
-      style="
-        font-family: 'Press Start 2P';
-        visibility: hidden;
-        position: absolute;
-      "
-    >
-      .
-    </div>
   </body>
 </html>

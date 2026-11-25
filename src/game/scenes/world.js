@@ -10,6 +10,7 @@ import { heroesIndex } from '../units/heroes/heroesIndex.js'
 import { seededRandom, GRASS_VARIANTS, DECORATION_KINDS } from '../art/world'
 import { Ui } from '../ui'
 import { Fx } from '../fx'
+import { HD } from '../hd'
 
 // map objects are drawn in order of their feet's y position, the HUD above all of them
 const HUD_DEPTH = 10000
@@ -124,11 +125,9 @@ export var WorldScene = new Phaser.Class({
     // don't walk on trees
     this.physics.add.collider(this.player, obstacles)
 
-    // limit camera to map and zoom map
-    //this.cameras.main.setZoom(2)
-    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
-    this.cameras.main.startFollow(this.player)
-    this.cameras.main.roundPixels = true // avoid tile bleed
+    // the camera follows the leader, kept inside the map (see followCamera)
+    this.dive = null
+    this.followCamera()
 
     // --------------------------- MAP OBJECTS ----------------------------------------------------------------
 
@@ -418,7 +417,7 @@ export var WorldScene = new Phaser.Class({
     ]
 
     let banner = this.add
-      .pixelText(160, 100, `FLOOR ${this.floor}`, 16)
+      .pixelText(HD.VIEW_W / 2, 100, `FLOOR ${this.floor}`, 16)
       .setScrollFactor(0)
       .setDepth(HUD_DEPTH)
     let parts = [banner]
@@ -427,7 +426,7 @@ export var WorldScene = new Phaser.Class({
     if (message) {
       parts.push(
         this.add
-          .colorText(160, 125, message, '#f8ff38')
+          .colorText(HD.VIEW_W / 2, 125, message, '#ffe27a')
           .setScrollFactor(0)
           .setDepth(HUD_DEPTH)
       )
@@ -472,13 +471,14 @@ export var WorldScene = new Phaser.Class({
     // and a paused tween would resume on wake and zoom/rotate the camera again
     this.tweens.killTweensOf(cam)
     cam.resetFX()
-    cam.setZoom(1)
-    cam.setRotation(0)
+    if (this.dive) this.tweens.killTweensOf(this.dive)
+    this.dive = null
+    this.followCamera()
     cam.fadeIn(400)
-    if (this.mosaic) {
-      this.tweens.killTweensOf(this.mosaic)
-      cam.postFX.remove(this.mosaic)
-      this.mosaic = null
+    if (this.warp) {
+      this.tweens.killTweensOf(this.warp)
+      cam.postFX.remove(this.warp)
+      this.warp = null
     }
     this.fadeHud(true, 400)
     Music.play('overworld')
@@ -540,23 +540,21 @@ export var WorldScene = new Phaser.Class({
 
     const cam = this.cameras.main
     Fx.flash(this, 0xffffff, 0.9, 180)
+    // the camera dives toward the leader while the picture bulges and warps away
+    this.dive = { t: 0 }
     this.tweens.add({
-      targets: cam,
-      zoom: 4,
-      rotation: Math.PI * 1.5,
+      targets: this.dive,
+      t: 1,
       duration: 700,
       ease: 'Cubic.easeIn',
     })
-    // the picture breaks up into ever bigger blocks as it swirls away
-    if (Fx.enabled(this)) {
-      this.mosaic = cam.postFX.addPixelate(-1)
-      this.tweens.add({
-        targets: this.mosaic,
-        amount: 10,
-        duration: 700,
-        ease: 'Quad.easeIn',
-      })
-    }
+    this.warp = cam.postFX.addBarrel(1)
+    this.tweens.add({
+      targets: this.warp,
+      amount: 2.4,
+      duration: 700,
+      ease: 'Quad.easeIn',
+    })
     cam.fadeOut(700, 0, 0, 0)
     this.fadeHud(false, 500)
     // start battle once the screen is black
@@ -633,7 +631,30 @@ export var WorldScene = new Phaser.Class({
     this.fadeHud(false, 500)
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart())
   },
+  // Keeps the leader in the middle of the screen without showing past the map's edges. During the
+  // battle transition the camera zooms in on them
+  followCamera: function () {
+    const cam = this.cameras.main
+    const zoom = HD.ZOOM * (1 + 2.5 * (this.dive ? this.dive.t : 0))
+    cam.setZoom(zoom)
+    const viewW = cam.width / zoom
+    const viewH = cam.height / zoom
+    const { width, height } = this.physics.world.bounds
+    cam.setScroll(
+      Phaser.Math.Clamp(
+        this.player.x - viewW / 2,
+        0,
+        Math.max(0, width - viewW)
+      ),
+      Phaser.Math.Clamp(
+        this.player.y - 4 - viewH / 2,
+        0,
+        Math.max(0, height - viewH)
+      )
+    )
+  },
   update: function (time, delta) {
+    this.followCamera()
     // nearer things (further down the map) are drawn in front
     this.player.setDepth(this.player.y + 12)
     // shadows stay under the feet of whatever moves, flyers' shadows a little further down

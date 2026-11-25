@@ -1,182 +1,158 @@
-// Shared look of the menus: blue gradient windows with a bevelled silver frame and rounded corners,
-// a pointing hand cursor, and recolored copies of the bitmap font (grey, blue, red).
-// Everything is drawn pixel by pixel into canvas textures at boot or on first use, so it stays crisp
-// and looks the same under WebGL and the Canvas fallback
+import { hdCanvas } from './hd'
 
-const RADIUS = 4
-// frame tones from the outside in: outline, then two bevel tones on the lit (top/left) and shaded
-// (bottom/right) edges, then a dark line against the fill
+// Shared look of the menus: deep blue windows with a soft sheen, a bevelled metal frame and rounded
+// corners, and a gloved hand cursor. Everything is painted at screen resolution into canvas textures,
+// cached per size, at boot or on first use
+
+const RADIUS = 4.5
+// frame metals, from the lit top left to the shaded bottom right
 const FRAMES = {
   silver: {
-    outline: [10, 10, 28],
-    lit: [
-      [255, 255, 255],
-      [196, 204, 230],
-    ],
-    shade: [
-      [176, 184, 212],
-      [118, 128, 170],
-    ],
-    inner: [16, 20, 66],
+    outline: '#080a22',
+    light: '#ffffff',
+    mid: '#c8d0ea',
+    dark: '#6a74a0',
+    inner: '#0c1240',
   },
-  // used for the highlighted card on the party selection screen
+  // the highlighted card on the party selection screen
   gold: {
-    outline: [30, 16, 6],
-    lit: [
-      [255, 246, 176],
-      [240, 200, 88],
-    ],
-    shade: [
-      [216, 164, 56],
-      [160, 104, 30],
-    ],
-    inner: [40, 22, 30],
+    outline: '#1e1004',
+    light: '#fff6c8',
+    mid: '#f0c858',
+    dark: '#9a6418',
+    inner: '#2a1606',
   },
 }
 const FILLS = {
-  blue: { top: [74, 104, 226], bottom: [10, 18, 92] },
+  blue: { top: '#4a6ae0', mid: '#203aa8', bottom: '#0a1258' },
   // darker fill for windows behind the active one
-  dusk: { top: [44, 60, 150], bottom: [8, 12, 60] },
+  dusk: { top: '#2e4096', mid: '#18266e', bottom: '#080c3a' },
 }
 
-const lerp = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t))
-
-// Draws a window of the given size into a cached canvas texture and returns its key
-const windowTexture = (scene, w, h, frameName, fillName) => {
-  const key = `ui-window-${w}x${h}-${frameName}-${fillName}`
-  if (scene.textures.exists(key)) return key
-  const frame = FRAMES[frameName]
-  const fill = FILLS[fillName]
-  const texture = scene.textures.createCanvas(key, w, h)
-  const ctx = texture.getContext()
-  const image = ctx.createImageData(w, h)
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const dx = Math.min(x, w - 1 - x)
-      const dy = Math.min(y, h - 1 - y)
-      // how many pixels in from the edge, rounded off at the corners
-      let inset = Math.min(dx, dy)
-      if (dx < RADIUS && dy < RADIUS) {
-        inset = Math.floor(
-          RADIUS - Math.hypot(RADIUS - dx - 0.5, RADIUS - dy - 0.5)
-        )
-      }
-      if (inset < 0) continue
-      const lit = Math.min(x, y) <= Math.min(w - 1 - x, h - 1 - y)
-      let color
-      if (inset === 0) color = frame.outline
-      else if (inset <= 2) color = (lit ? frame.lit : frame.shade)[inset - 1]
-      else if (inset === 3) color = frame.inner
-      else {
-        // banded vertical gradient, one tone every two pixel rows
-        const t = Math.min(1, Math.max(0, (y - 4) / Math.max(1, h - 9)))
-        color = lerp(fill.top, fill.bottom, Math.round(t * (h / 2)) / (h / 2))
-      }
-      const i = (y * w + x) * 4
-      image.data[i] = color[0]
-      image.data[i + 1] = color[1]
-      image.data[i + 2] = color[2]
-      image.data[i + 3] = 255
-    }
-  }
-  ctx.putImageData(image, 0, 0)
-  texture.refresh()
-  return key
+const roundRect = (ctx, x, y, w, h, r) => {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.arcTo(x + w, y, x + w, y + h, r)
+  ctx.arcTo(x + w, y + h, x, y + h, r)
+  ctx.arcTo(x, y + h, x, y, r)
+  ctx.arcTo(x, y, x + w, y, r)
+  ctx.closePath()
 }
 
-// Pointing hand cursor, 13x9, drawn facing right
-const POINTER = [
-  '...ooooo.....',
-  '..owwwwwooooo',
-  '.owwwwwwwwwwo',
-  'oowwwwwssssso',
-  'ocowwwwooooo.',
-  'ocowwwwwo....',
-  'oowwwwsso....',
-  '.ooossso.....',
-  '...oooo......',
-]
-const POINTER_COLORS = {
-  o: '#14142a',
-  w: '#ffffff',
-  s: '#a8b0d0',
-  c: '#4a68d8',
-}
+const paintWindow = (frame, fill) => (ctx, w, h) => {
+  // metal frame: outline, then a bevel lit from the upper left
+  roundRect(ctx, 0, 0, w, h, RADIUS)
+  ctx.fillStyle = frame.outline
+  ctx.fill()
+  const bevel = ctx.createLinearGradient(0, 0, w * 0.35, h)
+  bevel.addColorStop(0, frame.light)
+  bevel.addColorStop(0.45, frame.mid)
+  bevel.addColorStop(1, frame.dark)
+  roundRect(ctx, 0.6, 0.6, w - 1.2, h - 1.2, RADIUS - 0.6)
+  ctx.fillStyle = bevel
+  ctx.fill()
+  roundRect(ctx, 2, 2, w - 4, h - 4, RADIUS - 1.8)
+  ctx.fillStyle = frame.inner
+  ctx.fill()
 
-// Copies of the white bitmap font in other colors: the glyphs are white with a dark outline, so only
-// the white is replaced
-const FONT_COLORS = {
-  pressstartg: [138, 146, 170],
-  pressstartb: [150, 206, 255],
-  pressstartr: [255, 112, 96],
+  // the window's body: a deep blue gradient with a soft glow near the top
+  ctx.save()
+  roundRect(ctx, 2.5, 2.5, w - 5, h - 5, RADIUS - 2.2)
+  ctx.clip()
+  const body = ctx.createLinearGradient(0, 2.5, 0, h - 2.5)
+  body.addColorStop(0, fill.top)
+  body.addColorStop(0.45, fill.mid)
+  body.addColorStop(1, fill.bottom)
+  ctx.fillStyle = body
+  ctx.fillRect(0, 0, w, h)
+  const sheen = ctx.createRadialGradient(
+    w * 0.3,
+    -h * 0.2,
+    0,
+    w * 0.3,
+    -h * 0.2,
+    Math.max(w, h) * 0.9
+  )
+  sheen.addColorStop(0, 'rgba(160, 190, 255, 0.35)')
+  sheen.addColorStop(1, 'rgba(160, 190, 255, 0)')
+  ctx.fillStyle = sheen
+  ctx.fillRect(0, 0, w, h)
+  // a thin highlight along the top edge and a shadow along the bottom, for depth
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.18)'
+  ctx.fillRect(0, 2.5, w, 0.5)
+  const floor = ctx.createLinearGradient(0, h - 8, 0, h)
+  floor.addColorStop(0, 'rgba(0, 0, 20, 0)')
+  floor.addColorStop(1, 'rgba(0, 0, 20, 0.35)')
+  ctx.fillStyle = floor
+  ctx.fillRect(0, h - 8, w, 8)
+  ctx.restore()
 }
 
 export const Ui = {
-  // Pointer texture and font colors, called once by the boot scene after the fonts have loaded
+  // The hand cursor and the twinkle, called once by the boot scene
   createTextures: function (scene) {
-    const pointer = scene.textures.createCanvas(
-      'ui-pointer',
-      POINTER[0].length,
-      POINTER.length
-    )
-    const ctx = pointer.getContext()
-    POINTER.forEach((row, y) =>
-      [...row].forEach((char, x) => {
-        if (POINTER_COLORS[char]) {
-          ctx.fillStyle = POINTER_COLORS[char]
-          ctx.fillRect(x, y, 1, 1)
-        }
-      })
-    )
-    pointer.refresh()
-
-    // four pointed twinkle, used on the title logo
-    const sparkle = scene.textures.createCanvas('ui-sparkle', 7, 7)
-    const sctx = sparkle.getContext()
-    sctx.fillStyle = '#fff8d0'
-    sctx.fillRect(3, 0, 1, 7)
-    sctx.fillRect(0, 3, 7, 1)
-    sctx.fillStyle = '#ffffff'
-    sctx.fillRect(2, 2, 3, 3)
-    sparkle.refresh()
-
-    const font = scene.cache.bitmapFont.get('pressstart')
-    const source = scene.textures.get('pressstart').getSourceImage()
-    Object.entries(FONT_COLORS).forEach(([key, color]) => {
-      const texture = scene.textures.createCanvas(
-        key,
-        source.width,
-        source.height
-      )
-      const context = texture.getContext()
-      context.drawImage(source, 0, 0)
-      const image = context.getImageData(0, 0, source.width, source.height)
-      for (let i = 0; i < image.data.length; i += 4) {
-        // scale by brightness so the anti-aliased edge pixels keep their shade
-        const k = image.data[i] / 255
-        image.data[i] = color[0] * k
-        image.data[i + 1] = color[1] * k
-        image.data[i + 2] = color[2] * k
-      }
-      context.putImageData(image, 0, 0)
-      texture.refresh()
-      scene.cache.bitmapFont.add(key, {
-        data: font.data,
-        texture: key,
-        frame: null,
-      })
+    // a white glove pointing right, its fingertip at the right edge
+    hdCanvas(scene, 'ui-pointer', 15, 10, (ctx) => {
+      ctx.lineJoin = 'round'
+      ctx.lineWidth = 0.7
+      ctx.strokeStyle = '#141632'
+      const glove = ctx.createLinearGradient(0, 1, 0, 9)
+      glove.addColorStop(0, '#ffffff')
+      glove.addColorStop(0.6, '#e4e8f6')
+      glove.addColorStop(1, '#9aa2c8')
+      // cuff
+      roundRect(ctx, 0.5, 2.2, 3.4, 6, 1)
+      const cuff = ctx.createLinearGradient(0, 2, 0, 8)
+      cuff.addColorStop(0, '#7a9af8')
+      cuff.addColorStop(1, '#2a44b0')
+      ctx.fillStyle = cuff
+      ctx.fill()
+      ctx.stroke()
+      // fingers curled under the palm
+      roundRect(ctx, 3.4, 4.6, 6.2, 4, 1.8)
+      ctx.fillStyle = glove
+      ctx.fill()
+      ctx.stroke()
+      // palm and pointing finger
+      ctx.beginPath()
+      ctx.moveTo(3.6, 2.6)
+      ctx.quadraticCurveTo(5.5, 1.2, 8.2, 1.4)
+      ctx.lineTo(13.4, 1.4)
+      ctx.quadraticCurveTo(14.6, 1.4, 14.6, 2.6)
+      ctx.quadraticCurveTo(14.6, 3.8, 13.4, 3.8)
+      ctx.lineTo(9, 3.8)
+      ctx.quadraticCurveTo(9.8, 5.4, 8.4, 6)
+      ctx.lineTo(4, 6.2)
+      ctx.closePath()
+      ctx.fillStyle = glove
+      ctx.fill()
+      ctx.stroke()
+    })
+    // a four pointed twinkle with a soft glow, used on the title logo and chests
+    hdCanvas(scene, 'ui-sparkle', 9, 9, (ctx) => {
+      const glow = ctx.createRadialGradient(4.5, 4.5, 0, 4.5, 4.5, 4.5)
+      glow.addColorStop(0, 'rgba(255, 250, 220, 0.9)')
+      glow.addColorStop(0.35, 'rgba(255, 240, 180, 0.35)')
+      glow.addColorStop(1, 'rgba(255, 240, 180, 0)')
+      ctx.fillStyle = glow
+      ctx.fillRect(0, 0, 9, 9)
+      ctx.fillStyle = '#ffffff'
+      ctx.beginPath()
+      ctx.moveTo(4.5, 0)
+      ctx.quadraticCurveTo(5, 4, 9, 4.5)
+      ctx.quadraticCurveTo(5, 5, 4.5, 9)
+      ctx.quadraticCurveTo(4, 5, 0, 4.5)
+      ctx.quadraticCurveTo(4, 4, 4.5, 0)
+      ctx.fill()
     })
   },
 
   // Adds a window with its top left corner at x, y. Options: frame 'silver' or 'gold', fill 'blue' or 'dusk'
   window: function (scene, x, y, w, h, options = {}) {
-    const key = windowTexture(
-      scene,
-      w,
-      h,
-      options.frame || 'silver',
-      options.fill || 'blue'
-    )
+    const frame = options.frame || 'silver'
+    const fill = options.fill || 'blue'
+    const key = `ui-window-${w}x${h}-${frame}-${fill}`
+    hdCanvas(scene, key, w, h, paintWindow(FRAMES[frame], FILLS[fill]))
     return scene.add.image(x, y, key).setOrigin(0, 0)
   },
 
@@ -195,7 +171,7 @@ export const Ui = {
     })
     // place beside a text object whose origin is on its left edge
     pointer.pointAt = (x, y) => {
-      pointer.setPosition(Math.round(x - 2 - pointer.bob), Math.round(y))
+      pointer.setPosition(x - 2 - pointer.bob, y)
       return pointer
     }
     return pointer
