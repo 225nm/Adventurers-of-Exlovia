@@ -31,7 +31,7 @@ export let PartySelectScene = new Phaser.Class({
     this.confirmBox = null
 
     // the title's moonlit castle, dimmed behind the cards, with its mist and fireflies
-    this.add.image(0, 0, 'title-bg').setOrigin(0, 0)
+    this.add.image(-HD.OFFSET_X, 0, 'title-bg').setOrigin(0, 0)
     Scenery.moonlitNight(this)
     this.add
       .rectangle(-HD.OFFSET_X, 0, HD.VIEW_W, 240, 0x05041a, 0.55)

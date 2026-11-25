@@ -7,7 +7,8 @@ import { Party } from '../party.js'
 import { saveSystem } from '../save.js'
 import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
-import { seededRandom, GRASS_VARIANTS, DECORATION_KINDS } from '../art/world'
+import { seededRandom, DECORATION_KINDS } from '../art/world'
+import { paintGround } from '../art/ground'
 import { Ui } from '../ui'
 import { Fx } from '../fx'
 import { HD } from '../hd'
@@ -42,8 +43,8 @@ export var WorldScene = new Phaser.Class({
     // make all tiles in obstacles collidable
     obstacles.setCollisionByExclusion([-1])
 
-    // the map only marks where grass and trees are: grass tiles get a mix of grass variants and the
-    // trees are drawn as taller sprites, so their crowns overlap and the player can walk behind them
+    // the map only marks where grass and trees are: the grass is a meadow painted for each floor and
+    // the trees are drawn as taller sprites, so their crowns overlap and the player can walk behind them
     this.floor = this.registry.get('floor') || 1
     // light and color of this depth of the dungeon: day on the first floors, night further down
     this.mood = Fx.mood(this.floor)
@@ -55,7 +56,15 @@ export var WorldScene = new Phaser.Class({
       .setOrigin(0, 0)
       .setDepth(SHADOW_DEPTH)
       .setAlpha(0.3)
-    this.scatterGrass(grass)
+    grass.setVisible(false)
+    this.add
+      .image(
+        0,
+        0,
+        paintGround(this, map.widthInPixels, map.heightInPixels, this.floor)
+      )
+      .setOrigin(0, 0)
+      .setDepth(-1)
     this.plantTrees(obstacles)
     this.scatterDecorations(obstacles)
 
@@ -400,8 +409,8 @@ export var WorldScene = new Phaser.Class({
     const hud = [
       Ui.window(this, 2, 2, 76, 18).setScrollFactor(0).setDepth(HUD_DEPTH),
       this.add
-        .pixelText(10, 7, `FLOOR ${this.floor}`)
-        .setOrigin(0, 0)
+        .pixelText(10, 11, `FLOOR ${this.floor}`)
+        .setOrigin(0, 0.5)
         .setScrollFactor(0)
         .setDepth(HUD_DEPTH),
     ]
@@ -682,18 +691,6 @@ export var WorldScene = new Phaser.Class({
     else if (this.cursors.right.isDown) this.player.flipX = false
     this.walk(velocity.x || velocity.y ? delta : 0)
   },
-  // Gives every grass tile one of the grass variants, the same mix each time a floor is visited
-  scatterGrass: function (layer) {
-    const random = seededRandom(this.floor * 7919)
-    const total = GRASS_VARIANTS.reduce((sum, [, weight]) => sum + weight, 0)
-    layer.forEachTile((tile) => {
-      if (tile.index < 0) return
-      let roll = random() * total
-      const [index] = GRASS_VARIANTS.find(([, weight]) => (roll -= weight) < 0)
-      tile.index = index
-    })
-  },
-
   // Hides the tree tiles (they still block the way) and stands a tree sprite on each one, nudged a
   // little so a wood doesn't look like a grid
   plantTrees: function (layer) {

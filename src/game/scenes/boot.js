@@ -8,14 +8,6 @@ import { Fx } from '../fx'
 import { hdCanvas } from '../hd'
 import { Paintings } from '../art/paintings'
 
-// still the pixel art versions, until they are painted
-const SPRITES = [
-  'battle-bg',
-  'title-bg',
-  'tree-round',
-  'tree-dark',
-  'tree-pine',
-]
 // Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -25,12 +17,11 @@ export var BootScene = new Phaser.Class({
   },
   // Loads the map layout and the battle and title sprites, the rest of the art is generated in create (see src/game/art)
   preload: function () {
-    // map in json format, its tiles come from the generated 'tiles' texture
+    // map in json format: where the grass and the trees are (art/world.js)
     this.load.tilemapTiledJSON('map', 'assets/map/map.json')
 
-    // pixel art rendered from the SVGs in tools/sprites (node tools/sprites/render.mjs)
-    SPRITES.forEach((key) => this.load.image(key, `assets/sprites/${key}.png`))
-    // heroes and monsters, painted in code and rasterized at screen resolution (see art/paintings)
+    // all the pictures: heroes, monsters, backdrops and map scenery, painted in code and rasterized
+    // at screen resolution (see art/paintings)
     Paintings.load(this)
   },
   // Create method to initialize the inventory and start the title scene

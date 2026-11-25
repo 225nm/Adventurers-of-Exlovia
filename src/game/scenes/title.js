@@ -17,7 +17,7 @@ export var TitleScene = new Phaser.Class({
   },
   // Create method to set up the title screen, including background, menu options, and input handling
   create: function () {
-    this.add.image(0, 0, 'title-bg').setOrigin(0, 0)
+    this.add.image(-HD.OFFSET_X, 0, 'title-bg').setOrigin(0, 0)
     // moonlit night: the moon and the castle's windows bloom, mist drifts past the castle's foot
     Scenery.moonlitNight(this)
     // the knight and the mage standing on the rocks in front

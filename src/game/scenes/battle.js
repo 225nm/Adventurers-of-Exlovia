@@ -63,7 +63,7 @@ export var BattleScene = new Phaser.Class({
     // change the background to green
     this.cameras.main.setBackgroundColor('#1a2a1a')
     // field backdrop above the menus, created once and kept between battles
-    this.add.image(0, 0, 'battle-bg').setOrigin(0, 0).setDepth(-10)
+    this.add.image(-HD.OFFSET_X, 0, 'battle-bg').setOrigin(0, 0).setDepth(-10)
     // lighting, bloom and grading, set to the floor's mood at the start of each battle
     Fx.look(this)
 

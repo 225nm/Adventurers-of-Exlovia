@@ -4,6 +4,20 @@ import { mage } from './mage'
 import { ranger } from './ranger'
 import { slime, bat, wispFire, wispIce } from './monsters'
 import { goblin, darkMage, ogre, dragonOrange, dragonBlue } from './brutes'
+import { battlefield } from './battlefield'
+import { nightCastle } from './nightCastle'
+import {
+  treeRound,
+  treeDark,
+  treePine,
+  tuft,
+  flowers,
+  bush,
+  rock,
+  mushrooms,
+  chest,
+  stairs,
+} from './mapArt'
 
 // Every painting, by the texture keys it is loaded as. Each painting is rasterized once per key, at
 // `size` times its layout size (sharp at that size, instead of scaling one picture down):
@@ -31,6 +45,20 @@ const PAINTINGS = [
     keys: { 'dragon-orange': 1, 'dragon-orange-mini': 0.3 },
   },
   { paint: dragonBlue, keys: { 'dragon-blue': 1, 'dragon-blue-mini': 0.3 } },
+  // the map's trees, decorations, chests and stairs
+  { paint: treeRound, keys: { 'tree-round': 1 } },
+  { paint: treeDark, keys: { 'tree-dark': 1 } },
+  { paint: treePine, keys: { 'tree-pine': 1 } },
+  { paint: tuft, keys: { 'deco-tuft': 1 } },
+  { paint: flowers, keys: { 'deco-flowers': 1 } },
+  { paint: bush, keys: { 'deco-bush': 1 } },
+  { paint: rock, keys: { 'deco-rock': 1 } },
+  { paint: mushrooms, keys: { 'deco-mushrooms': 1 } },
+  { paint: chest, keys: { chest: 1 } },
+  { paint: stairs, keys: { stairs: 1 } },
+  // backdrops, as wide as the screen
+  { paint: battlefield, keys: { 'battle-bg': 1 } },
+  { paint: nightCastle, keys: { 'title-bg': 1 } },
 ]
 
 export const Paintings = {
