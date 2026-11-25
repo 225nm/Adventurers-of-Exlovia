@@ -528,6 +528,17 @@ export const BattleAnimations = {
   death: function (scene, target) {
     // takeDamage hides the unit straight away, show it again for the effect
     target.visible = true
+    // a glowing creature's light goes out as it burns away
+    if (target.glow) {
+      const light = target.glow
+      target.glow = null
+      scene.tweens.add({
+        targets: light,
+        intensity: 0,
+        duration: 900,
+        onComplete: () => Fx.removeLight(scene, light),
+      })
+    }
     Sfx.enemyDeath()
     this.later(scene, 250, () => {
       this.sparks(scene, target, 'spark-magic', 14, -30)

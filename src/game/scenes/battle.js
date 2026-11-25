@@ -99,6 +99,7 @@ export var BattleScene = new Phaser.Class({
   // Start the battle, initialize heroes and enemies based on saved data, and set up the turn order
   startBattle: function () {
     // Clear any previous battle data to avoid bugs
+    ;(this.fxLights || []).slice().forEach((l) => Fx.removeLight(this, l))
     this.units = []
     this.heroes = []
     this.enemies = []
@@ -161,6 +162,8 @@ export var BattleScene = new Phaser.Class({
       enemy.startHover()
       Progression.scaleEnemy(enemy, floor)
       this.add.existing(enemy)
+      // wisps and the like light up the field around them
+      enemy.glow = Fx.creatureGlow(this, enemy, enemy.texture.key, 1.6)
       this.enemies.push(enemy)
     }
     // array with both parties, who will attack

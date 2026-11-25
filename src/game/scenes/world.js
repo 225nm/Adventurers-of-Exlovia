@@ -343,12 +343,66 @@ export var WorldScene = new Phaser.Class({
       })
     }
 
+    // wisps and the like glow in the dark
+    this.spawns.getChildren().forEach((enemy) => {
+      Fx.creatureGlow(this, enemy, enemiesIndex[enemy.enemyType].sprite.texture)
+    })
+
     Fx.cloudShadows(this, mood.clouds, AIR_DEPTH)
     Fx.sunRays(this, mood.rays, mood.rayColor, AIR_DEPTH + 1)
     if (mood.motes === 'pollen') Fx.pollen(this, AIR_DEPTH + 2)
     if (mood.motes === 'fireflies') {
       Fx.fireflies(this, mood.fireflies, AIR_DEPTH + 2, mood.fireflyColor)
     }
+
+    // little puffs of dust kicked up by the leader's feet while walking
+    if (Fx.enabled(this)) {
+      this.dust = this.add.particles(0, 0, 'fx-mote', {
+        lifespan: 380,
+        speedX: { min: -10, max: 10 },
+        speedY: { min: -10, max: -2 },
+        scale: { start: 1.2, end: 0.4 },
+        alpha: { start: 0.55, end: 0 },
+        tint: [0xd8c8a0, 0xc0b088],
+        emitting: false,
+      })
+      this.dustTimer = 0
+    }
+    // chests catch the light now and then
+    this.time.addEvent({
+      delay: 1300,
+      loop: true,
+      callback: () => {
+        const chests = this.chests.getChildren()
+        if (!chests.length) return
+        const chest = Phaser.Utils.Array.GetRandom(chests)
+        const glint = this.add
+          .image(
+            chest.x + Phaser.Math.Between(-5, 5),
+            chest.y - Phaser.Math.Between(0, 5),
+            'ui-sparkle'
+          )
+          .setScale(0.2)
+          .setDepth(chest.depth + 1)
+        this.tweens.add({
+          targets: glint,
+          scale: 0.9,
+          duration: 220,
+          yoyo: true,
+          onComplete: () => glint.destroy(),
+        })
+      },
+    })
+  },
+
+  // Puffs dust at the leader's feet every few steps while walking
+  kickDust: function (delta) {
+    if (!this.dust) return
+    this.dustTimer -= delta
+    if (this.dustTimer > 0) return
+    this.dustTimer = 170
+    this.dust.setDepth(this.player.depth - 0.5)
+    this.dust.explode(2, this.player.x, this.player.y + 11)
   },
 
   // Floor number in the corner, and a banner announcing the floor when it starts
@@ -608,6 +662,8 @@ export var WorldScene = new Phaser.Class({
     } else if (this.cursors.down.isDown) {
       this.player.body.setVelocityY(80)
     }
+    const velocity = this.player.body.velocity
+    if (velocity.x || velocity.y) this.kickDust(delta)
 
     // Update the animation last and give left/right animations precedence over up/down animations
     if (this.cursors.left.isDown) {
@@ -654,7 +710,10 @@ export var WorldScene = new Phaser.Class({
       if (!key) return
       const x = tile.pixelX + 8 + Math.round((random() - 0.5) * 4)
       const y = tile.pixelY + 15 + Math.round(random() * 2)
-      const tree = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+      const tree = Fx.sway(
+        this,
+        this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+      )
       // the sun is to the upper left, so shadows fall a little to the lower right
       this.stampShadow(x + 3, y - 1, tree.width * 1.05)
     })
@@ -686,6 +745,10 @@ export var WorldScene = new Phaser.Class({
       let roll = random() * total
       const [key] = DECORATION_KINDS.find(([, weight]) => (roll -= weight) < 0)
       const deco = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+      // plants move in the wind, rocks and mushrooms stay still
+      if (['deco-tuft', 'deco-flowers', 'deco-bush'].includes(key)) {
+        Fx.sway(this, deco)
+      }
       // flat things (tufts, flowers) don't cast a visible shadow
       if (deco.height >= 8) this.stampShadow(x + 1, y - 1, deco.width * 1.1)
     }

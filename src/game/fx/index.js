@@ -1,12 +1,17 @@
 import Phaser from 'phaser'
 import { LookPipeline, DEFAULT_LOOK, MAX_LIGHTS } from './lookPipeline.js'
 import { DissolvePipeline } from './dissolvePipeline.js'
+import { WindPipeline } from './windPipeline.js'
 import { createFxTextures } from './textures.js'
 
-export { LookPipeline, DissolvePipeline }
+export { LookPipeline, DissolvePipeline, WindPipeline }
 
-// Post-processing pipelines, registered with the game in start.js
-export const PIPELINES = { Look: LookPipeline, Dissolve: DissolvePipeline }
+// Shader pipelines, registered with the game in start.js
+export const PIPELINES = {
+  Look: LookPipeline,
+  Dissolve: DissolvePipeline,
+  Wind: WindPipeline,
+}
 
 // The light and color of each depth of the dungeon. Deeper floors get darker, so the party's
 // lantern, the stairs' glow and fireflies start to matter. Each mood also sets the atmosphere:
@@ -102,6 +107,14 @@ const MOODS = [
     lantern: 1,
   },
 ]
+
+// Enemies that give off light, by battle texture
+const CREATURE_GLOWS = {
+  'wisp-fire': { color: [1, 0.55, 0.2], radius: 40, intensity: 1 },
+  'wisp-ice': { color: [0.45, 0.75, 1], radius: 40, intensity: 1 },
+  'dark-mage': { color: [0.7, 0.4, 1], radius: 26, intensity: 0.7 },
+  'dragon-orange': { color: [1, 0.6, 0.3], radius: 30, intensity: 0.4 },
+}
 
 const toRgb = (hex) => [
   ((hex >> 16) & 255) / 255,
@@ -289,6 +302,29 @@ export const Fx = {
       },
     })
     return true
+  },
+
+  // Creatures made of light light up their surroundings, on the map and in battle. key is the
+  // enemy's battle texture. Returns the light, or null for creatures that don't glow
+  creatureGlow: function (scene, sprite, key, scale = 1) {
+    const glow = CREATURE_GLOWS[key]
+    if (!glow) return null
+    return this.addLight(scene, {
+      follow: sprite,
+      offsetY: glow.offsetY || 0,
+      radius: glow.radius * scale,
+      intensity: glow.intensity,
+      color: glow.color,
+      flicker: true,
+    })
+  },
+
+  // Lets an image sway in the wind (trees, bushes, grass). Its x position sets its place in the
+  // passing gusts, so neighbors move together and the gust rolls across the map
+  sway: function (scene, image) {
+    if (!this.enabled(scene)) return image
+    const phase = Math.round(((((image.x / 180) % 1) + 1) % 1) * 255)
+    return image.setPipeline('Wind').setTint(phase * 0x010101)
   },
 
   // Gives a scene's menus or HUD a camera of their own, drawn on top, so the lighting, bloom, tilt
