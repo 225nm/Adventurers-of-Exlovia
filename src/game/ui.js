@@ -1,7 +1,7 @@
 // Shared look of the menus: blue gradient windows with a bevelled silver frame and rounded corners,
 // a pointing hand cursor, and recolored copies of the bitmap font (grey, blue, red).
 // Everything is drawn pixel by pixel into canvas textures at boot or on first use, so it stays crisp
-// with the Canvas renderer (where Graphics gradients and setTint are not available)
+// and looks the same under WebGL and the Canvas fallback
 
 const RADIUS = 4
 // frame tones from the outside in: outline, then two bevel tones on the lit (top/left) and shaded

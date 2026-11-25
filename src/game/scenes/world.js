@@ -354,6 +354,7 @@ export var WorldScene = new Phaser.Class({
     if (mood.motes === 'fireflies') {
       Fx.fireflies(this, mood.fireflies, AIR_DEPTH + 2, mood.fireflyColor)
     }
+    if (mood.rain) Fx.rain(this, AIR_DEPTH + 3, null, () => Sfx.thunder())
 
     // little puffs of dust kicked up by the leader's feet while walking
     if (Fx.enabled(this)) {

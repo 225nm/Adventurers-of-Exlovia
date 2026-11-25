@@ -113,6 +113,14 @@ export const createFxTextures = (scene) => {
     return [255, 255, 255, Math.round(across * across * along * 255)]
   })
 
+  // a falling raindrop's streak, brightest at its head
+  paint(scene, 'fx-rain', 1, 7, (x, y) => [
+    220,
+    235,
+    255,
+    Math.round((0.25 + (y / 6) * 0.75) * 255),
+  ])
+
   // a speck of pollen
   paint(scene, 'fx-mote', 3, 3, (x, y) => {
     const center = x === 1 && y === 1

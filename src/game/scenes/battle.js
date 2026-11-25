@@ -94,6 +94,17 @@ export var BattleScene = new Phaser.Class({
     if (mood.motes === 'fireflies') {
       add(Fx.fireflies(this, 6, 32, mood.fireflyColor, ground))
     }
+    // no thunder in battle, the fight has its own sounds. The backdrop's blue sky clouds over
+    if (mood.rain) {
+      add(Fx.rain(this, 33, ground))
+      add([
+        this.add
+          .rectangle(0, 0, 320, ground.y + 4, 0x7a8296)
+          .setOrigin(0, 0)
+          .setDepth(-9)
+          .setBlendMode(Phaser.BlendModes.MULTIPLY),
+      ])
+    }
     this.atmosphere = this.atmosphere.filter(Boolean)
   },
   // Start the battle, initialize heroes and enemies based on saved data, and set up the turn order

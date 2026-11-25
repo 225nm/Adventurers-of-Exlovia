@@ -133,8 +133,90 @@ export const Fx = {
     createFxTextures(scene)
   },
 
+  // The light and weather of a floor. Some floors are rainy: overcast, greyer and darker, with no
+  // sun shafts, pollen or cloud shadows
   mood: function (floor) {
-    return MOODS.filter((m) => floor >= m.fromFloor).pop()
+    const mood = MOODS.filter((m) => floor >= m.fromFloor).pop()
+    const rainy = floor % 4 === 2 && floor < 10
+    if (!rainy) return mood
+    const look = { ...DEFAULT_LOOK, ...mood.look }
+    return {
+      ...mood,
+      rain: true,
+      clouds: 0,
+      rays: 0,
+      motes: mood.motes === 'fireflies' ? 'fireflies' : null,
+      fireflies: Math.ceil((mood.fireflies || 0) / 2),
+      look: {
+        ...mood.look,
+        ambient: look.ambient * 0.82,
+        ambientColor: look.ambientColor.map(
+          (c, i) => c * [0.88, 0.94, 1.04][i]
+        ),
+        saturation: look.saturation * 0.78,
+        contrast: 1.02,
+        highlightTint: [0.0, 0.01, 0.03],
+      },
+    }
+  },
+
+  // Rain: streaks falling at a slant across the screen, and drops splashing on the ground. Every
+  // so often lightning flashes and thunder rolls (thunder is a callback, so this file stays free
+  // of audio). area is the ground the splashes land on, in screen space. Returns what it made
+  rain: function (scene, depth, area, thunder) {
+    if (!this.enabled(scene)) return []
+    const ground = area || { x: 0, y: 0, width: 320, height: 240 }
+    const streaks = scene.add
+      .particles(0, 0, 'fx-rain', {
+        emitZone: {
+          type: 'random',
+          source: new Phaser.Geom.Rectangle(-20, -12, 400, 4),
+        },
+        speedY: { min: 300, max: 360 },
+        speedX: { min: -80, max: -60 },
+        rotate: 12,
+        lifespan: 900,
+        alpha: { min: 0.35, max: 0.7 },
+        frequency: 6,
+        quantity: 2,
+      })
+      .setScrollFactor(0)
+      .setDepth(depth)
+    const splashes = scene.add
+      .particles(0, 0, 'fx-mote', {
+        emitZone: {
+          type: 'random',
+          source: new Phaser.Geom.Rectangle(
+            ground.x,
+            ground.y,
+            ground.width,
+            ground.height
+          ),
+        },
+        speedX: { min: -14, max: 14 },
+        speedY: { min: -22, max: -8 },
+        gravityY: 120,
+        lifespan: 220,
+        scale: { start: 0.7, end: 0.3 },
+        alpha: { start: 0.7, end: 0 },
+        tint: 0xd8e8ff,
+        frequency: 18,
+        quantity: 2,
+      })
+      .setScrollFactor(0)
+      .setDepth(depth)
+    const storm = scene.time.addEvent({
+      delay: 9000,
+      loop: true,
+      callback: () => {
+        if (Math.random() < 0.4) return
+        this.flash(scene, 0xe8f0ff, 0.45, 120)
+        scene.time.delayedCall(170, () => this.flash(scene, 0xe8f0ff, 0.3, 260))
+        if (thunder) scene.time.delayedCall(500, thunder)
+      },
+    })
+    streaks.once('destroy', () => storm.remove())
+    return [streaks, splashes]
   },
 
   // Puts the look pass on a scene's main camera with the given settings, and keeps its lights in
