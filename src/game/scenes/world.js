@@ -9,9 +9,14 @@ import { enemiesIndex } from '../units/enemies/enemiesIndex.js'
 import { heroesIndex } from '../units/heroes/heroesIndex.js'
 import { seededRandom, GRASS_VARIANTS, DECORATION_KINDS } from '../art/world'
 import { Ui } from '../ui'
+import { Fx } from '../fx'
 
 // map objects are drawn in order of their feet's y position, the HUD above all of them
 const HUD_DEPTH = 10000
+// ground shadows lie on the grass under everything standing on it, the air (clouds, sun shafts,
+// pollen, fireflies) floats over everything on the map
+const SHADOW_DEPTH = 0.5
+const AIR_DEPTH = HUD_DEPTH - 10
 
 export var WorldScene = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -39,6 +44,16 @@ export var WorldScene = new Phaser.Class({
     // the map only marks where grass and trees are: grass tiles get a mix of grass variants and the
     // trees are drawn as taller sprites, so their crowns overlap and the player can walk behind them
     this.floor = this.registry.get('floor') || 1
+    // light and color of this depth of the dungeon: day on the first floors, night further down
+    this.mood = Fx.mood(this.floor)
+    Fx.look(this, this.mood.look)
+    // the static shadows (trees, bushes, rocks) are stamped into one layer, so where they overlap
+    // they don't get darker than a single shadow
+    this.groundShadows = this.add
+      .renderTexture(0, 0, map.widthInPixels, map.heightInPixels)
+      .setOrigin(0, 0)
+      .setDepth(SHADOW_DEPTH)
+      .setAlpha(0.3)
     this.scatterGrass(grass)
     this.plantTrees(obstacles)
     this.scatterDecorations(obstacles)
@@ -253,17 +268,118 @@ export var WorldScene = new Phaser.Class({
     this.descending = false
     Music.play('overworld')
 
+    this.createAtmosphere()
     this.createFloorHud()
+  },
+
+  // Shadows under everything that moves, the lights (the party's lantern on dark floors, the stairs'
+  // glow, glinting chests), and the air: drifting cloud shadows, sun shafts, pollen or fireflies
+  createAtmosphere: function () {
+    const mood = this.mood
+    // 0 on bright floors, close to 1 on the darkest
+    const dark = 1 - (mood.look.ambient ?? 1)
+
+    this.movingShadows = []
+    const addShadow = (target, width, lift = 0) => {
+      const shadow = Fx.shadow(this, target.x, target.y, width).setDepth(
+        SHADOW_DEPTH + 0.1
+      )
+      this.movingShadows.push({ target, shadow, lift })
+      return shadow
+    }
+    addShadow(this.player, 13)
+    this.spawns.getChildren().forEach((enemy) => {
+      const hover = enemiesIndex[enemy.enemyType].sprite.hover
+      addShadow(enemy, Math.max(10, enemy.displayWidth * 0.8), hover ? 5 : 0)
+    })
+    this.chests.getChildren().forEach((chest) => {
+      chest.shadow = Fx.shadow(this, chest.x + 1, chest.y + 7, 18).setDepth(
+        SHADOW_DEPTH + 0.1
+      )
+    })
+    Fx.shadow(this, this.stairs.x, this.stairs.y + 6, 20).setDepth(
+      SHADOW_DEPTH + 0.1
+    )
+
+    if (mood.lantern) {
+      this.lantern = Fx.addLight(this, {
+        follow: this.player,
+        offsetY: -6,
+        radius: 92,
+        intensity: mood.lantern,
+        color: [1, 0.78, 0.5],
+        flicker: true,
+        priority: 2,
+      })
+    }
+    // the stairs shimmer blue so they can be found in the dark
+    const stairsLight = Fx.addLight(this, {
+      x: this.stairs.x,
+      y: this.stairs.y,
+      radius: 46,
+      intensity: 0.25 + dark * 0.9,
+      color: [0.45, 0.7, 1],
+      priority: 1,
+    })
+    if (stairsLight) {
+      this.tweens.add({
+        targets: stairsLight,
+        radius: 36,
+        duration: 1100,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      })
+    }
+    if (dark > 0.2) {
+      this.chests.getChildren().forEach((chest) => {
+        chest.light = Fx.addLight(this, {
+          x: chest.x,
+          y: chest.y,
+          radius: 22,
+          intensity: 0.7 * dark,
+          color: [1, 0.85, 0.4],
+        })
+      })
+    }
+
+    Fx.cloudShadows(this, mood.clouds, AIR_DEPTH)
+    Fx.sunRays(this, mood.rays, mood.rayColor, AIR_DEPTH + 1)
+    if (mood.motes === 'pollen') Fx.pollen(this, AIR_DEPTH + 2)
+    if (mood.motes === 'fireflies') {
+      Fx.fireflies(this, mood.fireflies, AIR_DEPTH + 2, mood.fireflyColor)
+    }
+  },
+
+  // The floor's HUD gets a camera of its own, so the lighting, tilt shift and vignette on the map's
+  // camera leave it alone. The map camera skips the HUD objects, the HUD camera everything else
+  createHudCamera: function (hudObjects) {
+    this.hudCam = this.cameras.add(0, 0, this.scale.width, this.scale.height)
+    this.hudCam.roundPixels = true
+    this.children.list.forEach((child) => {
+      if (!hudObjects.includes(child)) this.hudCam.ignore(child)
+    })
+    this.cameras.main.ignore(hudObjects)
+    // objects added later (chest messages, effects) belong to the map
+    const hide = (child) => {
+      if (!hudObjects.includes(child)) this.hudCam.ignore(child)
+    }
+    this.events.on(Phaser.Scenes.Events.ADDED_TO_SCENE, hide)
+    this.events.once('shutdown', () =>
+      this.events.off(Phaser.Scenes.Events.ADDED_TO_SCENE, hide)
+    )
   },
 
   // Floor number in the corner, and a banner announcing the floor when it starts
   createFloorHud: function () {
-    Ui.window(this, 2, 2, 76, 18).setScrollFactor(0).setDepth(HUD_DEPTH)
-    this.add
-      .pixelText(10, 7, `FLOOR ${this.floor}`)
-      .setOrigin(0, 0)
-      .setScrollFactor(0)
-      .setDepth(HUD_DEPTH)
+    const hud = [
+      Ui.window(this, 2, 2, 76, 18).setScrollFactor(0).setDepth(HUD_DEPTH),
+      this.add
+        .pixelText(10, 7, `FLOOR ${this.floor}`)
+        .setOrigin(0, 0)
+        .setScrollFactor(0)
+        .setDepth(HUD_DEPTH),
+    ]
 
     let banner = this.add
       .pixelText(160, 100, `FLOOR ${this.floor}`, 16)
@@ -288,6 +404,18 @@ export var WorldScene = new Phaser.Class({
       duration: 600,
       onComplete: () => parts.forEach((part) => part.destroy()),
     })
+    this.createHudCamera(hud.concat(parts))
+  },
+
+  // Fades the HUD along with the map during transitions, it has a camera of its own
+  fadeHud: function (fadeIn, duration) {
+    if (!this.hudCam) return
+    if (fadeIn) {
+      this.hudCam.resetFX()
+      this.hudCam.fadeIn(duration)
+    } else {
+      this.hudCam.fadeOut(duration, 0, 0, 0)
+    }
   },
 
   // ------------------------------     END OF CREATE ---------------------------------------------------------------
@@ -310,6 +438,12 @@ export var WorldScene = new Phaser.Class({
     cam.setZoom(1)
     cam.setRotation(0)
     cam.fadeIn(400)
+    if (this.mosaic) {
+      this.tweens.killTweensOf(this.mosaic)
+      cam.postFX.remove(this.mosaic)
+      this.mosaic = null
+    }
+    this.fadeHud(true, 400)
     Music.play('overworld')
 
     this.startGracePeriod()
@@ -368,7 +502,7 @@ export var WorldScene = new Phaser.Class({
     this.player.anims.stop()
 
     const cam = this.cameras.main
-    cam.flash(150, 255, 255, 255)
+    Fx.flash(this, 0xffffff, 0.9, 180)
     this.tweens.add({
       targets: cam,
       zoom: 4,
@@ -376,7 +510,18 @@ export var WorldScene = new Phaser.Class({
       duration: 700,
       ease: 'Cubic.easeIn',
     })
+    // the picture breaks up into ever bigger blocks as it swirls away
+    if (Fx.enabled(this)) {
+      this.mosaic = cam.postFX.addPixelate(-1)
+      this.tweens.add({
+        targets: this.mosaic,
+        amount: 10,
+        duration: 700,
+        ease: 'Quad.easeIn',
+      })
+    }
     cam.fadeOut(700, 0, 0, 0)
+    this.fadeHud(false, 500)
     // start battle once the screen is black
     cam.once('camerafadeoutcomplete', () => {
       this.scene.switch('BattleScene')
@@ -406,6 +551,10 @@ export var WorldScene = new Phaser.Class({
         msg.destroy()
       },
     })
+    // a burst of golden light as the chest opens
+    Fx.pulseLight(this, chest.x, chest.y, [1, 0.85, 0.4], 50, 600)
+    Fx.removeLight(this, chest.light)
+    if (chest.shadow) chest.shadow.destroy()
     chest.destroy()
   },
 
@@ -444,11 +593,20 @@ export var WorldScene = new Phaser.Class({
     Sfx.descend()
     this.player.body.setVelocity(0)
     this.cameras.main.fadeOut(500, 0, 0, 0)
+    this.fadeHud(false, 500)
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart())
   },
   update: function (time, delta) {
     // nearer things (further down the map) are drawn in front
     this.player.setDepth(this.player.y + 12)
+    // shadows stay under the feet of whatever moves, flyers' shadows a little further down
+    this.movingShadows.forEach(({ target, shadow, lift }) => {
+      shadow.setPosition(
+        Math.round(target.x + 1),
+        Math.round(target.y + target.displayHeight / 2 - 1 + lift)
+      )
+      shadow.setVisible(target.visible).setAlpha(0.35 * target.alpha)
+    })
     this.spawns
       .getChildren()
       .forEach((enemy) => enemy.setDepth(enemy.y + enemy.displayHeight / 2))
@@ -514,7 +672,17 @@ export var WorldScene = new Phaser.Class({
       if (!key) return
       const x = tile.pixelX + 8 + Math.round((random() - 0.5) * 4)
       const y = tile.pixelY + 15 + Math.round(random() * 2)
-      this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+      const tree = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+      // the sun is to the upper left, so shadows fall a little to the lower right
+      this.stampShadow(x + 3, y - 1, tree.width * 1.05)
+    })
+  },
+
+  // Adds a soft ground shadow to the static shadow layer
+  stampShadow: function (x, y, width) {
+    this.groundShadows.stamp('fx-shadow', null, x, y, {
+      scaleX: width / 32,
+      scaleY: (width * 0.34) / 12,
     })
   },
 
@@ -535,7 +703,9 @@ export var WorldScene = new Phaser.Class({
       }
       let roll = random() * total
       const [key] = DECORATION_KINDS.find(([, weight]) => (roll -= weight) < 0)
-      this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+      const deco = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+      // flat things (tufts, flowers) don't cast a visible shadow
+      if (deco.height >= 8) this.stampShadow(x + 1, y - 1, deco.width * 1.1)
     }
   },
 

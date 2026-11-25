@@ -12,6 +12,7 @@ import { StatsScene } from './game/scenes/heroStats'
 import { OptionsScene } from './game/scenes/options'
 import { GameOverScene } from './game/scenes/gameover'
 import { PartySelectScene } from './game/scenes/partyselect'
+import { PIPELINES } from './game/fx'
 
 // TODO make resolution/zoom level more uniform and fit on multiple units
 // Phaser container and physics settings.
@@ -25,6 +26,8 @@ var config = {
   roundPixels: true,
   antialias: false,
   antialiasGL: false,
+  // shader passes for the lighting, bloom and grading (see src/game/fx)
+  pipeline: PIPELINES,
   /* zoom: 3, */
   scale: {
     mode: Phaser.Scale.FIT,

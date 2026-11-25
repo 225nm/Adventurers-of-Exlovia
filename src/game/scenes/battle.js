@@ -11,6 +11,7 @@ import { Sfx } from '../audio/sfx.js'
 import { Progression } from '../progression.js'
 import { Loot } from '../loot.js'
 import { Ui } from '../ui.js'
+import { Fx } from '../fx'
 
 // Where 1-3 units stand on each side: [x, y of their feet], kept above the menu windows at y 152.
 // Units further down the screen are closer and drawn in front, every other one steps forward
@@ -61,12 +62,39 @@ export var BattleScene = new Phaser.Class({
     this.cameras.main.setBackgroundColor('#1a2a1a')
     // field backdrop above the menus, created once and kept between battles
     this.add.image(0, 0, 'battle-bg').setOrigin(0, 0).setDepth(-10)
+    // lighting, bloom and grading, set to the floor's mood at the start of each battle
+    Fx.look(this)
 
     // on wake event we call startBattle too
     this.sys.events.off('wake')
     this.sys.events.on('wake', this.startBattle, this)
 
     this.startBattle()
+  },
+  // The floor's light and weather over the battlefield, like on the map but brighter so the fight
+  // stays easy to read: cloud shadows on the grass, sun shafts, pollen or fireflies
+  createAtmosphere: function () {
+    ;(this.atmosphere || []).forEach((thing) => thing.destroy())
+    this.atmosphere = []
+    if (!this.fxLook) return
+    const mood = Fx.mood(this.registry.get('floor') || 1)
+    const ambient = mood.look.ambient ?? 1
+    this.fxLook.settings = {
+      ...this.fxLook.settings,
+      ...mood.look,
+      ambient: ambient + (1 - ambient) * 0.5,
+      tiltShift: 0,
+    }
+    // the backdrop's grass starts below its tree line
+    const ground = { x: 0, y: 60, width: 320, height: 92 }
+    const add = (things) => (this.atmosphere = this.atmosphere.concat(things))
+    add([Fx.cloudShadows(this, mood.clouds * 0.8, 30, ground)])
+    add(Fx.sunRays(this, mood.rays, mood.rayColor, 31, 3))
+    if (mood.motes === 'pollen') add([Fx.pollen(this, 32, ground)])
+    if (mood.motes === 'fireflies') {
+      add(Fx.fireflies(this, 6, 32, mood.fireflyColor, ground))
+    }
+    this.atmosphere = this.atmosphere.filter(Boolean)
   },
   // Start the battle, initialize heroes and enemies based on saved data, and set up the turn order
   startBattle: function () {
@@ -78,6 +106,7 @@ export var BattleScene = new Phaser.Class({
     this.time.removeAllEvents()
     this.scene.stop('UIScene')
     this.events.off('PlayerSelect')
+    this.createAtmosphere()
 
     // fade in from the black of the world map's transition
     this.cameras.main.fadeIn(400, 0, 0, 0)
@@ -294,25 +323,31 @@ export var BattleScene = new Phaser.Class({
     this.previewLabels = []
     this.setTargetBlink(null)
   },
-  // The enemy being targeted pulses gently so it's clear who will be hit, null stops it
+  // The enemy being targeted pulses gently so it's clear who will be hit, null stops it. With WebGL it
+  // gets a glowing outline, under Canvas it blinks
   setTargetBlink: function (target) {
     if (this.targetBlink) {
-      this.targetBlink.tween.stop()
+      if (this.targetBlink.tween) this.targetBlink.tween.stop()
+      if (this.targetBlink.removeGlow) this.targetBlink.removeGlow()
       this.targetBlink.target.alpha = 1
       this.targetBlink = null
     }
-    if (target && target.living) {
-      this.targetBlink = {
-        target,
-        tween: this.tweens.add({
-          targets: target,
-          alpha: 0.45,
-          duration: 220,
-          ease: 'Sine.easeInOut',
-          yoyo: true,
-          repeat: -1,
-        }),
-      }
+    if (!target || !target.living) return
+    const removeGlow = Fx.pulseGlow(this, target)
+    if (removeGlow) {
+      this.targetBlink = { target, removeGlow }
+      return
+    }
+    this.targetBlink = {
+      target,
+      tween: this.tweens.add({
+        targets: target,
+        alpha: 0.45,
+        duration: 220,
+        ease: 'Sine.easeInOut',
+        yoyo: true,
+        repeat: -1,
+      }),
     }
   },
   // Plays the attack animation and deals damage to each target when the hit lands, skill is null for basic attacks

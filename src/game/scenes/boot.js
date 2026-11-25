@@ -4,6 +4,7 @@ import { Inventory } from '../inventory'
 import { AudioEngine } from '../audio/audioEngine'
 import { Art } from '../art'
 import { Ui } from '../ui'
+import { Fx } from '../fx'
 
 const SPRITES = [
   'battler-warrior',
@@ -78,6 +79,8 @@ export var BootScene = new Phaser.Class({
 
     // map heroes and enemies, tiles and the title logo
     Art.createAll(this)
+    // glows, shadows, clouds and light shafts for the effects
+    Fx.createTextures(this)
     // menu windows' cursor and the recolored fonts
     Ui.createTextures(this)
 
