@@ -426,7 +426,22 @@ export const Fx = {
     scene.events.once('shutdown', () =>
       scene.events.off(Phaser.Scenes.Events.ADDED_TO_SCENE, hide)
     )
+    scene.fxUiCam = cam
     return cam
+  },
+
+  // Moves objects made after Fx.uiCamera (a popup, an effect over a menu) onto the UI camera,
+  // containers with all their children. Returns the objects
+  toUi: function (scene, objects) {
+    const cam = scene.fxUiCam
+    if (!cam) return objects
+    const move = (obj) => {
+      scene.cameras.main.ignore(obj)
+      obj.cameraFilter &= ~cam.id
+      if (obj.list) obj.list.forEach(move)
+    }
+    objects.forEach(move)
+    return objects
   },
 
   // A soft colored outline that pulses, for the targeted enemy. Returns a function that removes it

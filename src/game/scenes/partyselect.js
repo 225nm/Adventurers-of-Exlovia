@@ -4,6 +4,8 @@ import { Party } from '../party'
 import { Progression } from '../progression'
 import { Sfx } from '../audio/sfx'
 import { Ui } from '../ui'
+import { Fx } from '../fx'
+import { Scenery } from '../fx/scenery'
 
 // Number of heroes picked at the start, the rest join later (see Progression.recruitFloor)
 const PARTY_SIZE = 2
@@ -27,9 +29,14 @@ export let PartySelectScene = new Phaser.Class({
     this.picks = []
     this.confirmBox = null
 
-    // the title's moonlit castle, dimmed behind the cards
+    // the title's moonlit castle, dimmed behind the cards, with its mist and fireflies
     this.add.image(0, 0, 'title-bg').setOrigin(0, 0)
+    Scenery.moonlitNight(this)
     this.add.rectangle(0, 0, 320, 240, 0x05041a, 0.55).setOrigin(0, 0)
+    Fx.fireflies(this, 6, 5, 0xe8ff9a, { x: 0, y: 150, width: 320, height: 90 })
+
+    // everything from here on is the menu, on a camera of its own (see Fx.uiCamera)
+    const firstUi = this.children.list.length
     this.add.pixelText(160, 14, 'CHOOSE YOUR PARTY').setFont('pressstarty')
     this.add
       .pixelText(
@@ -42,6 +49,7 @@ export let PartySelectScene = new Phaser.Class({
     this.cards = this.classes.map((type, i) => this.createCard(type, CARD_X[i]))
 
     this.add.pixelText(160, 215, 'Z: PICK   X: BACK')
+    Fx.uiCamera(this, this.children.list.slice(firstUi))
 
     this.updateVisuals()
     this.input.keyboard.off('keydown', this.handleInput, this)
@@ -59,8 +67,21 @@ export let PartySelectScene = new Phaser.Class({
       gold: Ui.window(this, left, CARD_TOP, CARD_W, CARD_H, { frame: 'gold' }),
     }
 
+    // a warm light behind the hero under the cursor, and a glowing spot under picked heroes
+    const glow = this.add
+      .image(x, 82, 'fx-glow')
+      .setScale(1.7)
+      .setTint(0xffe2a0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setAlpha(0)
+    const pedestal = this.add
+      .image(x, 104, 'fx-glow')
+      .setScale(1.4, 0.35)
+      .setTint(0xffd060)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setVisible(false)
     this.add.ellipse(x, 104, 30, 6, 0x05041a, 0.5)
-    this.add.image(x, 80, `battler-${type.toLowerCase()}`)
+    const hero = this.add.image(x, 80, `battler-${type.toLowerCase()}`)
     this.add.pixelText(x, 116, type.toUpperCase())
     this.add.pixelText(x, 128, HeroClass.description).setFont('pressstartb')
     ;[
@@ -75,6 +96,10 @@ export let PartySelectScene = new Phaser.Class({
     // shows the pick order, [1] or [2]
     return {
       frames,
+      glow,
+      pedestal,
+      hero,
+      x,
       badge: this.add
         .pixelText(left + 18, CARD_TOP + 12, '')
         .setFont('pressstarty'),
@@ -129,19 +154,71 @@ export let PartySelectScene = new Phaser.Class({
     }
     Sfx.confirm()
     this.picks.push(type)
+    this.pickBurst(this.cards[this.classes.indexOf(type)])
     if (this.picks.length === PARTY_SIZE) {
       this.showConfirm()
     }
   },
 
-  // The card under the cursor gets a gold frame, picked heroes show their pick number
+  // The card under the cursor gets a gold frame and its hero steps into a warm light, bobbing
+  // gently. Picked heroes show their pick number and stand on a glowing spot
   updateVisuals: function () {
     this.classes.forEach((type, i) => {
+      const card = this.cards[i]
       const pickIndex = this.picks.indexOf(type)
-      this.cards[i].frames.gold.setVisible(i === this.cursor)
-      this.cards[i].frames.silver.setVisible(i !== this.cursor)
-      this.cards[i].badge.setText(pickIndex >= 0 ? `${pickIndex + 1}` : '')
+      const current = i === this.cursor
+      card.frames.gold.setVisible(current)
+      card.frames.silver.setVisible(!current)
+      card.badge.setText(pickIndex >= 0 ? `${pickIndex + 1}` : '')
+      card.pedestal.setVisible(pickIndex >= 0)
+
+      if (current === card.current) return
+      card.current = current
+      this.tweens.killTweensOf([card.glow, card.hero])
+      card.hero.y = 80
+      this.tweens.add({
+        targets: card.glow,
+        alpha: current ? 0.4 : 0,
+        duration: 200,
+      })
+      if (current) {
+        this.tweens.add({
+          targets: card.hero,
+          y: 78,
+          duration: 500,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+        })
+      }
     })
+  },
+
+  // A burst of golden sparks and a ring of light around a hero who has just been picked
+  pickBurst: function (card) {
+    const sparks = this.add.particles(card.x, 84, 'fx-mote', {
+      speed: { min: 25, max: 70 },
+      lifespan: 500,
+      alpha: { start: 1, end: 0 },
+      tint: [0xffffff, 0xfff0a0, 0xffc040],
+      blendMode: Phaser.BlendModes.ADD,
+      emitting: false,
+    })
+    const ring = this.add
+      .circle(card.x, 84, 10)
+      .setStrokeStyle(2, 0xfff0a0)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    Fx.toUi(this, [sparks, ring])
+    sparks.explode(20)
+    this.tweens.add({
+      targets: ring,
+      scale: 3,
+      alpha: 0,
+      duration: 380,
+      ease: 'Quad.easeOut',
+      onComplete: () => ring.destroy(),
+    })
+    this.time.delayedCall(700, () => sparks.destroy())
   },
 
   showConfirm: function () {
@@ -157,6 +234,7 @@ export let PartySelectScene = new Phaser.Class({
       )
       .setCenterAlign()
     this.confirmBox = this.add.container(0, 0, [overlay, box, text])
+    Fx.toUi(this, [this.confirmBox])
   },
 
   // Starts a fresh game with the chosen heroes. The old save is only cleared now,

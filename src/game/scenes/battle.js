@@ -12,6 +12,7 @@ import { Progression } from '../progression.js'
 import { Loot } from '../loot.js'
 import { Ui } from '../ui.js'
 import { Fx } from '../fx'
+import { Scenery } from '../fx/scenery'
 
 // Where 1-3 units stand on each side: [x, y of their feet], kept above the menu windows at y 152.
 // Units further down the screen are closer and drawn in front, every other one steps forward
@@ -94,17 +95,10 @@ export var BattleScene = new Phaser.Class({
     if (mood.motes === 'fireflies') {
       add(Fx.fireflies(this, 6, 32, mood.fireflyColor, ground))
     }
-    // no thunder in battle, the fight has its own sounds. The backdrop's blue sky clouds over
-    if (mood.rain) {
-      add(Fx.rain(this, 33, ground))
-      add([
-        this.add
-          .rectangle(0, 0, 320, ground.y + 4, 0x7a8296)
-          .setOrigin(0, 0)
-          .setDepth(-9)
-          .setBlendMode(Phaser.BlendModes.MULTIPLY),
-      ])
-    }
+    // no thunder in battle, the fight has its own sounds
+    if (mood.rain) add(Fx.rain(this, 33, ground))
+    // the backdrop is painted in daylight, its sky is repainted for the floor's time and weather
+    add(Scenery.battleSky(this, mood, 50, -9))
     this.atmosphere = this.atmosphere.filter(Boolean)
   },
   // Start the battle, initialize heroes and enemies based on saved data, and set up the turn order
