@@ -16,30 +16,30 @@ import { HD } from '../hd.js'
 import { Fx } from '../fx'
 import { Scenery } from '../fx/scenery'
 
-// Where 1-3 units stand on each side: [x, y of their feet], kept above the menu windows at y 152.
+// Where 1-3 units stand on each side: [x, y of their feet], kept above the menu windows at y 170.
 // Units further down the screen are closer and drawn in front, every other one steps forward
 const ENEMY_SLOTS = {
-  1: [[76, 128]],
+  1: [[74, 140]],
   2: [
-    [52, 108],
-    [114, 140],
+    [50, 120],
+    [112, 156],
   ],
   3: [
-    [46, 96],
-    [118, 116],
-    [60, 142],
+    [42, 108],
+    [118, 130],
+    [58, 160],
   ],
 }
 const HERO_SLOTS = {
-  1: [[256, 120]],
+  1: [[258, 136]],
   2: [
-    [240, 106],
-    [282, 136],
+    [240, 118],
+    [286, 154],
   ],
   3: [
-    [236, 94],
-    [282, 118],
-    [246, 142],
+    [236, 106],
+    [286, 132],
+    [248, 160],
   ],
 }
 // Stands a unit on its slot: feet on the ground line (flying enemies a little above it), nearer units
@@ -88,7 +88,7 @@ export var BattleScene = new Phaser.Class({
       tiltShift: 0,
     }
     // the backdrop's grass starts below its tree line
-    const ground = { x: 0, y: 60, width: HD.VIEW_W, height: 92 }
+    const ground = { x: 0, y: 66, width: HD.VIEW_W, height: 104 }
     const add = (things) => (this.atmosphere = this.atmosphere.concat(things))
     add([Fx.cloudShadows(this, mood.clouds * 0.8, 30, ground)])
     add(Fx.sunRays(this, mood.rays, mood.rayColor, 31, 3))
@@ -179,13 +179,39 @@ export var BattleScene = new Phaser.Class({
     this.turnQueue = [] // units still to act this round, fastest first
 
     this.scene.run('UIScene')
+    this.enterUnits()
 
-    // Small delay to let things load
+    // the first turn comes once everyone has taken their place
     this.time.addEvent({
-      delay: 100,
+      delay: 950,
       callback: this.nextTurn,
       callbackScope: this,
     })
+  },
+  // The opening of a battle: the party runs in from the right and the monsters step out of the haze
+  // on the left, one after another, before their HP gauges appear
+  enterUnits: function () {
+    const enter = (unit, i, dx) => {
+      const x = unit.x
+      unit.x += dx
+      unit.alpha = 0
+      if (unit.statusBar) unit.statusBar.alpha = 0
+      this.tweens.add({
+        targets: unit,
+        x,
+        alpha: 1,
+        duration: 620,
+        delay: 120 + i * 110,
+        ease: 'Cubic.easeOut',
+        onComplete: () => {
+          if (!unit.statusBar || !unit.scene) return
+          unit.updateStatusBar()
+          this.tweens.add({ targets: unit.statusBar, alpha: 1, duration: 200 })
+        },
+      })
+    }
+    this.heroes.forEach((hero, i) => enter(hero, i, 70))
+    this.enemies.forEach((enemy, i) => enter(enemy, i, -50))
   },
   // Handle the logic for the next turn, including checking for end conditions, determining the active unit, and executing enemy actions
   nextTurn: function () {
@@ -484,15 +510,26 @@ export var BattleScene = new Phaser.Class({
 })
 
 // ----------------------------------- MENUS ---------------------------------------
-// Windows along the bottom: enemy names on the left (the command list opens over them), the party's
-// HP and MP on the right, and the skill list covering both while a skill is picked
-const UI_TOP = 152
-const UI_H = 88
-const LEFT_W = 100
-const TEXT_Y = UI_TOP + 15
-const HERO_ROW = 22
-const HP_RIGHT = 244
-const MP_RIGHT = 308
+// Low windows along the bottom of the wide screen: enemy names on the left (the command list opens
+// over them), the party's HP and MP on the right, and the skill list rising over both while a skill
+// is picked. They reach into the wide screen's margins, so the battlefield keeps most of the screen
+const UI_TOP = 170
+const UI_H = 68
+// the screen's left edge in layout units is -HD.OFFSET_X, the windows keep a small margin from it
+const LEFT_X = 6 - Math.round(HD.OFFSET_X)
+const LEFT_W = 134
+const PARTY_X = LEFT_X + LEFT_W + 3
+const PARTY_W = 320 + Math.round(HD.OFFSET_X) - 6 - PARTY_X
+const TEXT_Y = UI_TOP + 14
+const HERO_ROW = 18
+// columns of the party window: right edges of the HP and MP numbers, with gauges under them
+const HP_RIGHT = 258
+const HP_W = 78
+const MP_RIGHT = 350
+const MP_W = 62
+// the skill list's window
+const SKILLS_H = 86
+const SKILLS_TOP = 238 - SKILLS_H
 
 // Base menu item class
 var MenuItem = new Phaser.Class({
@@ -621,7 +658,15 @@ let SkillsMenu = new Phaser.Class({
   Extends: Menu,
   initialize: function SkillsMenu(x, y, scene) {
     Menu.call(this, x, y, scene, 12)
-    this.add(Ui.window(scene, -x, UI_TOP - y, 320, UI_H))
+    this.add(
+      Ui.window(
+        scene,
+        LEFT_X - x,
+        SKILLS_TOP - y,
+        PARTY_X + PARTY_W - LEFT_X,
+        SKILLS_H
+      )
+    )
     this.infoLines = [
       'pressstarty',
       'pressstartb',
@@ -629,7 +674,7 @@ let SkillsMenu = new Phaser.Class({
       'pressstartg',
     ].map((font, i) => {
       let line = scene.add
-        .gameText(178 - x, 2 + i * 15, font, '', 8)
+        .gameText(214 - x, 4 + i * 15, font, '', 8)
         .setOrigin(0, 0.5)
       this.add(line)
       return line
@@ -672,7 +717,7 @@ var ActionsMenu = new Phaser.Class({
 
   initialize: function ActionsMenu(x, y, scene) {
     Menu.call(this, x, y, scene)
-    this.add(Ui.window(scene, -x, UI_TOP - y, LEFT_W, UI_H))
+    this.add(Ui.window(scene, LEFT_X - x, UI_TOP - y, LEFT_W, UI_H))
     this.addMenuItem('Attack')
     this.addMenuItem('Skills')
   },
@@ -703,32 +748,47 @@ var PartyStatus = new Phaser.Class({
 
   initialize: function PartyStatus(scene) {
     Phaser.GameObjects.Container.call(this, scene, 0, 0)
+    // a soft gold band behind the hero whose turn it is
+    this.turnBand = scene.add
+      .image(PARTY_X + 4, 0, 'ui-rowglow')
+      .setOrigin(0, 0.5)
+      .setDisplaySize(PARTY_W - 8, HERO_ROW - 2)
+      .setVisible(false)
     this.gauges = scene.add.graphics()
-    this.add(this.gauges)
+    this.add([this.turnBand, this.gauges])
     this.rows = []
   },
   remap: function (heroes) {
-    this.rows.forEach((row) => {
-      row.hp.destroy()
-      row.mp.destroy()
-    })
+    this.rows.forEach((row) => row.texts.forEach((text) => text.destroy()))
     this.rows = heroes.map((hero, i) => {
       let y = TEXT_Y + i * HERO_ROW
       let hp = this.scene.add
-        .gameText(HP_RIGHT, y, 'pressstart', '', 8)
+        .gameText(HP_RIGHT, y - 1, 'pressstart', '', 8)
         .setOrigin(1, 0.5)
       let mp = this.scene.add
-        .gameText(MP_RIGHT, y, 'pressstartb', '', 8)
+        .gameText(MP_RIGHT, y - 1, 'pressstart', '', 8)
         .setOrigin(1, 0.5)
-      this.add([hp, mp])
-      return { hero, hp, mp, y }
+      // small labels at the start of each gauge
+      let hpLabel = this.scene.add
+        .gameText(HP_RIGHT - HP_W, y - 0.5, 'pressstarty', 'HP', 5.5)
+        .setOrigin(0, 0.5)
+      let mpLabel = this.scene.add
+        .gameText(MP_RIGHT - MP_W, y - 0.5, 'pressstartb', 'MP', 5.5)
+        .setOrigin(0, 0.5)
+      let texts = [hp, mp, hpLabel, mpLabel]
+      this.add(texts)
+      return { hero, hp, mp, y, texts }
     })
     this.refresh(true)
   },
   // Called every frame, only redraws when a number has changed
-  refresh: function (force) {
-    let state = this.rows.map((row) => `${row.hero.hp}/${row.hero.mp}`).join()
+  refresh: function (force, turn = -1) {
+    let state =
+      this.rows.map((row) => `${row.hero.hp}/${row.hero.mp}`).join() + turn
     if (!force && state === this.state) return
+    let active = this.rows[turn]
+    this.turnBand.setVisible(!!active)
+    if (active) this.turnBand.y = active.y + 2
     this.state = state
     this.gauges.clear()
     this.rows.forEach((row) => {
@@ -742,27 +802,50 @@ var PartyStatus = new Phaser.Class({
             : 'pressstart'
       )
       row.mp.setText(`${hero.mp}/${hero.maxMp}`)
+      let hpRatio = hero.hp / hero.maxHp
       this.gauge(
-        HP_RIGHT - 56,
+        HP_RIGHT - HP_W,
         row.y + 6,
-        56,
-        hero.hp / hero.maxHp,
-        [0xc8f878, 0x40b038]
+        HP_W,
+        hpRatio,
+        hpRatio > 0.5
+          ? [0xd8ffa0, 0x58c840, 0x1e7a2a]
+          : hpRatio > 0.25
+            ? [0xfff2a0, 0xf0b828, 0x9a5a10]
+            : [0xffc0a0, 0xe84830, 0x8a1418]
       )
       this.gauge(
-        MP_RIGHT - 48,
+        MP_RIGHT - MP_W,
         row.y + 6,
-        48,
+        MP_W,
         hero.mp / hero.maxMp,
-        [0xb8e8ff, 0x3a84e8]
+        [0xd0f0ff, 0x48a0f8, 0x1a3cae]
       )
     })
   },
-  gauge: function (x, y, width, ratio, [light, base]) {
-    let fill = Math.round(width * Math.max(0, Math.min(1, ratio)))
-    this.gauges.fillStyle(0x080a2c, 1).fillRect(x, y, width, 2)
-    this.gauges.fillStyle(base, 1).fillRect(x, y, fill, 2)
-    this.gauges.fillStyle(light, 1).fillRect(x, y, fill, 1)
+  // A slim gauge: a dark sunken track, the fill shaded from a bright top edge to a deep bottom, and
+  // a glint along its top
+  gauge: function (x, y, width, ratio, [light, base, deep]) {
+    let fill = width * Math.max(0, Math.min(1, ratio))
+    let g = this.gauges
+    g.fillStyle(0x000000, 0.55).fillRoundedRect(
+      x - 0.6,
+      y - 0.6,
+      width + 1.2,
+      3.7,
+      1.4
+    )
+    g.fillStyle(0x10142e, 1).fillRoundedRect(x, y, width, 2.5, 1)
+    if (fill < 0.5) return
+    g.fillGradientStyle(light, light, deep, deep, 1)
+    g.fillRect(x, y, fill, 2.5)
+    g.fillStyle(base, 0.6).fillRect(x, y + 0.9, fill, 0.8)
+    g.fillStyle(0xffffff, 0.55).fillRect(
+      x + 0.4,
+      y + 0.25,
+      Math.max(0, fill - 0.8),
+      0.35
+    )
   },
 })
 
@@ -777,16 +860,16 @@ export var UIScene = new Phaser.Class({
 
   create: function () {
     // the enemy and party windows are always open, the others open over them
-    Ui.window(this, 0, UI_TOP, LEFT_W, UI_H)
-    Ui.window(this, LEFT_W, UI_TOP, 320 - LEFT_W, UI_H)
+    Ui.window(this, LEFT_X, UI_TOP, LEFT_W, UI_H)
+    Ui.window(this, PARTY_X, UI_TOP, PARTY_W, UI_H)
 
     this.menus = this.add.container()
 
-    this.enemiesMenu = new EnemiesMenu(18, TEXT_Y, this)
-    this.heroesMenu = new HeroesMenu(LEFT_W + 16, TEXT_Y, this)
+    this.enemiesMenu = new EnemiesMenu(LEFT_X + 22, TEXT_Y, this)
+    this.heroesMenu = new HeroesMenu(PARTY_X + 22, TEXT_Y, this)
     this.partyStatus = new PartyStatus(this)
-    this.actionsMenu = new ActionsMenu(18, TEXT_Y, this)
-    this.skillsMenu = new SkillsMenu(18, UI_TOP + 14, this)
+    this.actionsMenu = new ActionsMenu(LEFT_X + 22, TEXT_Y, this)
+    this.skillsMenu = new SkillsMenu(LEFT_X + 22, SKILLS_TOP + 14, this)
     // the command list opens when a hero's turn comes
     this.actionsMenu.visible = false
     this.skillsMenu.visible = false
@@ -802,6 +885,19 @@ export var UIScene = new Phaser.Class({
     ])
     // hand cursor beside the highlighted entry of the menu in use
     this.pointer = Ui.pointer(this).setVisible(false)
+    // a gold crystal turning above the hero whose turn it is
+    this.turnMarker = this.add
+      .image(0, 0, 'ui-marker')
+      .setOrigin(0.5, 1)
+      .setVisible(false)
+    this.tweens.add({
+      targets: this.turnMarker,
+      scaleX: { from: 1, to: 0.3 },
+      duration: 700,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    })
 
     this.battleScene = this.scene.get('BattleScene')
 
@@ -836,8 +932,23 @@ export var UIScene = new Phaser.Class({
     this.remapEnemies()
   },
   // Keeps the party window's numbers current and moves the hand cursor to the highlighted entry
-  update: function () {
-    this.partyStatus.refresh()
+  update: function (time) {
+    let battle = this.battleScene
+    let turn = this.heroesMenu.selected ? this.heroesMenu.menuItemIndex : -1
+    let hero = battle.heroes[turn]
+    this.partyStatus.refresh(false, turn)
+    // the windows are glass: hide the lists under an open command or skill window
+    this.enemiesMenu.visible =
+      !this.actionsMenu.visible && !this.skillsMenu.visible
+    this.heroesMenu.visible = this.partyStatus.visible =
+      !this.skillsMenu.visible
+    this.turnMarker.setVisible(!!(hero && hero.living))
+    if (hero) {
+      this.turnMarker.setPosition(
+        hero.x,
+        hero.y - hero.displayHeight / 2 - 2 + Math.sin(time / 240) * 1.5
+      )
+    }
     let menu = this.currentMenu
     let item =
       menu &&

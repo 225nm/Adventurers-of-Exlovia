@@ -2,10 +2,11 @@ import { hdCanvas } from '../hd'
 import { seeded } from './paintings/scene'
 
 // The map's ground, painted for each floor when it loads: a meadow with drifting patches of light and
-// shade, thousands of grass blades leaning in the wind, clover, flowers and pebbles. It is painted
+// shade, mossy forest floor under the woods, a few clearings of bare earth, thousands of grass blades
+// leaning in the wind, clover, flowers and pebbles. woods lists the middle of each tree tile [x, y]. It is painted
 // at 3 pixels per layout unit, soft enough for grass and light on memory for a map-sized picture.
 // Returns the texture key
-export const paintGround = (scene, width, height, seed) => {
+export const paintGround = (scene, width, height, seed, woods = []) => {
   const key = `ground-${seed}`
   // only the current floor's ground is kept
   scene.textures.getTextureKeys().forEach((k) => {
@@ -47,6 +48,63 @@ export const paintGround = (scene, width, height, seed) => {
           r() < 0.5 ? '120, 180, 70' : '50, 110, 40',
           0.3
         )
+      }
+
+      // forest floor: the woods' shade darkens the grass to moss, with fallen leaves around the edges
+      woods.forEach(([x, y]) => {
+        patch(x + 2, y + 4, 22, '22, 54, 26', 0.32)
+      })
+      woods.forEach(([x, y]) => {
+        patch(x + 1, y + 3, 11, '16, 40, 20', 0.45)
+      })
+      const litter = ['#8a6a2a', '#a8842e', '#6a5a24', '#b0602a']
+      woods.forEach(([x, y]) => {
+        for (let k = 0; k < 7; k++) {
+          ctx.fillStyle = litter[Math.floor(r() * litter.length)]
+          ctx.globalAlpha = 0.55
+          ctx.beginPath()
+          ctx.ellipse(
+            x + (r() - 0.5) * 30,
+            y + (r() - 0.3) * 26,
+            0.5,
+            0.28,
+            r() * Math.PI,
+            0,
+            Math.PI * 2
+          )
+          ctx.fill()
+        }
+      })
+      ctx.globalAlpha = 1
+
+      // clearings of bare, trodden earth out in the open, soft at the edges
+      const nearWoods = (x, y, d) =>
+        woods.some(([wx, wy]) => Math.abs(wx - x) < d && Math.abs(wy - y) < d)
+      for (let i = 0; i < Math.round((width * height) / 26000); i++) {
+        const cx = 30 + r() * (width - 60)
+        const cy = 30 + r() * (height - 60)
+        if (nearWoods(cx, cy, 34)) continue
+        for (let k = 0; k < 9; k++) {
+          const x = cx + (r() - 0.5) * 30
+          const y = cy + (r() - 0.5) * 16
+          const rad = 5 + r() * 7
+          const g = ctx.createRadialGradient(x, y, 0, x, y, rad)
+          g.addColorStop(0, 'rgba(168, 136, 86, 0.42)')
+          g.addColorStop(0.6, 'rgba(150, 124, 74, 0.26)')
+          g.addColorStop(1, 'rgba(110, 96, 50, 0)')
+          ctx.fillStyle = g
+          ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2)
+        }
+        // small stones scattered over it
+        for (let k = 0; k < 12; k++) {
+          const x = cx + (r() - 0.5) * 30
+          const y = cy + (r() - 0.5) * 14
+          ctx.fillStyle =
+            r() < 0.5 ? 'rgba(220, 200, 160, 0.8)' : 'rgba(90, 70, 40, 0.6)'
+          ctx.beginPath()
+          ctx.ellipse(x, y, 0.4 + r() * 0.4, 0.3, 0, 0, Math.PI * 2)
+          ctx.fill()
+        }
       }
 
       // grass blades: short curved strokes, dark ones first and light tips on top

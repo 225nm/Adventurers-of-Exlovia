@@ -7,6 +7,7 @@ import { Ui } from '../ui'
 import { Fx } from '../fx'
 import { Scenery } from '../fx/scenery'
 import { HD } from '../hd'
+import { BATTLE_SCALE } from '../art/paintings'
 
 // Number of heroes picked at the start, the rest join later (see Progression.recruitFloor)
 const PARTY_SIZE = 2
@@ -89,7 +90,9 @@ export let PartySelectScene = new Phaser.Class({
       .setBlendMode(Phaser.BlendModes.ADD)
       .setVisible(false)
     this.add.ellipse(x, 104, 30, 6, 0x05041a, 0.5)
-    const hero = this.add.image(x, 80, `battler-${type.toLowerCase()}`)
+    const hero = this.add
+      .image(x, 80, `battler-${type.toLowerCase()}`)
+      .setScale(1 / BATTLE_SCALE)
     this.add.pixelText(x, 116, type.toUpperCase())
     this.add.pixelText(x, 128, HeroClass.description).setFont('pressstartb')
     ;[

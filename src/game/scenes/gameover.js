@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { Music } from '../audio/music'
 import { Sfx } from '../audio/sfx'
 import { Fx } from '../fx'
+import { BATTLE_SCALE } from '../art/paintings'
 
 // Shown when every hero has fallen. Returns to the title screen, where Continue loads the last save
 export let GameOverScene = new Phaser.Class({
@@ -81,7 +82,7 @@ export let GameOverScene = new Phaser.Class({
       const body = this.add
         .image(x, 152, `battler-${hero.type.toLowerCase()}`)
         .setAngle(i % 2 ? 90 : -90)
-        .setScale(0.85)
+        .setScale(0.85 / BATTLE_SCALE)
       if (Fx.enabled(this)) body.preFX.addColorMatrix().grayscale(0.6)
       body.setAlpha(0.95)
     })

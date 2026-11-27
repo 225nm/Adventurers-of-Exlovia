@@ -55,13 +55,24 @@ export var WorldScene = new Phaser.Class({
       .renderTexture(0, 0, map.widthInPixels, map.heightInPixels)
       .setOrigin(0, 0)
       .setDepth(SHADOW_DEPTH)
-      .setAlpha(0.3)
+      .setAlpha(0.36)
     grass.setVisible(false)
+    // the ground darkens into forest floor under the woods
+    const woods = []
+    obstacles.forEachTile((tile) => {
+      if (tile.index > 0) woods.push([tile.pixelX + 8, tile.pixelY + 8])
+    })
     this.add
       .image(
         0,
         0,
-        paintGround(this, map.widthInPixels, map.heightInPixels, this.floor)
+        paintGround(
+          this,
+          map.widthInPixels,
+          map.heightInPixels,
+          this.floor,
+          woods
+        )
       )
       .setOrigin(0, 0)
       .setDepth(-1)
@@ -691,8 +702,9 @@ export var WorldScene = new Phaser.Class({
     else if (this.cursors.right.isDown) this.player.flipX = false
     this.walk(velocity.x || velocity.y ? delta : 0)
   },
-  // Hides the tree tiles (they still block the way) and stands a tree sprite on each one, nudged a
-  // little so a wood doesn't look like a grid
+  // Hides the tree tiles (they still block the way) and stands a tree sprite on each one, nudged,
+  // sized and mirrored at random so a wood doesn't look like a grid. The tree paintings are made a
+  // little bigger than a tile, so the crowns of a wood close into one canopy
   plantTrees: function (layer) {
     const kinds = {
       2: 'tree-pine',
@@ -709,10 +721,15 @@ export var WorldScene = new Phaser.Class({
       const y = tile.pixelY + 15 + Math.round(random() * 2)
       const tree = Fx.sway(
         this,
-        this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y)
+        this.add
+          .image(x, y, key)
+          .setOrigin(0.5, 1)
+          .setDepth(y)
+          .setScale(0.74 + random() * 0.26)
+          .setFlipX(random() < 0.5)
       )
-      // the sun is to the upper left, so shadows fall a little to the lower right
-      this.stampShadow(x + 3, y - 1, tree.width * 1.05)
+      // the sun is to the upper left, so shadows fall to the lower right
+      this.stampShadow(x + 4, y, tree.displayWidth * 1.3)
     })
   },
 

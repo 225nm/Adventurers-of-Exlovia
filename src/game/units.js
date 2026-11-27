@@ -93,17 +93,34 @@ export var Unit = new Phaser.Class({
         : this.y + this.displayHeight / 2 + 3
     )
     const ratio = Math.max(0, Math.min(1, this.hp / this.maxHp))
-    const [light, base] =
+    const [light, deep] =
       ratio > 0.5
-        ? [0xc8f878, 0x40b038]
+        ? [0xd8ffa0, 0x1e7a2a]
         : ratio > 0.25
-          ? [0xfff090, 0xe0a820]
-          : [0xffb090, 0xd83828]
-    this.statusBar.fillStyle(0x0c0a1c, 1).fillRect(x - 1, y - 1, width + 2, 5)
-    this.statusBar.fillStyle(0x3a1828, 1).fillRect(x, y, width, 3)
-    const fill = Math.round(width * ratio)
-    this.statusBar.fillStyle(base, 1).fillRect(x, y, fill, 3)
-    this.statusBar.fillStyle(light, 1).fillRect(x, y, fill, 1)
+          ? [0xfff2a0, 0x9a5a10]
+          : [0xffc0a0, 0x8a1418]
+    const g = this.statusBar
+    // a gilded rim around a dark sunken track
+    g.fillStyle(0x000000, 0.6).fillRoundedRect(
+      x - 1.2,
+      y - 1.2,
+      width + 2.4,
+      4.9,
+      2
+    )
+    g.lineStyle(0.4, 0xd8b868, 0.9).strokeRoundedRect(
+      x - 0.8,
+      y - 0.8,
+      width + 1.6,
+      4.1,
+      1.6
+    )
+    g.fillStyle(0x24101c, 1).fillRect(x, y, width, 2.5)
+    const fill = width * ratio
+    if (fill < 0.5) return
+    g.fillGradientStyle(light, light, deep, deep, 1)
+    g.fillRect(x, y, fill, 2.5)
+    g.fillStyle(0xffffff, 0.5).fillRect(x + 0.3, y + 0.25, fill - 0.6, 0.35)
   },
   // we will use this to notify the menu item when the unit is dead
   setMenuItem: function (item) {
