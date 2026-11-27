@@ -1,0 +1,552 @@
+import { gridSprite, mirrored } from './grid'
+
+// The monsters, hand placed pixel by pixel like the heroes. Creatures seen from the front (slime,
+// bat, wisps) are drawn as their left half and mirrored; the others face right, toward the party.
+// Recolored monsters (frost wisp, blue dragon) are the same rows with another legend
+
+// A slime: a wobbling green dome with a glossy highlight, narrowed eyes and a sullen mouth
+const SLIME = mirrored([
+  '...........OOO',
+  '.........OOccc',
+  '........Occccc',
+  '.......Occeecc',
+  '......Occeedcc',
+  '......Oceddccc',
+  '.....Occddcccc',
+  '.....Occdccccc',
+  '....Occcccccbc',
+  '....Occccccccb',
+  '...OccccOOOccb',
+  '...OcccOwkkOcb',
+  '...OcccOkkkOcb',
+  '..OccccbOOOcbb',
+  '..Occcbbbccbbb',
+  '..OccbbbbbOOOO',
+  '.OccbbbbbOmmmm',
+  '.OcbbbbbbbOOOO',
+  'Ocbbbbbbbbbbbb',
+  'Obbabbbbabbbab',
+  'Obaaaaaaaaaaaa',
+  '.OOOOOOOOOOOOO',
+])
+export const slimeSprite = () =>
+  gridSprite(SLIME, {
+    O: '#0c2418',
+    a: '#1a5236',
+    b: '#2a7e50',
+    c: '#46b070',
+    d: '#86e0a0',
+    e: '#e6fff0',
+    k: '#0a1a12',
+    w: '#f4fff8',
+    m: '#0e3a22',
+  })
+
+// A bat with its wings spread: bony fingers through a dark membrane, big ears, red eyes, a fang
+const BAT = mirrored([
+  '............O....',
+  '............OO...',
+  '.O..........OcO..',
+  'OcO.........OdcO.',
+  'OdcO........OdccO',
+  'OcdcO......OOdccc',
+  'OcddcO...OOcOdccc',
+  'OcnddcOOOcccOdccc',
+  'OmnnddcccbbbOcccc',
+  'OmnnndddbbbbOcrrc',
+  'OmmnnnndbbbbOcRrc',
+  'OmmnmnnnndbOccccc',
+  'OmmmmmnnnbbOcwccc',
+  'OmmOOmmnnnbOccccb',
+  'OmO..OmmnnbOOcccb',
+  'OO....OmmnbO.Occb',
+  'O......OmmbO..Ocb',
+  '........OmbO...OO',
+  '.........OO......',
+])
+export const batSprite = () =>
+  gridSprite(BAT, {
+    O: '#140c20',
+    b: '#3e2062',
+    c: '#62349a',
+    d: '#9068cc',
+    m: '#2e1648',
+    n: '#4a2470',
+    r: '#ff3048',
+    R: '#ffc0b0',
+    w: '#f4f0f0',
+  })
+
+// A wisp: a living flame, white hot at its heart, with dark eyes and a grin
+const WISP = mirrored([
+  '...........O',
+  '..........Ob',
+  '..........Oc',
+  '...O.....Ocd',
+  '..ObO...Occd',
+  '..OcO..Occdd',
+  '.OccbOOccdde',
+  '.Ocdccccddee',
+  'Obcdddcddeee',
+  'Obcdddddeeee',
+  'Obcdkkeeeeee',
+  'Obcdekkeeeee',
+  'Obcdeekeeeee',
+  'Obcddeeeeeee',
+  'Obcddekkkkkk',
+  'Obccddkekeke',
+  '.Obccddkkkkk',
+  '.Oabccdddddd',
+  '..Oabcccdddd',
+  '...OOabccccc',
+  '.....OOaabbb',
+  '.......OOOOO',
+])
+export const wispFireSprite = () =>
+  gridSprite(WISP, {
+    O: '#3a0c04',
+    a: '#8a1c08',
+    b: '#d8400c',
+    c: '#ff7a1a',
+    d: '#ffb83a',
+    e: '#fff0a0',
+    k: '#3a0c04',
+    m: '#8a1c08',
+  })
+export const wispIceSprite = () =>
+  gridSprite(WISP, {
+    O: '#0a1a3a',
+    a: '#1a3a8a',
+    b: '#2a6ad8',
+    c: '#4aa0ff',
+    d: '#8ad0ff',
+    e: '#e8f8ff',
+    k: '#0a1a3a',
+    m: '#1a3a8a',
+  })
+
+// A goblin: a big head with a pointed ear and a long nose, yellow eyes, a crooked grin, a leather
+// vest and loincloth, and a spear held upright
+const GOBLIN = [
+  '..............................',
+  '..............................',
+  '..........OOOOO...............',
+  '........OOcccddO..............',
+  '.......OccccddddO.............',
+  'OO....OcccccdddcO.............',
+  'OcOO..OccbbbccccOO............',
+  '.OcdcOOcbkyycckcccO...........',
+  '..OccdcbbbyycbkcdccOO.........',
+  '...OOcbbbbbccbbcdddddO........',
+  '.....ObbbbbbbbbbcccbbO........',
+  '......ObbbbOwOwOwbbbO.........',
+  '.......ObbbbOOOOObbO..........',
+  '........OObbbbbbbOO...........',
+  '.......OLLOObbbbOOLO..........',
+  '......OLMMLLObbOLLLLO.........',
+  '.....OLMMLLLLObOLLLLlO........',
+  '.....OLMLLLLLLLLLLLllO........',
+  '....ObOLMLLLLLLLLLLllOOO......',
+  '....OcOLMLLLLLLLLLLllOcO......',
+  '....OcOLLLLLLLLLLLLllOOO......',
+  '...OcdOLLLLLLLLLLLlllO........',
+  '...OccOOlllllllllllllO........',
+  '....OOOLLMLLLLLLLLLlO.........',
+  '.......OLMLLLLOLLLLlO.........',
+  '.......OLMLLLLOOLLLlO.........',
+  '........OLLLO..OLLlO..........',
+  '........OccbO..OcbbO..........',
+  '........OcbbO..OcbbO..........',
+  '........OcbbO..ObbbO..........',
+  '........OcbbO..ObbaO..........',
+  '........OcbbO..ObbaO..........',
+  '.......OccbbO.OcbbaO..........',
+  '......OccbbbOOccbbaO..........',
+  '......OOOOOOOOOOOOOO..........',
+]
+const goblinSpear = () => {
+  const px = []
+  for (let y = 5; y <= 34; y++)
+    px.push([24, y, 'O'], [25, y, 'V'], [26, y, 'v'], [27, y, 'O'])
+  px.push(
+    [25, 0, 'O'],
+    [24, 1, 'O'],
+    [25, 1, '4'],
+    [26, 1, 'O'],
+    [24, 2, 'O'],
+    [25, 2, '4'],
+    [26, 2, '3'],
+    [27, 2, 'O'],
+    [23, 3, 'O'],
+    [24, 3, '4'],
+    [25, 3, '3'],
+    [26, 3, '2'],
+    [27, 3, 'O'],
+    [23, 4, 'O'],
+    [24, 4, '3'],
+    [25, 4, '2'],
+    [26, 4, '2'],
+    [27, 4, 'O'],
+    // the hand around the shaft
+    [22, 17, 'O'],
+    [23, 17, 'O'],
+    [24, 17, 'O'],
+    [25, 17, 'O'],
+    [26, 17, 'O'],
+    [23, 18, 'c'],
+    [24, 18, 'd'],
+    [25, 18, 'c'],
+    [26, 18, 'c'],
+    [27, 18, 'O'],
+    [23, 19, 'b'],
+    [24, 19, 'c'],
+    [25, 19, 'b'],
+    [26, 19, 'b'],
+    [27, 19, 'O'],
+    [23, 20, 'O'],
+    [24, 20, 'O'],
+    [25, 20, 'O'],
+    [26, 20, 'O']
+  )
+  return px
+}
+export const goblinSprite = () =>
+  gridSprite(
+    GOBLIN,
+    {
+      O: '#14180c',
+      a: '#2a4a14',
+      b: '#3e6e1e',
+      c: '#5a9a2a',
+      d: '#8ac84a',
+      y: '#ffe040',
+      k: '#14180c',
+      w: '#f0ecd8',
+      l: '#3a2214',
+      L: '#6a4228',
+      M: '#9a6a40',
+      v: '#4a2a12',
+      V: '#8a5a2a',
+      2: '#4c567c',
+      3: '#8490b4',
+      4: '#d0d8ec',
+    },
+    goblinSpear()
+  )
+
+// A dark mage: a hooded robe with a gold trimmed front, a face lost in shadow but for two glowing
+// eyes, a ragged hem, and a violet orb held up in a pale hand
+const DARK_MAGE = [
+  '..............................',
+  '...........OOOO...............',
+  '.........OOccddO..............',
+  '........OcccdddcO.............',
+  '.......OcccddddcO.............',
+  '......ObccdddccccO............',
+  '......ObcccdccOOcO............',
+  '.....ObbccccOkkkkO............',
+  '.....ObbcccOkkeEkO............',
+  '.....ObbcccOkkkkekO...........',
+  '.....ObbbccOkkkkkO............',
+  '....ObbbcccOOkkkOO............',
+  '....ObbbccccOOOOcO............',
+  '...ObbbcccccccccccO...........',
+  '...ObbbccdccccccccO...........',
+  '..ObbbcccdccccYcccO...........',
+  '..ObbbcccdcccYcccccO..........',
+  '..ObbccccdccYcccccccO.........',
+  '.ObbbcccdccYccccccccO.........',
+  '.ObbbcccdcYcccccccccO.........',
+  '.ObbccccdcYccccccccbO.........',
+  '.ObbccccdcYcccccccbbO.........',
+  'ObbbccccdcYccccccbbbO.........',
+  'ObbbccccdcYcccccbbbbO.........',
+  'ObbcccccdcYccccbbbbbO.........',
+  'ObbcccccdcYcccbbbbbbO.........',
+  'ObbccccdccYccbbbbbbbO.........',
+  'ObbccccdccYcbbbbbbbbO.........',
+  'ObbcccdcccYcbbbbbbbbO.........',
+  'ObbcccdcccYbbbbbbbbbO.........',
+  'ObbcccdccbYbbbbbbbbaO.........',
+  'ObbcccdccbYbbbbbbbaaO.........',
+  'ObbccdcccbYbbbbbbaaaO.........',
+  'OObcOdccObYbOObbaOaO..........',
+  '.OOO.OcO.OYO..ObO.O...........',
+  '......O...O....O..............',
+]
+const darkMageOrb = () => [
+  // the sleeve reaching forward
+  [19, 15, 'O'],
+  [20, 15, 'O'],
+  [19, 16, 'c'],
+  [20, 16, 'c'],
+  [21, 16, 'O'],
+  [19, 17, 'b'],
+  [20, 17, 'c'],
+  [21, 17, 'c'],
+  [22, 17, 'O'],
+  [20, 18, 'b'],
+  [21, 18, 'c'],
+  [22, 18, 'c'],
+  [23, 18, 'O'],
+  [21, 19, 'O'],
+  [22, 19, 'b'],
+  [22, 20, 'O'],
+  // the orb, lit from within
+  [24, 12, 'O'],
+  [25, 12, 'O'],
+  [26, 12, 'O'],
+  [23, 13, 'O'],
+  [24, 13, 'q'],
+  [25, 13, 'r'],
+  [26, 13, 'q'],
+  [27, 13, 'O'],
+  [22, 14, 'O'],
+  [23, 14, 'q'],
+  [24, 14, 'r'],
+  [25, 14, 'r'],
+  [26, 14, 'q'],
+  [27, 14, 'p'],
+  [28, 14, 'O'],
+  [22, 15, 'O'],
+  [23, 15, 'q'],
+  [24, 15, 'q'],
+  [25, 15, 'q'],
+  [26, 15, 'p'],
+  [27, 15, 'p'],
+  [28, 15, 'O'],
+  [22, 16, 'O'],
+  [23, 16, 'p'],
+  [24, 16, 'q'],
+  [25, 16, 'p'],
+  [26, 16, 'p'],
+  [27, 16, 'p'],
+  [28, 16, 'O'],
+  [23, 17, 'O'],
+  [24, 17, 'p'],
+  [25, 17, 'p'],
+  [26, 17, 'p'],
+  [27, 17, 'O'],
+  // the hand cupping it from below
+  [23, 18, 'h'],
+  [24, 18, 'h'],
+  [25, 18, 'H'],
+  [26, 18, 'O'],
+  [23, 19, 'O'],
+  [24, 19, 'H'],
+  [25, 19, 'O'],
+]
+export const darkMageSprite = () =>
+  gridSprite(
+    DARK_MAGE,
+    {
+      O: '#0c0814',
+      a: '#140c24',
+      b: '#24163e',
+      c: '#3a2462',
+      d: '#56388a',
+      k: '#05030a',
+      e: '#ff4cff',
+      E: '#ffd0ff',
+      Y: '#c89838',
+      p: '#6a2ab0',
+      q: '#b070ff',
+      r: '#f4dcff',
+      h: '#d8c8e0',
+      H: '#a090b0',
+    },
+    darkMageOrb()
+  )
+
+// An ogre: a small heavy browed head on a huge body, tusks, a leather loincloth, and a spiked club
+// raised in its right hand
+const OGRE = [
+  '........................................',
+  '........................................',
+  '........................................',
+  '................OOOOOO..................',
+  '..............OOhhhhhhOO................',
+  '.............OhhhhhhhhhhO...............',
+  '............OchhhhhhhhhcO...............',
+  '............OccchhhhhhccO...............',
+  '...........OcccOhhhhOhcccO..............',
+  '...........OcccOkykOkycccO..............',
+  '...........OccccOOOccOcdcO..............',
+  '...........ObccccccccdddcO..............',
+  '...........ObcccOwOwOwOccO..............',
+  '............ObccOOOOOOOcO...............',
+  '........OOOOObbcccccccbOOOO.............',
+  '......OOcccdcObbbbbbbbOcdccOO...........',
+  '.....OcccdddccObbbbbbOccdddccO..........',
+  '....OccddddcccccbbbbccccddddccO.........',
+  '....OccdddccccccccccccccdddcccO.........',
+  '...OccdddcccccccccccccccccdcccbO........',
+  '...OccddcccccccccccccccccccccbbO........',
+  '...OccdccccOccccccccccccccccbbbO........',
+  '..OccdcccOOcccccdddcccccccccbbbO........',
+  '..OcdcccO.OccccddddddccccccbbbbO........',
+  '..OcdccO..OcccddddddddcccccbbbbO........',
+  '..OcdccO..OcccdddddddddccccbbbbO........',
+  '..OccbcO..OcccddddddddcccccbbbbO........',
+  '..OcbbcO..OccccdddddddccccbbbbaO........',
+  '..ObbbbO..OcccccdddddcccccbbbaaO........',
+  '..OObbOO..OcccccccccccccbbbbbaaO........',
+  '...OObO...OlllllllllllllllllllO.........',
+  '....OO....OLMLLLLLLLLLLLLLLLLlO.........',
+  '..........OLMLLLLLLLLLLLLLLLLlO.........',
+  '...........OLMLLLLLOLLLLLLLlO...........',
+  '...........OLMLLLLO.OLLLLLLlO...........',
+  '...........OccbbbbO.OcccbbbaO...........',
+  '...........OccbbbbO.OcccbbbaO...........',
+  '...........OcccbbbO.OcccbbbaO...........',
+  '...........OcccbbbO.OcccbbbaO...........',
+  '..........OccccbbbO.OccccbbaaO..........',
+  '.........OccccbbbbO.OccccbbbaaO.........',
+  '.........OOOOOOOOOO.OOOOOOOOOOO.........',
+]
+const ogreClub = () => {
+  const px = []
+  // the club: a thick head studded with spikes, tapering to a handle in the fist
+  for (let y = 0; y <= 19; y++) {
+    const t = (19 - y) / 19
+    const cx = 32 + t * 5
+    const half = y < 10 ? 2.2 : 1.1
+    const x0 = Math.round(cx - half)
+    const x1 = Math.round(cx + half)
+    px.push([x0 - 1, y, 'O'], [x1 + 1, y, 'O'])
+    for (let x = x0; x <= x1; x++) {
+      px.push([x, y, x === x0 ? 'U' : x === x1 ? 'v' : 'V'])
+    }
+  }
+  px.push([36, -1, 'O'], [37, -1, 'O'])
+  ;[
+    [33, 2],
+    [34, 6],
+    [33, 8],
+  ].forEach(([x, y]) => px.push([x - 1, y, 'S'], [x - 2, y, 'O']))
+  ;[
+    [40, 1],
+    [39, 5],
+  ].forEach(([x, y]) => px.push([x, y, 'S'], [x + 1, y, 'O']))
+  // the fist around the handle
+  px.push(
+    [29, 16, 'O'],
+    [30, 16, 'd'],
+    [31, 16, 'c'],
+    [32, 16, 'c'],
+    [33, 16, 'c'],
+    [34, 16, 'O'],
+    [29, 17, 'O'],
+    [30, 17, 'c'],
+    [31, 17, 'c'],
+    [32, 17, 'b'],
+    [33, 17, 'b'],
+    [34, 17, 'O'],
+    [30, 18, 'O'],
+    [31, 18, 'b'],
+    [32, 18, 'b'],
+    [33, 18, 'O'],
+    [31, 19, 'O'],
+    [32, 19, 'O']
+  )
+  return px
+}
+export const ogreSprite = () =>
+  gridSprite(
+    OGRE,
+    {
+      O: '#1a0e08',
+      a: '#5a2a14',
+      b: '#8a4422',
+      c: '#b8663a',
+      d: '#e09060',
+      h: '#2a140a',
+      y: '#ffe060',
+      k: '#1a0e08',
+      w: '#f0e8d0',
+      l: '#2a1c10',
+      L: '#6a5030',
+      M: '#8a7048',
+      v: '#4a2a12',
+      V: '#7a4a22',
+      U: '#a8703a',
+      S: '#d0d0d8',
+    },
+    ogreClub()
+  )
+
+// A dragon: horned head held high on a long neck, jaws lined with teeth, a raised bat-like wing, a
+// pale scaled belly, clawed legs and a tail sweeping down behind
+const DRAGON = [
+  '..........O..........................O.O............',
+  '.........OnO.........................OWOWO..........',
+  '........OnmmO.......................OWWOWO..........',
+  '.......OnmmmnO......................OWOOOOOO........',
+  '......OnmmmmmnO..................OOOcccccdddOO......',
+  '.....OnmmOmmmmnO................OcccccccddddddO.....',
+  '.....OnmOnmmmmmnO..............OccccOOcccddddddO....',
+  '....OnmOOnmmmmmmnO.............OcccOgkOcccdddddddO..',
+  '....OnmOnmmmmmmmmnO...........ObcccOOOccccccdddddeO.',
+  '...OnmO.OnmmmmmmmmnO..........ObbcccccccccccccccccO.',
+  '...OnmO.OnmmmmmmmmmnO.........ObbbccccOwOwOwOwOOOO..',
+  '..OnmO..OnmmmmmmmmmmnO.......ObbbbbcccOOOOOOOO......',
+  '..OnmO..OnmmmmmmmmmmmnO.....ObbbbbcccO..............',
+  '.OnmO...OnmmmmmmmmmmmmnO...ObbbbbcccO...............',
+  '.OnO....OnmmmmmmmmmmmmmnO.ObbbbbcccYO...............',
+  '.OO.....OnmmmmmmmmmmmmmmnOObbbbcccYYO...............',
+  '........OnmmmmmmmmmmmmmmmnObbbbcccYYO...............',
+  '.........OnmmmmmmmmmmmmmnObbbbbcccYYO...............',
+  '..........OOnmmmmmmmmmnOObbbbbbcccYZYO..............',
+  '............OOOnmmmmnOObbbbbbbbccccYZYO.............',
+  '...............OOOOOObbbbbbbbbbbcccYZYO.............',
+  '..............ObbbbbbbbbbbbbbbbcccYZYYO.............',
+  '.............ObbbbccccbbbbbbbbbcccYZYYO.............',
+  '............ObbbccddccccbbbbbbbcccYZYYO.............',
+  '...........ObbbccdddccccbbbbbbbccYZZYYO.............',
+  '...........ObbccddddcccccbbbbbbccYZZYYO.............',
+  '..........ObbbccdddcccccccbbbbbccYZZYYO.............',
+  '.........ObbbbccdccccccccbbbbbbccYZYYYO.............',
+  '........ObbbbbcccccccccccbbbbbbcYZYYYO..............',
+  '.......ObbbObbccccccccccbbbbbbbcYYYYO...............',
+  '......ObbbO.ObbbcccccccbbbbbbbbbYYYO................',
+  '.....ObbbO..OObbbbccccbbbbbOOObbbO..................',
+  '....ObbbO...OcbbbOOOOOOOOO..OcbbO...................',
+  '...ObbbO....OcbbbO.........OcbbO....................',
+  '..ObbbO.....OccbbbO........OccbbO...................',
+  '.ObbO.......OccbbbO........OccbbO...................',
+  'ObbO........OccbbbO........OccbbO...................',
+  'OOO.........OccbbO.........OccbO....................',
+  '...........OccbbbO........OccbbO....................',
+  '..........OWcWbWbO.......OWcWbWO....................',
+  '..........OOOOOOOO.......OOOOOOO....................',
+]
+const DRAGON_ORANGE = {
+  O: '#1e0a04',
+  b: '#a83a10',
+  c: '#e0661e',
+  d: '#ff9a40',
+  e: '#ffd080',
+  Y: '#f0c060',
+  Z: '#fff0b0',
+  m: '#8a2a10',
+  n: '#c04a18',
+  W: '#f0e8d0',
+  w: '#f0e8d0',
+  g: '#ffe840',
+  k: '#1a0a04',
+}
+export const dragonOrangeSprite = () => gridSprite(DRAGON, DRAGON_ORANGE)
+export const dragonBlueSprite = () =>
+  gridSprite(DRAGON, {
+    ...DRAGON_ORANGE,
+    O: '#060a1e',
+    b: '#1e3a9a',
+    c: '#3a6ad8',
+    d: '#6aa0ff',
+    e: '#c0e0ff',
+    Y: '#b0c8e8',
+    Z: '#eef4ff',
+    m: '#18307a',
+    n: '#2a52b8',
+    k: '#060a1e',
+  })

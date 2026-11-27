@@ -228,3 +228,19 @@ export class Painting {
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width * 10} ${this.height * 10}"><defs>${this.defs.join('')}</defs>${this.body.join('')}</svg>`
   }
 }
+
+// A round glossy highlight that fades out, for armor, gems and orbs
+export const glint = (p, cx, cy, r, opacity = 0.9) => {
+  const g = p.paint(
+    radialAt(
+      [
+        [0, '#ffffff', opacity],
+        [1, '#ffffff', 0],
+      ],
+      cx,
+      cy,
+      r
+    )
+  )
+  p.shape(oval(cx, cy, r, r), { fill: g })
+}

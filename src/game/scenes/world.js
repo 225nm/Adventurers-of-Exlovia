@@ -768,19 +768,22 @@ export var WorldScene = new Phaser.Class({
     }
   },
 
-  // The leader's walk: a sway from foot to foot with a little bounce in each step. delta is the time
-  // since the last frame while walking, 0 to settle back to standing
+  // The leader's walk: a little hop in each step. The sprite is pixel art, so it is lifted by whole
+  // sprite pixels instead of tilted or squashed, and the collision body stays on the ground. delta
+  // is the time since the last frame while walking, 0 to settle back to standing
   walk: function (delta) {
     const player = this.player
+    // one sprite pixel on the map, in layout units
+    const pixel = 2 / HD.ZOOM
+    let hop = 0
     if (delta) {
       this.walkTime += delta
-      const step = Math.sin(this.walkTime / 75)
-      player.setAngle(step * 6)
-      player.setScale(1 + Math.abs(step) * 0.04, 1 - Math.abs(step) * 0.05)
+      hop = Math.round(Math.abs(Math.sin(this.walkTime / 75)) * 2) * pixel
     } else {
       this.walkTime = 0
-      player.setAngle(player.angle * 0.7)
-      player.setScale(1)
     }
+    if (this.playerFeet === undefined) this.playerFeet = player.body.offset.y
+    player.setOrigin(0.5, 0.5 + hop / player.height)
+    player.body.offset.y = this.playerFeet + hop
   },
 })

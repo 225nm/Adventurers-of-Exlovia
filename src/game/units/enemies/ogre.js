@@ -12,7 +12,7 @@ ogre.sprite = {
   texture: 'ogre',
   world: 'ogre-mini',
   scale: 1,
-  worldScale: 0.75,
+  worldScale: 1,
 }
 ogre.stats = {
   name: 'Ogre',

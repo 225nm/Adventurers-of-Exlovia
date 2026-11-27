@@ -12,7 +12,7 @@ blueDragon.sprite = {
   texture: 'dragon-blue',
   world: 'dragon-blue-mini',
   scale: 1,
-  worldScale: 0.8,
+  worldScale: 1,
 }
 blueDragon.stats = {
   name: 'B. Dragon',

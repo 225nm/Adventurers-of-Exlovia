@@ -6,8 +6,8 @@ import {
   stroke,
   linearAt,
   radialAt,
+  glint,
 } from '../paint/svg'
-import { glint } from '../paint/anime'
 import { seeded } from './scene'
 
 // The map's scenery, painted: trees, small decorations, the treasure chest and the stairs down.

@@ -1,9 +1,4 @@
 import { HD, hdTexture } from '../../hd'
-import { warrior } from './warrior'
-import { mage } from './mage'
-import { ranger } from './ranger'
-import { slime, bat, wispFire, wispIce } from './monsters'
-import { goblin, darkMage, ogre, dragonOrange, dragonBlue } from './brutes'
 import { battlefield } from './battlefield'
 import { nightCastle } from './nightCastle'
 import {
@@ -19,37 +14,10 @@ import {
   stairs,
 } from './mapArt'
 
-// Battle sprites are painted larger than their layout size, so the fighters fill the field. Menus
-// that show a battle sprite scale it back by this
-export const BATTLE_SCALE = 1.3
-const B = BATTLE_SCALE
-
 // Every painting, by the texture keys it is loaded as. Each painting is rasterized once per key, at
-// `size` times its layout size (sharp at that size, instead of scaling one picture down):
-//   battle sprites at BATTLE_SCALE (big monsters a little less), the title figures twice as big, and small copies for the map
-//   (map-<hero> for the leader, <monster>-mini for the monsters roaming the map)
+// `size` times its layout size (sharp at that size, instead of scaling one picture down). The
+// heroes and monsters are pixel sprites instead (see art/pixel)
 const PAINTINGS = [
-  {
-    paint: warrior,
-    keys: { 'battler-warrior': B, 'title-knight': 2, 'map-warrior': 0.45 },
-  },
-  {
-    paint: mage,
-    keys: { 'battler-mage': B, 'title-mage': 2, 'map-mage': 0.45 },
-  },
-  { paint: ranger, keys: { 'battler-ranger': B, 'map-ranger': 0.45 } },
-  { paint: slime, keys: { slime: B, 'slime-mini': 0.45 } },
-  { paint: bat, keys: { bat: B, 'bat-mini': 0.38 } },
-  { paint: goblin, keys: { goblin: B, 'goblin-mini': 0.42 } },
-  { paint: wispFire, keys: { 'wisp-fire': B, 'wisp-fire-mini': 0.45 } },
-  { paint: wispIce, keys: { 'wisp-ice': B, 'wisp-ice-mini': 0.45 } },
-  { paint: darkMage, keys: { 'dark-mage': B, 'dark-mage-mini': 0.4 } },
-  { paint: ogre, keys: { ogre: 1.15, 'ogre-mini': 0.36 } },
-  {
-    paint: dragonOrange,
-    keys: { 'dragon-orange': 1.15, 'dragon-orange-mini': 0.3 },
-  },
-  { paint: dragonBlue, keys: { 'dragon-blue': 1.15, 'dragon-blue-mini': 0.3 } },
   // the map's trees, decorations, chests and stairs
   { paint: treeRound, keys: { 'tree-round': 1.35 } },
   { paint: treeDark, keys: { 'tree-dark': 1.35 } },

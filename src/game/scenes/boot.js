@@ -7,6 +7,7 @@ import { Ui } from '../ui'
 import { Fx } from '../fx'
 import { hdCanvas } from '../hd'
 import { Paintings } from '../art/paintings'
+import { PixelSprites } from '../art/pixel'
 
 // Boot scene to load assets and initialize game state
 export var BootScene = new Phaser.Class({
@@ -31,6 +32,8 @@ export var BootScene = new Phaser.Class({
     }
     this.game.inventory = new Inventory(this.registry)
     Paintings.register(this)
+    // heroes and monsters drawn as pixel sprites
+    PixelSprites.create(this)
 
     // glowing sparks for spell and hit particles: a white hot core fading into the color
     const sparks = {
